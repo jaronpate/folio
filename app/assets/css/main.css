@@ -1,0 +1,56 @@
+
+@font-face {
+    font-family: 'SohneBuch';
+    src:
+        url('/Sohne-font-main/Sohne-Buch.woff') format('woff'),
+        url('/Sohne-font-main/Sohne-Buch.ttf') format('truetype');
+}
+
+:root {
+    /* --font: 'Baskervville', serif; */
+    --font: "SohneBuch", sans-serif;
+    --text: #333;
+    --muted: #666;
+    --bg: #fbfbf7;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-ff {
+    flex: 1;
+}
+
+.row {
+    flex-direction: row;
+}
+
+.col {
+    flex-direction: column;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    overscroll-behavior: none;
+}
+
+body {
+    font-family: var(--font);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+}
