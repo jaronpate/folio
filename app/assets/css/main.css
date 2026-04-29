@@ -8,7 +8,8 @@
 
 :root {
     /* --font: 'Baskervville', serif; */
-    --font: "SohneBuch", sans-serif;
+    --font: 'EB Garamond', serif;
+    /* --font: "SohneBuch", sans-serif; */
     --text: #333;
     --muted: #666;
     --bg: #fbfbf7;
@@ -54,3 +55,27 @@ body {
     font-size: 16px;
     line-height: 1.6;
 }
+
+.punch-link {
+    display: inline-block;
+    vertical-align: bottom;
+    position: relative;
+    color: var(--bg);
+    text-decoration: none;
+    transition: all 200ms ease;
+    padding: 0 4px;
+    margin: 0 -4px;
+    background-image: linear-gradient(var(--bg), var(--bg));
+    background-size: 100% 1px;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    mix-blend-mode: screen;
+}
+
+
+.punch-link:hover {
+    background-size: 100% 100%;
+    background-image: linear-gradient(#fff, #fff);
+    color: #000;
+}
+

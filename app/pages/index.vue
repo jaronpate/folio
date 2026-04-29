@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const titles = ["Hello, I'm Jaron.", 'Nice to meet you.'];
+const titles = [
+    "Hello, I'm Jaron.",
+    'Nice to meet you.',
+    'Welcome.',
+    'Willkommen.',
+    'Bienvenue.',
+];
 
 const pageTitle = ref(titles[0]);
 
@@ -28,20 +34,36 @@ useHead({
             rel: 'stylesheet',
             href: 'https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap',
         },
+        {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
+        },
     ],
 });
 </script>
 
 <template>
     <div>
+        <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+            <filter id="grainy" x="0" y="0" width="100%" height="100%">
+                <feTurbulence
+                    type="fractalNoise"
+                    baseFrequency=".85"
+                    numOctaves="3"
+                ></feTurbulence>
+                <feColorMatrix type="saturate" values="0"></feColorMatrix>
+                <feBlend mode="multiply" in="SourceGraphic"></feBlend>
+            </filter>
+        </svg>
         <div class="page-wrapper">
             <div class="trace left"></div>
+
             <div class="trace right"></div>
 
             <header class="header">
                 <h1 class="name">Jaron</h1>
                 <p class="title">
-                    Software Engineer by trade &mdash; tinkerer by nature.
+                    Software Engineer by trade &mdash; builder by nature.
                 </p>
             </header>
 
@@ -49,25 +71,37 @@ useHead({
                 <section class="projects">
                     <h5>Selected Work</h5>
                     <div class="section__content">
-                        <a href="#" class="project">
+                        <a
+                            href="https://mystwright.com/"
+                            target="_blank"
+                            class="project"
+                        >
                             <h3 class="project__title">Mystwright</h3>
                             <p class="project__description">
                                 An AI-driven mystery detective game. Generate,
                                 investigate, solve.
                             </p>
                         </a>
-                        <a href="#" class="project">
+                        <a
+                            href="https://unicord.hat.fish/"
+                            target="_blank"
+                            class="project"
+                        >
+                            <h3 class="project__title">Unicord</h3>
+                            <p class="project__description">
+                                Discord bot SDK inspired by webserver
+                                architecture.
+                            </p>
+                        </a>
+                        <a
+                            href="https://github.com/jaronpate/rift-buddy"
+                            target="_blank"
+                            class="project"
+                        >
                             <h3 class="project__title">Rune Buddy</h3>
                             <p class="project__description">
                                 League of Legends runepage manager. Save &
                                 organise your pages for free.
-                            </p>
-                        </a>
-                        <a href="#" class="project">
-                            <h3 class="project__title">Unicord</h3>
-                            <p class="project__description">
-                                Lightweight Discord's bot SDK inspired by
-                                webserver architecture.
                             </p>
                         </a>
                     </div>
@@ -85,14 +119,14 @@ useHead({
                         </p>
                     </div>
                 </section>
-                <section class="photos">
+                <!-- <section class="photos">
                     <h5>Photos</h5>
                     <div class="section__content">
                         <div class="photo-grid">
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/underground.jpg"
+                                        src="/photography/underground.jpg"
                                         alt="London Underground Sign"
                                     />
                                 </div>
@@ -104,7 +138,7 @@ useHead({
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/london_porsche.jpg"
+                                        src="/photography/london_porsche.jpg"
                                         alt="London Porsche"
                                     />
                                 </div>
@@ -116,7 +150,7 @@ useHead({
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/austin_parking.jpg"
+                                        src="/photography/austin_parking.jpg"
                                         alt="Austin Parking Sign"
                                     />
                                 </div>
@@ -128,7 +162,7 @@ useHead({
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/athens_red_scooter.jpg"
+                                        src="/photography/athens_red_scooter.jpg"
                                         alt="Athens Red Scooter"
                                     />
                                 </div>
@@ -140,7 +174,7 @@ useHead({
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/athens_subway.jpg"
+                                        src="/photography/athens_subway.jpg"
                                         alt="Athens Subway"
                                     />
                                 </div>
@@ -152,7 +186,7 @@ useHead({
                             <div class="photo-grid__item">
                                 <div class="photo__image">
                                     <img
-                                        src="/athens_sunset.jpg"
+                                        src="/photography/athens_sunset.jpg"
                                         alt="Athens Sunset"
                                     />
                                 </div>
@@ -163,7 +197,7 @@ useHead({
                             </div>
                         </div>
                     </div>
-                </section>
+                </section> -->
                 <div style="flex: 1"></div>
             </main>
 
@@ -171,7 +205,7 @@ useHead({
                 <div class="footer-upper">
                     <div class="flex-center">
                         <p>
-                            <a style="color: var(--bg)" href="mailto:yo@jp.wtf"
+                            <a class="punch-link" href="mailto:yo@jp.wtf"
                                 >Say hi.</a
                             >
                         </p>
@@ -252,35 +286,46 @@ svg[height='0'] {
 
     border-top: 1px solid var(--muted);
     border-bottom: 1px solid var(--muted);
-    background: url('/blend.jpeg');
-    background-size: cover;
-    background-position: left top;
-    background-repeat: no-repeat;
-    backdrop-filter: url(#grainy);
-    mix-blend-mode: multiply;
     padding: 2rem;
     color: var(--bg);
 
     margin-top: 8vh;
+    position: relative;
+    isolation: isolate;
 }
 
-.footer {
-    display: flex;
-    flex-direction: column;
+.header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/blend.jpeg');
+    background-size: cover;
+    background-position: left top;
+    background-repeat: no-repeat;
+    filter: url(#grainy);
+    z-index: -1;
 }
 
 .footer-upper {
     border-top: 1px solid var(--muted);
     border-bottom: 1px solid var(--muted);
-    background: url('/blend.jpeg');
-    background-size: cover;
-    background-position: left bottom;
-    background-repeat: no-repeat;
-    backdrop-filter: url(#grainy);
-    mix-blend-mode: multiply;
     padding: 2rem;
     color: var(--bg);
     min-height: 10vh;
+    position: relative;
+    isolation: isolate;
+}
+
+.footer-upper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/blend.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: url(#grainy);
+    z-index: -1;
 }
 
 .footer-lower {
@@ -332,6 +377,14 @@ section:last-of-type {
     display: block;
     text-decoration: none;
     color: inherit;
+}
+
+.project:first-of-type {
+    padding-top: 0;
+}
+
+.project:last-of-type {
+    padding-bottom: 0;
 }
 
 .project:last-child {
@@ -409,6 +462,10 @@ section:last-of-type {
 .photo__overlay p:nth-child(2) {
     font-weight: 300;
     font-style: italic;
+}
+
+.about p {
+    margin: 0;
 }
 
 @media (max-width: 1024px) {
