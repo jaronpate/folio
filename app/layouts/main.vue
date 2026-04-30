@@ -1,3 +1,10 @@
+<script setup lang="ts">
+defineProps<{
+    title?: string;
+    description?: string;
+}>();
+</script>
+
 <template>
     <div>
         <svg width="0" height="0" aria-hidden="true" style="position: absolute">
@@ -17,12 +24,20 @@
             <div class="trace right"></div>
 
             <header class="header">
-                <slot name="header">
-                    <h1 class="name">Jaron</h1>
-                    <p class="title">
-                        Software Engineer by trade &mdash; builder by nature.
-                    </p>
-                </slot>
+                <div class="header-upper">
+                    <slot name="header-upper" />
+                </div>
+                <div class="header-lower">
+                    <slot name="header-lower">
+                        <h1 class="name">{{ title || 'Jaron' }}</h1>
+                        <p class="title">
+                            {{
+                                description ||
+                                'Software Engineer by trade — builder by nature.'
+                            }}
+                        </p>
+                    </slot>
+                </div>
             </header>
 
             <main>
@@ -110,6 +125,15 @@ svg[height='0'] {
 .header {
     display: flex;
     flex-direction: column;
+}
+
+.header-upper {
+    height: 8vh;
+}
+
+.header-lower {
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
     gap: 16px;
 
@@ -118,12 +142,11 @@ svg[height='0'] {
     padding: 2rem;
     color: var(--bg);
 
-    margin-top: 8vh;
     position: relative;
     isolation: isolate;
 }
 
-.header::before {
+.header-lower::before {
     content: '';
     position: absolute;
     inset: 0;

@@ -1,8 +1,6 @@
 ---
-description: This is a test.
-title: Thing
+title: Writing
+description: Some thoughts I've had over the years. Not all of them are good, but here we are.
 ---
-
-# Hello Content
 
 blah blah blah

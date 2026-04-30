@@ -14,12 +14,46 @@ useSeoMeta({
 });
 
 definePageMeta({
-    layout: 'writing',
+    layout: 'main',
 });
 </script>
 
 <template>
-    <NuxtLayout name="writing" :title="page?.title" :description="page?.description">
-        <ContentRenderer v-if="page" :value="page" />
+    <NuxtLayout
+        name="main"
+        :title="page?.title"
+        :description="page?.description"
+    >
+        <template #header-upper>
+            <div class="header-upper-inner">
+                <NuxtLink href="/writing"><-- Back</NuxtLink>
+            </div>
+        </template>
+        <ContentRenderer class="writing__content" v-if="page" :value="page" />
     </NuxtLayout>
 </template>
+
+<style scoped>
+.header-upper-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 0 2rem;
+}
+
+.header-upper-inner a {
+    font-size: small;
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.writing__content {
+    padding: 2rem;
+}
+
+:deep(.writing__content > :first-child) {
+    margin-top: 0;
+}
+</style>
