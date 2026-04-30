@@ -12,10 +12,14 @@ useSeoMeta({
     title: page.value?.title,
     description: page.value?.description,
 });
+
+definePageMeta({
+    layout: 'writing',
+});
 </script>
 
 <template>
-    <div>
+    <NuxtLayout name="writing" :title="page?.title" :description="page?.description">
         <ContentRenderer v-if="page" :value="page" />
-    </div>
+    </NuxtLayout>
 </template>

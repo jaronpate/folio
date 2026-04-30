@@ -10,6 +10,12 @@ useSeoMeta({
 </script>
 
 <template>
-    <ContentRenderer v-if="home" :value="home" />
-    <div v-else>Home not found</div>
+    <NuxtLayout
+        name="writing"
+        :title="home?.title"
+        :description="home?.description"
+    >
+        <ContentRenderer v-if="home" :value="home" />
+        <div v-else>Home not found</div>
+    </NuxtLayout>
 </template>
