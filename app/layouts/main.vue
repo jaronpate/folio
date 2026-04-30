@@ -150,7 +150,7 @@ svg[height='0'] {
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/blend.jpeg');
+    background: url('~/assets/images/blend.jpeg');
     background-size: cover;
     background-position: left top;
     background-repeat: no-repeat;
@@ -172,7 +172,7 @@ svg[height='0'] {
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/blend.jpeg');
+    background: url('~/assets/images/blend.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

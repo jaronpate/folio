@@ -62,7 +62,7 @@ useHead({
     content: '';
     position: absolute;
     inset: 0;
-    background: url('/blend.jpeg');
+    background: url('~/assets/images/blend.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

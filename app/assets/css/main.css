@@ -2,8 +2,8 @@
 @font-face {
     font-family: 'SohneBuch';
     src:
-        url('/Sohne-font-main/Sohne-Buch.woff') format('woff'),
-        url('/Sohne-font-main/Sohne-Buch.ttf') format('truetype');
+        url('~/assets/fonts/Sohne/Sohne-Buch.woff') format('woff'),
+        url('~/assets/fonts/Sohne/Sohne-Buch.ttf') format('truetype');
 }
 
 :root {
