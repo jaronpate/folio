@@ -53,7 +53,7 @@ definePageMeta({
     padding: 2rem;
 }
 
-:deep(.writing__content > :first-child) {
+.writing__content :deep(> :first-child) {
     margin-top: 0;
 }
 </style>
