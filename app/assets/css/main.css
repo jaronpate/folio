@@ -46,7 +46,8 @@ body {
     margin: 0;
     padding: 0;
     background: var(--bg);
-    overscroll-behavior: none;
+    overscroll-behavior-y: none;
+    overscroll-behavior-x: auto;
 }
 
 body {
@@ -79,3 +80,20 @@ body {
     color: #000;
 }
 
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: small;
+    color: var(--text);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.back-link .arrow {
+    transition: transform 0.2s ease;
+}
+
+.back-link:hover .arrow {
+    transform: translateX(-4px);
+}

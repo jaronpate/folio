@@ -26,7 +26,11 @@ definePageMeta({
     >
         <template #header-upper>
             <div class="header-upper-inner">
-                <NuxtLink to="/writing" class="back-link" aria-label="Back to writing">
+                <NuxtLink
+                    to="/writing"
+                    class="back-link"
+                    aria-label="Back to writing"
+                >
                     <span class="arrow">←</span>
                     <span>Back</span>
                 </NuxtLink>
@@ -42,24 +46,6 @@ definePageMeta({
     align-items: center;
     height: 100%;
     padding: 0 2rem;
-}
-
-.back-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: small;
-    color: var(--text);
-    text-decoration: none;
-    transition: opacity 0.2s ease;
-}
-
-.back-link .arrow {
-    transition: transform 0.2s ease;
-}
-
-.back-link:hover .arrow {
-    transform: translateX(-4px);
 }
 
 .writing__content {
