@@ -1,15 +1,14 @@
-
-@font-face {
-    font-family: 'SohneBuch';
-    src:
-        url('~/assets/fonts/Sohne/Sohne-Buch.woff') format('woff'),
-        url('~/assets/fonts/Sohne/Sohne-Buch.ttf') format('truetype');
-}
+@import './fonts.css';
 
 :root {
     /* --font: 'Baskervville', serif; */
-    --font: 'EB Garamond', serif;
+    /* --font: 'EB Garamond', serif; */
+    /* --font: 'Plantin MT Pro', serif; */
+    --font: 'Redaction', serif;
+    /* --font: 'Young Serif', serif; */
     /* --font: "SohneBuch", sans-serif; */
+    --font-hover: 'Redaction 70', serif;
+    /* --font-hover: var(--font); */
     --text: #333;
     --muted: #666;
     --bg: #fbfbf7;
@@ -72,7 +71,6 @@ body {
     background-repeat: no-repeat;
     mix-blend-mode: screen;
 }
-
 
 .punch-link:hover {
     background-size: 100% 100%;

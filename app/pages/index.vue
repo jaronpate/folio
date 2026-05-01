@@ -23,22 +23,6 @@ rotateTitle();
 
 useHead({
     title: pageTitle,
-    link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        {
-            rel: 'preconnect',
-            href: 'https://fonts.gstatic.com',
-            crossorigin: '',
-        },
-        {
-            rel: 'stylesheet',
-            href: 'https://fonts.googleapis.com/css2?family=Baskervville:ital,wght@0,400..700;1,400..700&display=swap',
-        },
-        {
-            rel: 'stylesheet',
-            href: 'https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap',
-        },
-    ],
 });
 
 definePageMeta({
@@ -69,8 +53,7 @@ definePageMeta({
                 >
                     <h3 class="project__title">Unicord</h3>
                     <p class="project__description">
-                        Discord bot SDK inspired by webserver
-                        architecture.
+                        Discord bot SDK inspired by webserver architecture.
                     </p>
                 </a>
                 <a
@@ -80,8 +63,8 @@ definePageMeta({
                 >
                     <h3 class="project__title">Rune Buddy</h3>
                     <p class="project__description">
-                        League of Legends runepage manager. Save &
-                        organise your pages for free.
+                        League of Legends runepage manager. Save & organise your
+                        pages for free.
                     </p>
                 </a>
             </div>
@@ -90,12 +73,11 @@ definePageMeta({
             <h5>About</h5>
             <div class="section__content">
                 <p>
-                    I work across the full stack; backend, frontend, and
-                    the product decisions in between. My favorite side
-                    projects are ones that bring me new skills. Even
-                    better are ones where I solve a problem or build a
-                    tool I can use. I'm always open to interesting work
-                    and conversations.
+                    I work across the full stack; backend, frontend, and the
+                    product decisions in between. My favorite side projects are
+                    ones that bring me new skills. Even better are ones where I
+                    solve a problem or build a tool I can use. I'm always open
+                    to interesting work and conversations.
                 </p>
             </div>
         </section>
@@ -164,6 +146,7 @@ section:last-of-type {
     text-decoration: underline;
     text-underline-offset: 4px;
     font-style: italic;
+    font-family: var(--font-hover);
 }
 
 .project__title {
