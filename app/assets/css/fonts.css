@@ -1,13 +1,13 @@
-@font-face {
+/* @font-face {
     font-family: 'SohneBuch';
     src:
         url('~/assets/fonts/Sohne/Sohne-Buch.woff') format('woff'),
         url('~/assets/fonts/Sohne/Sohne-Buch.ttf') format('truetype');
     font-display: swap;
-}
+} */
 
 /* Plantin MT Pro */
-@font-face {
+/* @font-face {
     font-family: 'Plantin MT Pro';
     src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProRg.TTF')
         format('truetype');
@@ -59,7 +59,7 @@
     font-weight: 300;
     font-style: italic;
     font-display: swap;
-}
+} */
 
 /* Redaction */
 @font-face {
@@ -235,4 +235,4 @@
     font-display: swap;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap'); */
