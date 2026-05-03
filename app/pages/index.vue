@@ -81,7 +81,7 @@ definePageMeta({
                 </p>
             </div>
         </section>
-        <section class="photos">
+        <!-- <section class="photos">
             <h5>Photos</h5>
             <div class="section__content">
                 <div class="photo-grid">
@@ -159,7 +159,7 @@ definePageMeta({
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
     </NuxtLayout>
 </template>
 
