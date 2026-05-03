@@ -56,6 +56,16 @@ body {
     line-height: 1.6;
 }
 
+.basic-link {
+    color: var(--text);
+    transition: opacity 0.2s ease;
+    text-underline-offset: 4px;
+}
+
+.basic-link:hover {
+    opacity: 0.5;
+}
+
 .punch-link {
     display: inline-block;
     vertical-align: bottom;

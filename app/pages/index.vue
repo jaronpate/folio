@@ -36,6 +36,16 @@ definePageMeta({
             <h5>Selected Work</h5>
             <div class="section__content">
                 <a
+                    href="https://unicord.hat.fish/"
+                    target="_blank"
+                    class="project"
+                >
+                    <h3 class="project__title">Unicord</h3>
+                    <p class="project__description">
+                        Discord bot SDK inspired by webserver architecture.
+                    </p>
+                </a>
+                <a
                     href="https://mystwright.com/"
                     target="_blank"
                     class="project"
@@ -44,16 +54,6 @@ definePageMeta({
                     <p class="project__description">
                         An AI-driven mystery detective game. Generate,
                         investigate, solve.
-                    </p>
-                </a>
-                <a
-                    href="https://unicord.hat.fish/"
-                    target="_blank"
-                    class="project"
-                >
-                    <h3 class="project__title">Unicord</h3>
-                    <p class="project__description">
-                        Discord bot SDK inspired by webserver architecture.
                     </p>
                 </a>
                 <a
@@ -73,12 +73,91 @@ definePageMeta({
             <h5>About</h5>
             <div class="section__content">
                 <p>
-                    I work across the full stack; backend, frontend, and the
-                    product decisions in between. My favorite side projects are
-                    ones that bring me new skills. Even better are ones where I
-                    solve a problem or build a tool I can use. I'm always open
-                    to interesting work and conversations.
+                    I work across the full stack; backend, frontend, and
+                    product. My favorite side projects are ones that bring me
+                    new skills. Even better are ones where I solve a problem or
+                    build a tool I can use. I'm always open to interesting work
+                    and conversations.
                 </p>
+            </div>
+        </section>
+        <section class="photos">
+            <h5>Photos</h5>
+            <div class="section__content">
+                <div class="photo-grid">
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/athens_red_scooter.jpg"
+                                alt="Red scooter in Athens"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>Athens</p>
+                            <p>2026</p>
+                        </div>
+                    </div>
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/athens_subway.jpg"
+                                alt="Athens metro station"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>Athens</p>
+                            <p>2026</p>
+                        </div>
+                    </div>
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/athens_sunset.jpg"
+                                alt="Athens at sunset"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>Athens</p>
+                            <p>2026</p>
+                        </div>
+                    </div>
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/london_porsche.jpg"
+                                alt="Porsche shop in London"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>London</p>
+                            <p>2025</p>
+                        </div>
+                    </div>
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/underground.jpg"
+                                alt="Entrace to the London underground"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>London</p>
+                            <p>2026</p>
+                        </div>
+                    </div>
+                    <div class="photo-grid__item">
+                        <div class="photo__image">
+                            <img
+                                src="/photography/austin_parking.jpg"
+                                alt="Parking garage in Austin"
+                            />
+                        </div>
+                        <div class="photo__overlay">
+                            <p>Austin</p>
+                            <p>2024</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </NuxtLayout>
@@ -124,7 +203,7 @@ section:last-of-type {
 
 .project {
     border-bottom: 1px solid var(--muted);
-    padding: 2rem 0;
+    padding: 1rem 0;
     display: block;
     text-decoration: none;
     color: inherit;
@@ -214,6 +293,7 @@ section:last-of-type {
 .photo__overlay p:nth-child(2) {
     font-weight: 300;
     font-style: italic;
+    font-size: small;
 }
 
 .about p {

@@ -25,11 +25,22 @@ defineProps<{
 
             <header class="header">
                 <div class="header-upper">
-                    <slot name="header-upper" />
+                    <slot name="header-upper">
+                        <div class="flex-center header-upper-nav">
+                            <p style="font-family: monospace">🐟🎩.dev</p>
+                            <div class="flex-ff"></div>
+                            <!-- <NuxtLink to="/resume" class="basic-link"
+                                >Resume</NuxtLink
+                            > -->
+                            <NuxtLink to="/writing" class="basic-link"
+                                >Writing</NuxtLink
+                            >
+                        </div>
+                    </slot>
                 </div>
                 <div class="header-lower">
                     <slot name="header-lower">
-                        <h1 class="name">{{ title || 'Jaron' }}</h1>
+                        <h1 class="name">{{ title || "Hello, I'm Jaron" }}</h1>
                         <p class="title">
                             {{
                                 description ||
@@ -131,6 +142,13 @@ svg[height='0'] {
     height: 8vh;
 }
 
+.header-upper-nav {
+    padding: 1rem;
+    height: 100%;
+    font-size: small;
+    gap: 1rem;
+}
+
 .header-lower {
     display: flex;
     flex-direction: column;
@@ -184,6 +202,7 @@ svg[height='0'] {
     padding: 1rem;
     height: 8vh;
     font-size: small;
+    gap: 1rem;
 }
 
 @media (max-width: 1024px) {

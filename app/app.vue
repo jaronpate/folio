@@ -20,6 +20,8 @@ useHead({
         },
     ],
 });
+
+onMounted(() => {});
 </script>
 
 <template>
