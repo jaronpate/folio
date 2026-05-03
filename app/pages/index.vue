@@ -163,7 +163,7 @@ definePageMeta({
     </NuxtLayout>
 </template>
 
-<style>
+<style scoped>
 section {
     margin-top: 2rem;
 }
@@ -171,6 +171,10 @@ section {
 section > .section__content {
     padding: 0 2rem;
 }
+
+/* section:not(:has(h5)) > .section__content {
+    padding: 2rem;
+} */
 
 section > h5::before {
     content: '';

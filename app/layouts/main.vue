@@ -121,7 +121,7 @@ svg[height='0'] {
 }
 
 .name {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 400;
     line-height: 1.2;
     margin: 0;

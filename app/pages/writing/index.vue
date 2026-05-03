@@ -2,6 +2,12 @@
 const { data: pages } = await useAsyncData('writing-pages', () =>
     queryCollection('writing').all(),
 );
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    // ex. May 5, 2026
+    return `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}, ${date.getFullYear()}`;
+};
 </script>
 
 <template>
@@ -20,15 +26,27 @@ const { data: pages } = await useAsyncData('writing-pages', () =>
         </template>
         <section>
             <div class="section__content">
-                <a
-                    v-for="page in pages"
-                    :href="page.path"
-                    :key="page.path"
-                    class="article"
-                >
-                    <h3 class="article__title">{{ page.title }}</h3>
-                    <p class="article__description">{{ page.description }}</p>
-                </a>
+                <template v-if="pages?.length">
+                    <a
+                        v-for="page in pages"
+                        :href="page.path"
+                        :key="page.path"
+                        class="article"
+                    >
+                        <h3 class="article__title">{{ page.title }}</h3>
+                        <p class="article__date">
+                            {{ formatDate(page.date) }}
+                        </p>
+                        <p class="article__description">
+                            {{ page.description }}
+                        </p>
+                    </a>
+                </template>
+                <template v-else>
+                    <div class="empty-state">
+                        <p>Nothing here yet.</p>
+                    </div>
+                </template>
             </div>
         </section>
     </NuxtLayout>
@@ -44,6 +62,10 @@ const { data: pages } = await useAsyncData('writing-pages', () =>
 
 section > .section__content {
     padding: 0 2rem;
+}
+
+section:not(:has(h5)) > .section__content {
+    padding: 2rem;
 }
 
 .article {
@@ -78,11 +100,21 @@ section > .section__content {
     font-weight: 400;
 }
 
+.article__date {
+    margin: 0;
+    font-weight: 400;
+    font-size: small;
+    color: var(--muted);
+}
+
 .article__description {
     margin: 0;
     font-size: small;
     font-weight: 400;
     font-style: italic;
+}
+
+.empty-state {
     color: var(--muted);
 }
 </style>
