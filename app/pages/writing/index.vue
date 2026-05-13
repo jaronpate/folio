@@ -27,20 +27,20 @@ const formatDate = (dateString: string) => {
         <section>
             <div class="section__content">
                 <template v-if="pages?.length">
-                    <a
+                    <NuxtLink
                         v-for="page in pages"
-                        :href="page.path"
+                        :to="'/writing/' + page.path"
                         :key="page.path"
                         class="article"
                     >
                         <h3 class="article__title">{{ page.title }}</h3>
-                        <p class="article__date">
+                        <!-- <p class="article__date">
                             {{ formatDate(page.date) }}
-                        </p>
+                        </p> -->
                         <p class="article__description">
                             {{ page.description }}
                         </p>
-                    </a>
+                    </NuxtLink>
                 </template>
                 <template v-else>
                     <div class="empty-state">

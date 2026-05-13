@@ -73,11 +73,18 @@ definePageMeta({
             <h5>About</h5>
             <div class="section__content">
                 <p>
-                    I work across the full stack; backend, frontend, and
-                    product. My favorite side projects are ones that bring me
-                    new skills. Even better are ones where I solve a problem or
-                    build a tool I can use. I'm always open to interesting work
-                    and conversations.
+                    I enjoy the entire process of building things; backend,
+                    frontend, product, etc.
+                </p>
+                <p>
+                    I left school and my job at Chick-fil-A in 2022 to write
+                    code full time. It's definitely one of the best decisions
+                    I've ever made. I've learned so much since then and
+                    <em>still</em> have so much more to learn.
+                </p>
+                <p>
+                    If you want to build something cool or connect hit me up! I
+                    still dont know enough people to form a band yet ;)
                 </p>
             </div>
         </section>
@@ -300,7 +307,7 @@ section:last-of-type {
     font-size: small;
 }
 
-.about p {
+.about p:last-child {
     margin: 0;
 }
 

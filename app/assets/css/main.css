@@ -4,14 +4,31 @@
     /* --font: 'Baskervville', serif; */
     /* --font: 'EB Garamond', serif; */
     /* --font: 'Plantin MT Pro', serif; */
-    --font: 'Redaction', serif;
     /* --font: 'Young Serif', serif; */
     /* --font: "SohneBuch", sans-serif; */
+    --font: 'Redaction', serif;
     --font-hover: 'Redaction 70', serif;
     /* --font-hover: var(--font); */
     --text: #333;
     --muted: #666;
     --bg: #fbfbf7;
+
+    --color-white-500: #fbfbf7;
+
+    --gap: 1rem;
+}
+
+::selection {
+    background: var(--text);
+    color: var(--bg);
+}
+
+.dark-mode {
+    --text: #fbfbf7;
+    --bg: #111111;
+    --muted: #d1d1d1;
+
+    --color-white-500: #fbfbf7;
 }
 
 .flex {
@@ -70,12 +87,12 @@ body {
     display: inline-block;
     vertical-align: bottom;
     position: relative;
-    color: var(--bg);
+    color: var(--color-white-500);
     text-decoration: none;
     transition: all 200ms ease;
     padding: 0 4px;
     margin: 0 -4px;
-    background-image: linear-gradient(var(--bg), var(--bg));
+    background-image: linear-gradient(var(--color-white-500), var(--color-white-500));
     background-size: 100% 1px;
     background-position: bottom;
     background-repeat: no-repeat;

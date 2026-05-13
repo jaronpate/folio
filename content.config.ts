@@ -4,7 +4,10 @@ export default defineContentConfig({
     collections: {
         writing: defineCollection({
             type: 'page',
-            source: 'writing/**/*.md',
+            source: {
+                include: 'writing/**/*.md',
+                prefix: '',
+            },
             schema: z.object({
                 title: z.string(),
                 date: z.coerce.date(),

@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 const route = useRoute();
 const { data: page } = await useAsyncData(route.path, () => {
-    return queryCollection('writing').path(route.path).first();
+    return queryCollection('writing')
+        .path(route.path.replace('/writing/', ''))
+        .first();
 });
 
 if (!page.value) {

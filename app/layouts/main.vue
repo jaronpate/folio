@@ -3,6 +3,12 @@ defineProps<{
     title?: string;
     description?: string;
 }>();
+
+const theme = useColorMode();
+
+const toggleTheme = () => {
+    theme.preference = theme.preference === 'light' ? 'dark' : 'light';
+};
 </script>
 
 <template>
@@ -27,14 +33,20 @@ defineProps<{
                 <div class="header-upper">
                     <slot name="header-upper">
                         <div class="flex-center header-upper-nav">
-                            <p style="font-family: monospace">🐟🎩.dev</p>
+                            <button
+                                class="theme-toggle"
+                                @click="toggleTheme"
+                                v-if="!theme.unknown"
+                            >
+                                {{ theme.value === 'dark' ? '🌚' : '🌝' }}
+                            </button>
                             <div class="flex-ff"></div>
                             <!-- <NuxtLink to="/resume" class="basic-link"
                                 >Resume</NuxtLink
                             > -->
-                            <NuxtLink to="/writing" class="basic-link"
-                                >Writing</NuxtLink
-                            >
+                            <!-- <NuxtLink to="/writing" class="basic-link">
+                                Writing
+                            </NuxtLink> -->
                         </div>
                     </slot>
                 </div>
@@ -71,8 +83,9 @@ defineProps<{
                     </div>
                 </div>
                 <div class="footer-lower">
-                    <div class="flex-center">
+                    <div class="flex-center" style="gap: var(--gap)">
                         <p style="text-align: right">Est. 2003</p>
+                        <!-- <p style="font-family: monospace">🐟🎩.dev</p> -->
                         <div class="flex-ff"></div>
                         <p style="text-align: right">Austin, TX</p>
                     </div>
@@ -158,7 +171,7 @@ svg[height='0'] {
     border-top: 1px solid var(--muted);
     border-bottom: 1px solid var(--muted);
     padding: 2rem;
-    color: var(--bg);
+    color: var(--color-white-500);
 
     position: relative;
     isolation: isolate;
@@ -180,7 +193,7 @@ svg[height='0'] {
     border-top: 1px solid var(--muted);
     border-bottom: 1px solid var(--muted);
     padding: 2rem;
-    color: var(--bg);
+    color: var(--color-white-500);
     min-height: 10vh;
     position: relative;
     isolation: isolate;
@@ -203,6 +216,20 @@ svg[height='0'] {
     height: 8vh;
     font-size: small;
     gap: 1rem;
+}
+
+.theme-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: large;
+    font-weight: bold;
+    color: var(--text);
+    transition: opacity 0.2s ease;
+}
+
+.theme-toggle:hover {
+    opacity: 0.5;
 }
 
 @media (max-width: 1024px) {
