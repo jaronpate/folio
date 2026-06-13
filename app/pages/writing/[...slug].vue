@@ -16,12 +16,13 @@ useSeoMeta({
 });
 
 definePageMeta({
-    layout: 'main',
+    layout: false,
 });
 </script>
 
 <template>
-    <NuxtLayout
+    <div>
+        <NuxtLayout
         name="main"
         :title="page?.title"
         :description="page?.description"
@@ -39,7 +40,8 @@ definePageMeta({
             </div>
         </template>
         <ContentRenderer class="writing__content" v-if="page" :value="page" />
-    </NuxtLayout>
+        </NuxtLayout>
+    </div>
 </template>
 
 <style scoped>

@@ -1,3 +1,8 @@
+<script lang="ts">
+// module-scoped so the reveal only plays once per visit
+let sectionsRevealed = false;
+</script>
+
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -26,148 +31,188 @@ useHead({
 });
 
 definePageMeta({
-    layout: 'main',
+    layout: false,
+});
+
+const { $gsap } = useNuxtApp();
+const pageRoot = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+    if (!$gsap || !pageRoot.value || sectionsRevealed) return;
+    sectionsRevealed = true;
+
+    const reduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+    ).matches;
+
+    const ctx = $gsap.context(() => {
+        if (reduced) return;
+
+        // sections in view on load are revealed by the layout's intro;
+        // below-the-fold sections rise in as they enter the viewport
+        $gsap.utils.toArray<HTMLElement>('main section').forEach((el) => {
+            const inView = el.getBoundingClientRect().top < window.innerHeight;
+            if (inView) return;
+
+            $gsap.from(el, {
+                autoAlpha: 0,
+                y: 24,
+                duration: 0.6,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 92%',
+                },
+            });
+        });
+    }, pageRoot.value);
+
+    onBeforeUnmount(() => ctx.revert());
 });
 </script>
 
 <template>
-    <NuxtLayout name="main">
-        <section class="projects">
-            <h5>Selected Work</h5>
-            <div class="section__content">
-                <a
-                    href="https://unicord.hat.fish/"
-                    target="_blank"
-                    class="project"
-                >
-                    <h3 class="project__title">Unicord</h3>
-                    <p class="project__description">
-                        Discord bot SDK inspired by webserver architecture.
+    <div ref="pageRoot">
+        <NuxtLayout name="main">
+            <section class="projects">
+                <h5>Selected Work</h5>
+                <div class="section__content">
+                    <a
+                        href="https://unicord.hat.fish/"
+                        target="_blank"
+                        class="project"
+                    >
+                        <h3 class="project__title">Unicord</h3>
+                        <p class="project__description">
+                            Discord bot SDK inspired by webserver architecture.
+                        </p>
+                    </a>
+                    <a
+                        href="https://mystwright.com/"
+                        target="_blank"
+                        class="project"
+                    >
+                        <h3 class="project__title">Mystwright</h3>
+                        <p class="project__description">
+                            An AI-driven mystery detective game. Generate,
+                            investigate, solve.
+                        </p>
+                    </a>
+                    <a
+                        href="https://github.com/jaronpate/rift-buddy"
+                        target="_blank"
+                        class="project"
+                    >
+                        <h3 class="project__title">Rune Buddy</h3>
+                        <p class="project__description">
+                            League of Legends runepage manager. Save & organise
+                            your pages for free.
+                        </p>
+                    </a>
+                </div>
+            </section>
+            <section class="about">
+                <h5>About</h5>
+                <div class="section__content">
+                    <p>
+                        I enjoy the entire process of building things; backend,
+                        frontend, product, etc.
                     </p>
-                </a>
-                <a
-                    href="https://mystwright.com/"
-                    target="_blank"
-                    class="project"
-                >
-                    <h3 class="project__title">Mystwright</h3>
-                    <p class="project__description">
-                        An AI-driven mystery detective game. Generate,
-                        investigate, solve.
+                    <p>
+                        I left school and my job at Chick-fil-A in 2022 to write
+                        code full time. It's definitely one of the best
+                        decisions I've ever made. I've learned so much since
+                        then and
+                        <em>still</em> have so much more to learn.
                     </p>
-                </a>
-                <a
-                    href="https://github.com/jaronpate/rift-buddy"
-                    target="_blank"
-                    class="project"
-                >
-                    <h3 class="project__title">Rune Buddy</h3>
-                    <p class="project__description">
-                        League of Legends runepage manager. Save & organise your
-                        pages for free.
+                    <p>
+                        If you want to build something cool or connect hit me
+                        up! I still dont know enough people to form a band yet
+                        ;)
                     </p>
-                </a>
-            </div>
-        </section>
-        <section class="about">
-            <h5>About</h5>
-            <div class="section__content">
-                <p>
-                    I enjoy the entire process of building things; backend,
-                    frontend, product, etc.
-                </p>
-                <p>
-                    I left school and my job at Chick-fil-A in 2022 to write
-                    code full time. It's definitely one of the best decisions
-                    I've ever made. I've learned so much since then and
-                    <em>still</em> have so much more to learn.
-                </p>
-                <p>
-                    If you want to build something cool or connect hit me up! I
-                    still dont know enough people to form a band yet ;)
-                </p>
-            </div>
-        </section>
-        <!-- <section class="photos">
-            <h5>Photos</h5>
-            <div class="section__content">
-                <div class="photo-grid">
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/athens_red_scooter.jpg"
-                                alt="Red scooter in Athens"
-                            />
+                </div>
+            </section>
+            <section class="photos">
+                <h5>Photos</h5>
+                <div class="section__content">
+                    <div class="photo-grid">
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/athens_red_scooter.jpg"
+                                    alt="Red scooter in Athens"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>Athens</p>
+                                <p>2026</p>
+                            </div>
                         </div>
-                        <div class="photo__overlay">
-                            <p>Athens</p>
-                            <p>2026</p>
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/athens_subway.jpg"
+                                    alt="Athens metro station"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>Athens</p>
+                                <p>2026</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/athens_subway.jpg"
-                                alt="Athens metro station"
-                            />
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/athens_sunset.jpg"
+                                    alt="Athens at sunset"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>Athens</p>
+                                <p>2026</p>
+                            </div>
                         </div>
-                        <div class="photo__overlay">
-                            <p>Athens</p>
-                            <p>2026</p>
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/london_porsche.jpg"
+                                    alt="Porsche shop in London"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>London</p>
+                                <p>2025</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/athens_sunset.jpg"
-                                alt="Athens at sunset"
-                            />
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/underground.jpg"
+                                    alt="Entrace to the London underground"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>London</p>
+                                <p>2026</p>
+                            </div>
                         </div>
-                        <div class="photo__overlay">
-                            <p>Athens</p>
-                            <p>2026</p>
-                        </div>
-                    </div>
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/london_porsche.jpg"
-                                alt="Porsche shop in London"
-                            />
-                        </div>
-                        <div class="photo__overlay">
-                            <p>London</p>
-                            <p>2025</p>
-                        </div>
-                    </div>
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/underground.jpg"
-                                alt="Entrace to the London underground"
-                            />
-                        </div>
-                        <div class="photo__overlay">
-                            <p>London</p>
-                            <p>2026</p>
-                        </div>
-                    </div>
-                    <div class="photo-grid__item">
-                        <div class="photo__image">
-                            <img
-                                src="/photography/austin_parking.jpg"
-                                alt="Parking garage in Austin"
-                            />
-                        </div>
-                        <div class="photo__overlay">
-                            <p>Austin</p>
-                            <p>2024</p>
+                        <div class="photo-grid__item">
+                            <div class="photo__image">
+                                <img
+                                    src="/photography/austin_parking.jpg"
+                                    alt="Parking garage in Austin"
+                                />
+                            </div>
+                            <div class="photo__overlay">
+                                <p>Austin</p>
+                                <p>2024</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section> -->
-    </NuxtLayout>
+            </section>
+        </NuxtLayout>
+    </div>
 </template>
 
 <style scoped>
@@ -244,6 +289,25 @@ section:last-of-type {
     font-weight: 400;
 }
 
+.project__title::after {
+    content: '↗';
+    position: relative;
+    display: inline-block;
+    margin-left: 0.4em;
+    font-size: 0.75em;
+    opacity: 0;
+    vertical-align: center;
+    transform: translate(-6px, 6px);
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+}
+
+.project:hover .project__title::after {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
 .project__description {
     margin: 0;
     font-size: small;
@@ -287,7 +351,7 @@ section:last-of-type {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
-    color: var(--bg);
+    color: var(--color-white-500);
     z-index: 2;
     transition: opacity 0.2s ease-in-out;
     display: flex;
