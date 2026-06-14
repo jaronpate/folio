@@ -30,6 +30,16 @@ useHead({
     title: pageTitle,
 });
 
+useSeoMeta({
+    title: "Hey, I'm Jaron",
+    ogTitle: "Hey, I'm Jaron",
+    description:
+        'Software Engineer. I build things to solve problems from the ground up.',
+    ogDescription:
+        'Software Engineer. I build things to solve problems from the ground up.',
+    ogUrl: useRequestURL().href,
+});
+
 definePageMeta({
     layout: false,
 });

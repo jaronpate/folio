@@ -12,7 +12,10 @@ if (!page.value) {
 
 useSeoMeta({
     title: page.value?.title,
+    ogTitle: page.value?.title,
     description: page.value?.description,
+    ogDescription: page.value?.description,
+    ogUrl: useRequestURL().href,
 });
 
 definePageMeta({
@@ -23,23 +26,27 @@ definePageMeta({
 <template>
     <div>
         <NuxtLayout
-        name="main"
-        :title="page?.title"
-        :description="page?.description"
-    >
-        <template #header-upper>
-            <div class="header-upper-inner">
-                <NuxtLink
-                    to="/writing"
-                    class="back-link"
-                    aria-label="Back to writing"
-                >
-                    <span class="arrow">←</span>
-                    <span>Back</span>
-                </NuxtLink>
-            </div>
-        </template>
-        <ContentRenderer class="writing__content" v-if="page" :value="page" />
+            name="main"
+            :title="page?.title"
+            :description="page?.description"
+        >
+            <template #header-upper>
+                <div class="header-upper-inner">
+                    <NuxtLink
+                        to="/writing"
+                        class="back-link"
+                        aria-label="Back to writing"
+                    >
+                        <span class="arrow">←</span>
+                        <span>Back</span>
+                    </NuxtLink>
+                </div>
+            </template>
+            <ContentRenderer
+                class="writing__content"
+                v-if="page"
+                :value="page"
+            />
         </NuxtLayout>
     </div>
 </template>
