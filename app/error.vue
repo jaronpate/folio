@@ -71,5 +71,6 @@ useHead({
 }
 
 .error-content {
+    color: var(--text);
 }
 </style>

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Jaron Pate — Resume</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+            :root {
+                --ink: #111827;
+                --muted: #5b6472;
+                --line: #d8dee8;
+                --accent: #2563eb;
+                --paper: #ffffff;
+                --bg: #f3f4f6;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                background: var(--bg);
+                color: var(--ink);
+                font-family:
+                    Inter,
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    'Segoe UI',
+                    sans-serif;
+                font-size: 13px;
+                line-height: 1.38;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            .page {
+                width: 8.5in;
+                min-height: 11in;
+                margin: 24px auto;
+                padding: 0.48in 0.55in;
+                background: var(--paper);
+                /*box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);*/
+            }
+
+            header {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 24px;
+            }
+
+            h1,
+            h2,
+            h3,
+            p,
+            ul {
+                margin: 0;
+            }
+
+            h1 {
+                font-size: 2.15rem;
+                line-height: 1;
+                letter-spacing: -0.06em;
+                font-weight: 600;
+            }
+
+            .headline {
+                margin-top: 6px;
+                color: var(--accent);
+                font-size: 1.03rem;
+                font-weight: 500;
+            }
+
+            .summary {
+                margin-top: 10px;
+                max-width: 5.7in;
+                color: var(--muted);
+            }
+
+            .contact {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                text-align: right;
+                white-space: nowrap;
+                font-size: 0.92rem;
+            }
+
+            a {
+                color: var(--accent);
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            section {
+                margin-top: 20px;
+            }
+
+            section > h2 {
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--ink);
+                font-size: 0.9rem;
+                font-weight: 800;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+            }
+
+            h2::after {
+                content: '';
+                height: 1px;
+                flex: 1;
+                background: var(--line);
+            }
+
+            .item {
+                margin-top: 20px;
+            }
+
+            .item::first-child {
+                margin: 0;
+            }
+
+            .item-heading {
+                display: flex;
+                justify-content: space-between;
+                gap: 16px;
+                align-items: baseline;
+            }
+
+            h3 {
+                font-size: 1.05rem;
+                font-weight: 800;
+            }
+
+            .company,
+            .meta {
+                color: var(--muted);
+            }
+
+            .company {
+                margin-top: 1px;
+                font-weight: 600;
+            }
+
+            .meta {
+                font-size: 0.86rem;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            ul {
+                padding-left: 1.1rem;
+                margin-top: 6px;
+            }
+
+            li {
+                margin-top: 3px;
+            }
+
+            .skills {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px 24px;
+                margin-top: 10px;
+            }
+
+            .skill-row strong {
+                display: block;
+                font-size: 0.88rem;
+                margin-bottom: 2px;
+            }
+
+            .skill-row p {
+                color: var(--muted);
+            }
+
+            .projects {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-top: 10px;
+            }
+
+            .project h3 {
+                font-size: 0.98rem;
+            }
+
+            .project p {
+                margin-top: 2px;
+                color: var(--muted);
+                font-size: 0.9rem;
+            }
+
+            @media print {
+                html,
+                body {
+                    background: white;
+                }
+
+                .page {
+                    width: auto;
+                    min-height: auto;
+                    margin: 0;
+                    padding: 0.42in 0.5in;
+                    box-shadow: none;
+                }
+
+                a {
+                    color: inherit;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main class="page">
+            <header>
+                <div>
+                    <h1>Jaron Pate</h1>
+                    <p class="headline">Software Engineer</p>
+                    <p class="summary">
+                        Software engineer who builds things from the ground up.
+                        Experienced owning problems and shipping reliable
+                        applications.
+                    </p>
+                </div>
+                <div class="contact" aria-label="Contact information">
+                    <a href="mailto:yo@jp.wtf">yo@jp.wtf</a>
+                    <a href="https://github.com/jaronpate"
+                        >github.com/jaronpate</a
+                    >
+                    <a href="https://www.linkedin.com/in/jaronp/"
+                        >linkedin.com/in/jaronp</a
+                    >
+                    <a href="https://jaron.sh">https://jaron.sh</a>
+                    <span>Austin, TX</span>
+                </div>
+            </header>
+
+            <section>
+                <h2>Experience</h2>
+                <article class="item">
+                    <div class="item-heading">
+                        <div>
+                            <h3>Software Engineer</h3>
+                            <p class="company">Edlink</p>
+                        </div>
+                        <p class="meta">Apr 2022 – Present<br />Austin, TX</p>
+                    </div>
+                    <ul>
+                        <li>
+                            Built and maintained integrations across legacy and
+                            modern education systems, standardizing inconsistent
+                            data models into the unified API at the core of
+                            Edlink's platform.
+                        </li>
+                        <li>
+                            Designed and implemented an internal billing
+                            platform for automated invoicing and usage tracking
+                            across roughly 150 client organizations, including
+                            Stripe and Xero integrations.
+                        </li>
+                        <li>
+                            Designed a flexible CSV ingestion and mapping system
+                            for complex data transformation, validation, and
+                            onboarding workflows.
+                        </li>
+                        <li>
+                            Built a client-embeddable authentication and
+                            onboarding widget to simplify customer
+                            implementation and reduce repeated integration work.
+                        </li>
+                        <li>
+                            Developed internal infrastructure including a secure
+                            sandbox for running untrusted code and a live
+                            preview service for inspecting data changes before
+                            full pipeline execution.
+                        </li>
+                        <li>
+                            Regularly took ownership of ambiguous product and
+                            infrastructure problems and shipped scalable,
+                            maintainable systems used in production.
+                        </li>
+                    </ul>
+                </article>
+
+                <!--<article class="item">
+                    <div class="item-heading">
+                        <div>
+                            <h3>Store Manager</h3>
+                            <p class="company">Chick-fil-A</p>
+                        </div>
+                        <p class="meta">
+                            Aug 2020 – Mar 2022<br />Mt. Juliet, TN
+                        </p>
+                    </div>
+                    <ul>
+                        <li>
+                            Led store operations and team execution in a
+                            high-volume customer service environment.
+                        </li>
+                        <li>
+                            Improved processes, coached employees, handled
+                            escalations, and managed customer requests from
+                            contact through completion.
+                        </li>
+                    </ul>
+                </article>-->
+            </section>
+
+            <section>
+                <h2>Skills</h2>
+                <div class="skills">
+                    <div class="skill-row">
+                        <strong>Languages</strong>
+                        <p>TypeScript, JavaScript, Go</p>
+                    </div>
+                    <div class="skill-row">
+                        <strong>Frontend</strong>
+                        <p>Vue, Nuxt, React, embeddable widgets</p>
+                    </div>
+                    <div class="skill-row">
+                        <strong>Backend</strong>
+                        <p>
+                            Node.js/Bun/Deno, REST APIs, integrations, billing
+                            systems, data pipelines
+                        </p>
+                    </div>
+                    <div class="skill-row">
+                        <strong>Tools & Platforms</strong>
+                        <p>AWS, GCP, PostgreSQL, MongoDB</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Projects</h2>
+                <div class="projects">
+                    <article class="project">
+                        <h3><a href="https://unicord.hat.fish/">Unicord</a></h3>
+                        <p>
+                            Discord bot SDK inspired by web server architecture,
+                            built to make command and event handling more
+                            structured.
+                        </p>
+                    </article>
+                    <article class="project">
+                        <h3>
+                            <a href="https://mystwright.com/">Mystwright</a>
+                        </h3>
+                        <p>
+                            AI-driven mystery detective game for generating,
+                            investigating, and solving dynamic cases.
+                        </p>
+                    </article>
+                    <article class="project">
+                        <h3>
+                            <a href="https://github.com/jaronpate/rift-buddy"
+                                >Rune Buddy</a
+                            >
+                        </h3>
+                        <p>
+                            League of Legends rune page manager for saving,
+                            organizing, and reusing rune configurations.
+                        </p>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
