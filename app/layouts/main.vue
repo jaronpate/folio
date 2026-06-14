@@ -17,9 +17,12 @@ const toggleTheme = () => {
 };
 
 const { $gsap } = useNuxtApp();
-const pageEl = ref<HTMLElement | null>(null);
+const pageEl = useTemplateRef('pageEl');
+const initialized = ref(false);
 
 onMounted(() => {
+    initialized.value = true;
+
     if (!$gsap || !pageEl.value || introPlayed) return;
     introPlayed = true;
 
@@ -72,7 +75,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
+    <div v-show="initialized">
         <svg width="0" height="0" aria-hidden="true" style="position: absolute">
             <filter id="grainy" x="0" y="0" width="100%" height="100%">
                 <feTurbulence

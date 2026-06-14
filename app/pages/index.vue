@@ -74,8 +74,12 @@ onMounted(() => {
 <template>
     <div ref="pageRoot">
         <NuxtLayout name="main">
-            <section class="projects">
+            <!-- <section class="work">
                 <h5>Selected Work</h5>
+                <div class="section__content"></div>
+            </section> -->
+            <section class="projects">
+                <h5>Projects</h5>
                 <div class="section__content">
                     <a
                         href="https://unicord.hat.fish/"
@@ -114,25 +118,22 @@ onMounted(() => {
             <section class="about">
                 <h5>About</h5>
                 <div class="section__content">
-                    <p>
-                        I enjoy the entire process of building things; backend,
-                        frontend, product, etc.
-                    </p>
+                    <p>I build things to solve problems from the ground up.</p>
                     <p>
                         I left school and my job at Chick-fil-A in 2022 to write
                         code full time. It's definitely one of the best
-                        decisions I've ever made. I've learned so much since
-                        then and
+                        decisions I've ever made. I've learned a lot since then
+                        and
                         <em>still</em> have so much more to learn.
                     </p>
                     <p>
-                        If you want to build something cool or connect hit me
-                        up! I still dont know enough people to form a band yet
-                        ;)
+                        If you want to build something cool or connect hit me up
+                        — we'll grab a coffee or beer in you're in Austin! I
+                        still dont know enough people to form a band yet ;)
                     </p>
                 </div>
             </section>
-            <section class="photos">
+            <!-- <section class="photos">
                 <h5>Photos</h5>
                 <div class="section__content">
                     <div class="photo-grid">
@@ -210,7 +211,7 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> -->
         </NuxtLayout>
     </div>
 </template>
