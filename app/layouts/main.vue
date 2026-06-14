@@ -230,7 +230,7 @@ svg[height='0'] {
 }
 
 .header-upper-nav {
-    padding: 1rem;
+    padding: 2rem;
     height: 100%;
     font-size: small;
     gap: 1rem;
@@ -286,7 +286,7 @@ svg[height='0'] {
 }
 
 .footer-lower {
-    padding: 1rem;
+    padding: 2rem;
     height: 8vh;
     font-size: small;
     gap: 1rem;
