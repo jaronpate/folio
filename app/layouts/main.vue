@@ -110,7 +110,6 @@ onMounted(() => {
                             >
                                 GitHub
                             </a>
-                            <a href="/resume" class="basic-link">Resume</a>
                             <NuxtLink to="/writing" class="basic-link">
                                 Writing
                             </NuxtLink>
