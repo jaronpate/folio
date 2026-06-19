@@ -1,10 +1,6 @@
-# Folio Nuxt
+# Folio
 
-This is a Nuxt.js port of Jaron's portfolio.
-
-## Development
-
-Make sure you have [Bun](https://bun.sh) installed.
+portfolio/blog site
 
 ```bash
 # Install dependencies

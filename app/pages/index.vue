@@ -134,7 +134,7 @@ onMounted(() => {
                         code full time. It's definitely one of the best
                         decisions I've ever made. I've learned a lot since then
                         and
-                        <em>still</em> have so much more to learn.
+                        <em>still</em> much to learn and build.
                     </p>
                     <p>
                         If you want to build something cool or connect hit me up
