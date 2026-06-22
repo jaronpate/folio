@@ -120,7 +120,7 @@ onMounted(() => {
                     <slot name="header-lower">
                         <div class="mask">
                             <h1 class="name">
-                                {{ title || "Hello, I'm Jaron" }}
+                                {{ title || "Hey, I'm Jaron" }}
                             </h1>
                         </div>
                         <div class="mask">

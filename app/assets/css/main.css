@@ -6,16 +6,21 @@
     /* --font: 'Plantin MT Pro', serif; */
     /* --font: 'Young Serif', serif; */
     /* --font: "SohneBuch", sans-serif; */
+    --font-plain: 'SohneBuch', sans-serif;
     --font: 'Redaction', serif;
     --font-hover: 'Redaction 70', serif;
     /* --font-hover: var(--font); */
     --text: #333;
     --muted: #666;
     --bg: #fbfbf7;
+    --bg-secondary: #efefe8;
+    --dot-color: #666;
 
     --color-white-500: #fbfbf7;
 
     --gap: 1rem;
+
+    --radius: 4px;
 }
 
 ::selection {
@@ -26,6 +31,8 @@
 .dark-mode {
     --text: #fbfbf7;
     --bg: #0c0c0c;
+    --bg-secondary: #1c1c1c;
+    --dot-color: #666;
     --muted: #a3a3a3;
 
     --color-white-500: #fbfbf7;
