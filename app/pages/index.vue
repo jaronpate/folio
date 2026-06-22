@@ -14,10 +14,8 @@ const webpageId = `${siteUrl}/#homepage`;
 useSeoMeta({
     title: "Hey, I'm Jaron.",
     ogTitle: "Hey, I'm Jaron.",
-    description:
-        'Software Engineer. I build things to solve problems from the ground up.',
-    ogDescription:
-        'Software Engineer. I build things to solve problems from the ground up.',
+    description: 'Developer. Reformed Rust enjoyer, Golang padawan.',
+    ogDescription: 'Developer. Reformed Rust enjoyer, Golang padawan.',
     ogUrl: currentUrl,
 });
 
@@ -120,7 +118,7 @@ useHead({
                 url: siteUrl,
                 name: "Hey, I'm Jaron.",
                 description:
-                    'Software Engineer. I build things to solve problems from the ground up.',
+                    'Developer. Reformed Rust enjoyer, Golang padawan.',
                 inLanguage: 'en-US',
                 isPartOf: { '@id': `${siteUrl}/#website` },
                 about: { '@id': personId },

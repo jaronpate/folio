@@ -35,8 +35,7 @@ const jsonLd = {
             '@id': websiteId,
             url: siteUrl,
             name: 'Jaron Pate',
-            description:
-                'Personal site and portfolio for Jaron Pate, a software engineer in Austin, TX.',
+            description: 'A developer in Austin, TX.',
             inLanguage: 'en-US',
             author: { '@id': personId },
             publisher: { '@id': personId },
