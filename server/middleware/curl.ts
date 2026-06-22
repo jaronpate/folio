@@ -85,7 +85,9 @@ It's definitely one of the best decisions I've ever made.
 I've learned a lot since then and still have so much more to learn.
 
 If you want to build something cool or connect hit me up
-we'll grab a coffee or beer in you're in Austin! 🤠🦇`,
+we'll grab a coffee or beer in you're in Austin! 🤠🦇
+
+Also check out some of my work at https://jaron.sh`,
                 footer: ['Austin, TX', 'yo@jp.wtf'],
                 padding: [2, 1],
             });
