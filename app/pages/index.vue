@@ -125,35 +125,19 @@ useHead({
                 isPartOf: { '@id': `${siteUrl}/#website` },
                 about: { '@id': personId },
                 mainEntity: { '@id': personId },
-                hasPart: [
-                    {
-                        '@type': 'ItemList',
-                        name: 'Selected work',
-                        itemListElement: selectedWorks.map((work, index) => ({
-                            '@type': 'ListItem',
-                            position: index + 1,
-                            item: {
-                                '@type': 'CreativeWork',
-                                name: work.title,
-                                description: work.description,
-                                url: work.link,
-                            },
-                        })),
-                    },
-                    {
-                        '@type': 'ItemList',
-                        name: 'Projects',
-                        itemListElement: projects.map((project, index) => ({
-                            '@type': 'ListItem',
-                            position: index + 1,
-                            item: {
-                                '@type': 'CreativeWork',
-                                name: project.title,
-                                description: project.description,
-                                url: project.href,
-                            },
-                        })),
-                    },
+                mentions: [
+                    ...selectedWorks.map((work) => ({
+                        '@type': 'CreativeWork',
+                        name: work.title,
+                        description: work.description,
+                        url: work.link,
+                    })),
+                    ...projects.map((project) => ({
+                        '@type': 'CreativeWork',
+                        name: project.title,
+                        description: project.description,
+                        url: project.href,
+                    })),
                 ],
             }),
         },
