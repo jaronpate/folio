@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 const route = useRoute();
+const siteUrl = 'https://jaron.sh';
+const personId = `${siteUrl}/#person`;
+const articleUrl = `${siteUrl}${route.path}`;
 const { data: page } = await useAsyncData(route.path, () => {
     return queryCollection('writing')
         .path(route.path.replace('/writing/', ''))
@@ -16,6 +19,33 @@ useSeoMeta({
     description: page.value?.description,
     ogDescription: page.value?.description,
     ogUrl: useRequestURL().href,
+});
+
+useHead({
+    script: [
+        {
+            key: 'json-ld-article',
+            type: 'application/ld+json',
+            innerHTML: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                '@id': `${articleUrl}#article`,
+                url: articleUrl,
+                headline: page.value.title,
+                description: page.value.description,
+                datePublished: new Date(page.value.date).toISOString(),
+                dateModified: new Date(page.value.date).toISOString(),
+                inLanguage: 'en-US',
+                isPartOf: { '@id': `${siteUrl}/#website` },
+                mainEntityOfPage: {
+                    '@type': 'WebPage',
+                    '@id': articleUrl,
+                },
+                author: { '@id': personId },
+                publisher: { '@id': personId },
+            }),
+        },
+    ],
 });
 
 definePageMeta({

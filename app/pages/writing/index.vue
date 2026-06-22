@@ -4,6 +4,40 @@
 // );
 const pages: any[] = [];
 
+const siteUrl = 'https://jaron.sh';
+const writingUrl = `${siteUrl}/writing`;
+
+useSeoMeta({
+    title: 'Writing',
+    ogTitle: 'Writing',
+    description:
+        "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+    ogDescription:
+        "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+    ogUrl: useRequestURL().href,
+});
+
+useHead({
+    script: [
+        {
+            key: 'json-ld-writing',
+            type: 'application/ld+json',
+            innerHTML: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'CollectionPage',
+                '@id': `${writingUrl}#collection`,
+                url: writingUrl,
+                name: 'Writing',
+                description:
+                    "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+                inLanguage: 'en-US',
+                isPartOf: { '@id': `${siteUrl}/#website` },
+                author: { '@id': `${siteUrl}/#person` },
+            }),
+        },
+    ],
+});
+
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     // ex. May 5, 2026
