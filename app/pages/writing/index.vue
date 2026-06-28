@@ -1,11 +1,14 @@
 <script setup lang="ts">
-// const { data: pages } = await useAsyncData('writing-pages', () =>
-//     queryCollection('writing').all(),
-// );
-const pages: any[] = [];
+const { data: pages } = await useAsyncData('writing-pages', () =>
+    queryCollection('writing').order('date', 'DESC').all(),
+);
 
 const siteUrl = 'https://jaron.sh';
 const writingUrl = `${siteUrl}/writing`;
+const personId = `${siteUrl}/#person`;
+const websiteId = `${siteUrl}/#website`;
+const collectionId = `${writingUrl}#collection`;
+const blogId = `${writingUrl}#blog`;
 
 useSeoMeta({
     title: 'Writing',
@@ -24,15 +27,66 @@ useHead({
             type: 'application/ld+json',
             innerHTML: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': 'CollectionPage',
-                '@id': `${writingUrl}#collection`,
-                url: writingUrl,
-                name: 'Writing',
-                description:
-                    "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
-                inLanguage: 'en-US',
-                isPartOf: { '@id': `${siteUrl}/#website` },
-                author: { '@id': `${siteUrl}/#person` },
+                '@graph': [
+                    {
+                        '@type': 'CollectionPage',
+                        '@id': collectionId,
+                        url: writingUrl,
+                        name: 'Writing',
+                        description:
+                            "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': websiteId },
+                        author: { '@id': personId },
+                        mainEntity: { '@id': blogId },
+                        breadcrumb: { '@id': `${collectionId}#breadcrumb` },
+                    },
+                    {
+                        '@type': 'Blog',
+                        '@id': blogId,
+                        url: writingUrl,
+                        name: 'Jaron Pate Writing',
+                        description:
+                            "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': websiteId },
+                        publisher: { '@id': personId },
+                        blogPost: (pages.value ?? []).map((page) => ({
+                            '@id': `${writingUrl}/${page.path}#article`,
+                        })),
+                    },
+                    {
+                        '@type': 'ItemList',
+                        '@id': `${collectionId}#posts`,
+                        name: 'Writing by Jaron Pate',
+                        itemListElement: (pages.value ?? []).map(
+                            (page, index) => ({
+                                '@type': 'ListItem',
+                                position: index + 1,
+                                url: `${writingUrl}/${page.path}`,
+                                name: page.title,
+                            }),
+                        ),
+                    },
+                    {
+                        '@type': 'BreadcrumbList',
+                        '@id': `${collectionId}#breadcrumb`,
+                        itemListElement: [
+                            {
+                                '@type': 'ListItem',
+                                position: 1,
+                                name: 'Home',
+                                item: siteUrl,
+                            },
+                            {
+                                '@type': 'ListItem',
+                                position: 2,
+                                name: 'Writing',
+                                item: writingUrl,
+                            },
+                        ],
+                    },
+                ],
             }),
         },
     ],

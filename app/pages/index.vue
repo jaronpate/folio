@@ -9,6 +9,7 @@ import { ref } from 'vue';
 const siteUrl = 'https://jaron.sh';
 const currentUrl = useRequestURL().href;
 const personId = `${siteUrl}/#person`;
+const websiteId = `${siteUrl}/#website`;
 const webpageId = `${siteUrl}/#homepage`;
 
 useSeoMeta({
@@ -113,29 +114,60 @@ useHead({
             type: 'application/ld+json',
             innerHTML: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': 'ProfilePage',
-                '@id': webpageId,
-                url: siteUrl,
-                name: "Hey, I'm Jaron.",
-                description:
-                    'Developer. Reformed Rust enjoyer, Golang padawan.',
-                inLanguage: 'en-US',
-                isPartOf: { '@id': `${siteUrl}/#website` },
-                about: { '@id': personId },
-                mainEntity: { '@id': personId },
-                mentions: [
-                    ...selectedWorks.map((work) => ({
-                        '@type': 'CreativeWork',
-                        name: work.title,
-                        description: work.description,
-                        url: work.link,
-                    })),
-                    ...projects.map((project) => ({
-                        '@type': 'CreativeWork',
-                        name: project.title,
-                        description: project.description,
-                        url: project.href,
-                    })),
+                '@graph': [
+                    {
+                        '@type': 'ProfilePage',
+                        '@id': webpageId,
+                        url: siteUrl,
+                        name: "Hey, I'm Jaron.",
+                        description:
+                            'Developer. Reformed Rust enjoyer, Golang padawan.',
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': websiteId },
+                        about: { '@id': personId },
+                        mainEntity: { '@id': personId },
+                        primaryImageOfPage: {
+                            '@type': 'ImageObject',
+                            url: `${siteUrl}/favicon.png`,
+                        },
+                        hasPart: [
+                            { '@id': `${webpageId}#selected-work` },
+                            { '@id': `${webpageId}#projects` },
+                        ],
+                    },
+                    {
+                        '@type': 'ItemList',
+                        '@id': `${webpageId}#selected-work`,
+                        name: 'Selected work',
+                        itemListElement: selectedWorks.map((work, index) => ({
+                            '@type': 'ListItem',
+                            position: index + 1,
+                            item: {
+                                '@type': 'CreativeWork',
+                                name: work.title,
+                                description: work.description,
+                                url: work.link,
+                                creator: { '@id': personId },
+                            },
+                        })),
+                    },
+                    {
+                        '@type': 'ItemList',
+                        '@id': `${webpageId}#projects`,
+                        name: 'Projects',
+                        itemListElement: projects.map((project, index) => ({
+                            '@type': 'ListItem',
+                            position: index + 1,
+                            item: {
+                                '@type': 'SoftwareApplication',
+                                name: project.title,
+                                description: project.description,
+                                url: project.href,
+                                author: { '@id': personId },
+                                applicationCategory: 'DeveloperApplication',
+                            },
+                        })),
+                    },
                 ],
             }),
         },

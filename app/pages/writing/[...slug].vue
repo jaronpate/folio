@@ -2,7 +2,11 @@
 const route = useRoute();
 const siteUrl = 'https://jaron.sh';
 const personId = `${siteUrl}/#person`;
+const websiteId = `${siteUrl}/#website`;
 const articleUrl = `${siteUrl}${route.path}`;
+const webpageId = `${articleUrl}#webpage`;
+const articleId = `${articleUrl}#article`;
+const blogId = `${siteUrl}/writing#blog`;
 const { data: page } = await useAsyncData(route.path, () => {
     return queryCollection('writing')
         .path(route.path.replace('/writing/', ''))
@@ -28,21 +32,71 @@ useHead({
             type: 'application/ld+json',
             innerHTML: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': 'BlogPosting',
-                '@id': `${articleUrl}#article`,
-                url: articleUrl,
-                headline: page.value.title,
-                description: page.value.description,
-                datePublished: new Date(page.value.date).toISOString(),
-                dateModified: new Date(page.value.date).toISOString(),
-                inLanguage: 'en-US',
-                isPartOf: { '@id': `${siteUrl}/#website` },
-                mainEntityOfPage: {
-                    '@type': 'WebPage',
-                    '@id': articleUrl,
-                },
-                author: { '@id': personId },
-                publisher: { '@id': personId },
+                '@graph': [
+                    {
+                        '@type': 'WebPage',
+                        '@id': webpageId,
+                        url: articleUrl,
+                        name: page.value.title,
+                        description: page.value.description,
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': websiteId },
+                        breadcrumb: { '@id': `${articleUrl}#breadcrumb` },
+                        mainEntity: { '@id': articleId },
+                    },
+                    {
+                        '@type': 'Blog',
+                        '@id': blogId,
+                        url: `${siteUrl}/writing`,
+                        name: 'Jaron Pate Writing',
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': websiteId },
+                        publisher: { '@id': personId },
+                    },
+                    {
+                        '@type': 'BlogPosting',
+                        '@id': articleId,
+                        url: articleUrl,
+                        headline: page.value.title,
+                        description: page.value.description,
+                        datePublished: new Date(page.value.date).toISOString(),
+                        dateModified: new Date(page.value.date).toISOString(),
+                        image: {
+                            '@type': 'ImageObject',
+                            '@id': `${articleUrl}#article-image`,
+                            url: `${siteUrl}/favicon.png`,
+                        },
+                        inLanguage: 'en-US',
+                        isPartOf: { '@id': blogId },
+                        mainEntityOfPage: { '@id': webpageId },
+                        author: { '@id': personId },
+                        publisher: { '@id': personId },
+                    },
+                    {
+                        '@type': 'BreadcrumbList',
+                        '@id': `${articleUrl}#breadcrumb`,
+                        itemListElement: [
+                            {
+                                '@type': 'ListItem',
+                                position: 1,
+                                name: 'Home',
+                                item: siteUrl,
+                            },
+                            {
+                                '@type': 'ListItem',
+                                position: 2,
+                                name: 'Writing',
+                                item: `${siteUrl}/writing`,
+                            },
+                            {
+                                '@type': 'ListItem',
+                                position: 3,
+                                name: page.value.title,
+                                item: articleUrl,
+                            },
+                        ],
+                    },
+                ],
             }),
         },
     ],
