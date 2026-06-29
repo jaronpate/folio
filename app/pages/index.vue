@@ -130,10 +130,6 @@ useHead({
                             '@type': 'ImageObject',
                             url: `${siteUrl}/favicon.png`,
                         },
-                        hasPart: [
-                            { '@id': `${webpageId}#selected-work` },
-                            { '@id': `${webpageId}#projects` },
-                        ],
                     },
                     {
                         '@type': 'ItemList',
