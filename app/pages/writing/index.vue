@@ -1,7 +1,9 @@
 <script setup lang="ts">
-const { data: pages } = await useAsyncData('writing-pages', () =>
-    queryCollection('writing').order('date', 'DESC').all(),
-);
+// const { data: pages } = await useAsyncData('writing-pages', () =>
+//     queryCollection('writing').order('date', 'DESC').all(),
+// );
+
+const pages = ref([]);
 
 const siteUrl = 'https://jaron.sh';
 const writingUrl = `${siteUrl}/writing`;

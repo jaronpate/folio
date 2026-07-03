@@ -10,6 +10,25 @@ const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
         {
+            '@type': 'WebSite',
+            '@id': websiteId,
+            url: siteUrl,
+            name: 'Jaron Pate',
+            alternateName: 'jaron.sh',
+            description:
+                'Developer. Reformed Rust enjoyer, Golang padawan. Building producst in Austin, Texas.',
+            inLanguage: 'en-US',
+            about: { '@id': personId },
+            author: { '@id': personId },
+            publisher: { '@id': personId },
+            image: {
+                '@type': 'ImageObject',
+                '@id': `${siteUrl}/#website-image`,
+                url: defaultImage,
+                caption: 'Jaron Pate Logo',
+            },
+        },
+        {
             '@type': 'Person',
             '@id': personId,
             name: 'Jaron Pate',
@@ -55,19 +74,6 @@ const jsonLd = {
                 'TypeScript',
             ],
             mainEntityOfPage: { '@id': websiteId },
-        },
-        {
-            '@type': 'WebSite',
-            '@id': websiteId,
-            url: siteUrl,
-            name: 'Jaron Pate',
-            alternateName: 'jaron.sh',
-            description:
-                'Developer. Reformed Rust enjoyer, Golang padawan. Building producst in Austin, Texas.',
-            inLanguage: 'en-US',
-            about: { '@id': personId },
-            author: { '@id': personId },
-            publisher: { '@id': personId },
         },
     ],
 };
