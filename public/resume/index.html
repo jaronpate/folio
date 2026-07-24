@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Jaron Pate — Resume</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
             :root {
                 --ink: #111827;
@@ -31,7 +31,8 @@
                     'Segoe UI',
                     sans-serif;
                 font-size: 13px;
-                line-height: 1.38;
+                font-weight: 400;
+                line-height: 1.4;
             }
 
             body {
@@ -62,17 +63,24 @@
             }
 
             h1 {
-                font-size: 2.15rem;
-                line-height: 1;
-                letter-spacing: -0.06em;
+                font-size: 1.85rem;
+                line-height: 1.1;
+                letter-spacing: -0.04em;
+                font-weight: 600;
+            }
+
+            h2,
+            h3,
+            strong,
+            .company {
+                font-size: inherit;
                 font-weight: 600;
             }
 
             .headline {
                 margin-top: 6px;
                 color: var(--accent);
-                font-size: 1.03rem;
-                font-weight: 500;
+                font-weight: 600;
             }
 
             .summary {
@@ -87,7 +95,6 @@
                 gap: 4px;
                 text-align: right;
                 white-space: nowrap;
-                font-size: 0.92rem;
             }
 
             a {
@@ -111,10 +118,7 @@
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                color: var(--ink);
-                font-size: 0.9rem;
-                font-weight: 800;
-                letter-spacing: 0.12em;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
             }
 
@@ -140,11 +144,6 @@
                 align-items: baseline;
             }
 
-            h3 {
-                font-size: 1.05rem;
-                font-weight: 800;
-            }
-
             .company,
             .meta {
                 color: var(--muted);
@@ -152,11 +151,9 @@
 
             .company {
                 margin-top: 1px;
-                font-weight: 600;
             }
 
             .meta {
-                font-size: 0.86rem;
                 text-align: right;
                 white-space: nowrap;
             }
@@ -179,11 +176,11 @@
 
             .skill-row strong {
                 display: block;
-                font-size: 0.88rem;
                 margin-bottom: 2px;
             }
 
-            .skill-row p {
+            .skill-row p,
+            .project p {
                 color: var(--muted);
             }
 
@@ -194,14 +191,8 @@
                 margin-top: 10px;
             }
 
-            .project h3 {
-                font-size: 0.98rem;
-            }
-
             .project p {
                 margin-top: 2px;
-                color: var(--muted);
-                font-size: 0.9rem;
             }
 
             @media print {
@@ -216,10 +207,6 @@
                     margin: 0;
                     padding: 0.42in 0.5in;
                     box-shadow: none;
-                }
-
-                a {
-                    color: inherit;
                 }
             }
         </style>
@@ -250,7 +237,7 @@
             </header>
 
             <section>
-                <h2>Experience</h2>
+                <h2>What I've Done</h2>
                 <article class="item">
                     <div class="item-heading">
                         <div>
@@ -316,7 +303,7 @@
             </section>
 
             <section>
-                <h2>Skills</h2>
+                <h2>Stuff I've Used</h2>
                 <div class="skills">
                     <div class="skill-row">
                         <strong>Languages</strong>
@@ -341,7 +328,7 @@
             </section>
 
             <section>
-                <h2>Projects</h2>
+                <h2>Things I've Built</h2>
                 <div class="projects">
                     <article class="project">
                         <h3><a href="https://unicord.hat.fish/">Unicord</a></h3>
