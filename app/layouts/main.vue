@@ -206,7 +206,7 @@ svg[height='0'] {
 }
 
 .header-upper-nav {
-    padding: 2rem;
+    padding: 0 2rem;
     height: 100%;
     font-size: small;
     gap: 1rem;
