@@ -220,7 +220,7 @@ svg[height='0'] {
     gap: 16px;
 
     padding: 3.25rem 2.5rem;
-    min-height: 22vh;
+    min-height: 20vh;
     color: var(--color-white-500);
     border-radius: 16px;
     overflow: hidden;
