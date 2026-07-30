@@ -269,7 +269,7 @@ onMounted(() => {
 <template>
     <div ref="pageRoot">
         <NuxtLayout name="main">
-            <section class="selected-work">
+            <section class="rows">
                 <h5>Selected Work</h5>
                 <div class="section__content">
                     <a
@@ -295,7 +295,7 @@ onMounted(() => {
                     </a>
                 </div>
             </section>
-            <section class="projects">
+            <section class="rows">
                 <h5>Projects</h5>
                 <div class="section__content">
                     <a
@@ -356,44 +356,66 @@ onMounted(() => {
 
 <style scoped>
 section {
-    margin-top: 2rem;
+    margin-top: calc(var(--gap) * 2);
 }
 
 section > .section__content {
-    padding: 0 2rem;
+    padding: 0 calc(var(--gap) * 2);
 }
 
 /* section:not(:has(h5)) > .section__content {
     padding: 2rem;
 } */
 
-section > h5::before {
-    content: '';
-    height: 1px;
-    background: var(--muted);
-    order: 0;
-    width: 1rem;
-}
-
-section > h5::after {
-    content: '';
-    height: 1px;
-    background: var(--muted);
-    flex-grow: 1;
-}
-
 section > h5 {
+    --flare-length: 1.125rem; /* how far the flare extends horizontally */
+    --flare-spread: 1.125rem; /* how far the arms open up/down */
+
     font-weight: 400;
     font-style: italic;
     color: var(--muted);
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: 0;
+    margin: 0 0 var(--gap) 0;
+    line-height: 1;
+}
+
+section > h5::before {
+    content: '';
+    width: var(--flare-length);
+    height: var(--flare-spread);
+    flex-shrink: 0;
+    background-color: var(--muted);
+    /* Optically center */
+    transform: translateY(-0.12em);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+        center / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+        center / 100% 100% no-repeat;
+}
+
+section > h5::after {
+    content: '';
+    height: var(--flare-spread);
+    flex-grow: 1;
+    background-color: var(--muted);
+    /* Optically center */
+    transform: translateY(-0.12em);
+    -webkit-mask:
+        linear-gradient(#000, #000) left center /
+            calc(100% - var(--flare-length) * 0.45) 1px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            right center / var(--flare-length) 100% no-repeat;
+    mask:
+        linear-gradient(#000, #000) left center /
+            calc(100% - var(--flare-length) * 0.45) 1px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            right center / var(--flare-length) 100% no-repeat;
 }
 
 section:last-of-type {
-    margin-bottom: 2rem;
+    margin-bottom: calc(var(--gap) * 2);
 }
 
 .work {
@@ -467,10 +489,16 @@ section:last-of-type {
     justify-content: center;
 }
 
+.rows > .section__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+}
+
 .project,
 .work {
     /*border-bottom: 1px solid var(--muted);*/
-    padding: var(--gap) 0;
+    /*padding: var(--gap) 0;*/
     display: block;
     text-decoration: none;
     color: inherit;

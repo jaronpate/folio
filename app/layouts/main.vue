@@ -37,36 +37,29 @@ onMounted(() => {
             defaults: { ease: 'power3.out' },
         });
 
-        // trace lines draw down the page
-        tl.from('.trace', {
-            scaleY: 0,
-            transformOrigin: 'top center',
-            duration: 1.4,
-            ease: 'power3.inOut',
+        tl.from('.header-lower', {
+            autoAlpha: 0,
+            y: 12,
+            duration: 0.9,
+            ease: 'power2.out',
         })
-            // header panel fades in as the lines pass it
+            .from('.name', { yPercent: 110, duration: 0.9 }, 0.2)
             .from(
-                '.header-lower',
-                { autoAlpha: 0, duration: 0.9, ease: 'power2.out' },
-                0.3,
+                '.title',
+                { yPercent: 120, autoAlpha: 0, duration: 0.8 },
+                0.35,
             )
-            // masked title reveal
-            .from('.name', { yPercent: 110, duration: 0.9 }, 0.55)
-            .from('.title', { yPercent: 120, autoAlpha: 0, duration: 0.8 }, 0.7)
-            // footer appears as the lines reach the bottom
             .from(
                 ['.footer-upper', '.footer-lower'],
                 { autoAlpha: 0, duration: 0.7, ease: 'power2.out' },
-                0.9,
+                0.55,
             )
-            // nav chrome fades in last
-            .from('.header-upper', { autoAlpha: 0, duration: 0.7 }, 0.9);
+            .from('.header-upper', { autoAlpha: 0, duration: 0.7 }, 0.55);
 
-        // body content waits for the intro
         tl.from(
             'main',
             { autoAlpha: 0, y: 16, duration: 0.8, ease: 'power2.out' },
-            0.7,
+            0.4,
         );
     }, pageEl.value);
 
@@ -88,10 +81,6 @@ onMounted(() => {
             </filter>
         </svg>
         <div class="page-wrapper" ref="pageEl">
-            <div class="trace left"></div>
-
-            <div class="trace right"></div>
-
             <header class="header">
                 <div class="header-upper">
                     <slot name="header-upper">
@@ -168,6 +157,7 @@ onMounted(() => {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
+    /*gap: 1.5rem;*/
     min-height: 100vh;
     position: relative;
 }
@@ -176,23 +166,6 @@ main {
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.trace {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 1px;
-    background: var(--muted);
-    z-index: 1;
-}
-
-.trace.left {
-    left: 0;
-}
-
-.trace.right {
-    right: 0;
 }
 
 svg[height='0'] {
@@ -222,6 +195,12 @@ svg[height='0'] {
     flex-direction: column;
 }
 
+.footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .header-upper {
     height: 8vh;
 }
@@ -237,12 +216,14 @@ svg[height='0'] {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: center;
     gap: 16px;
 
-    border-top: 1px solid var(--muted);
-    border-bottom: 1px solid var(--muted);
-    padding: 2rem;
+    padding: 3.25rem 2.5rem;
+    min-height: 22vh;
     color: var(--color-white-500);
+    border-radius: 16px;
+    overflow: hidden;
 
     position: relative;
     isolation: isolate;
@@ -257,15 +238,16 @@ svg[height='0'] {
     background-position: left top;
     background-repeat: no-repeat;
     filter: url(#grainy);
+    border-radius: 16px;
     z-index: -1;
 }
 
 .footer-upper {
-    border-top: 1px solid var(--muted);
-    border-bottom: 1px solid var(--muted);
-    padding: 2rem;
+    padding: 3.25rem 2.5rem;
     color: var(--color-white-500);
-    min-height: 10vh;
+    min-height: 16vh;
+    border-radius: 16px;
+    overflow: hidden;
     position: relative;
     isolation: isolate;
 }
@@ -279,6 +261,7 @@ svg[height='0'] {
     background-position: center;
     background-repeat: no-repeat;
     filter: url(#grainy);
+    border-radius: 16px;
     z-index: -1;
 }
 
@@ -317,10 +300,17 @@ svg[height='0'] {
 @media (max-width: 768px) {
     .page-wrapper {
         --main-width: 100vw;
+        padding: 0 1rem;
     }
 
-    .trace {
-        display: none;
+    .header-lower,
+    .footer-upper {
+        border-radius: 12px;
+    }
+
+    .header-lower::before,
+    .footer-upper::before {
+        border-radius: 12px;
     }
 }
 </style>

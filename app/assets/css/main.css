@@ -1,22 +1,23 @@
 @import './fonts.css';
 
 :root {
-    /* --font: 'Baskervville', serif; */
-    /* --font: 'EB Garamond', serif; */
-    /* --font: 'Plantin MT Pro', serif; */
-    /* --font: 'Young Serif', serif; */
-    /* --font: "SohneBuch", sans-serif; */
-    --font-plain: 'SohneBuch', sans-serif;
-    --font: 'Redaction', serif;
-    --font-hover: 'Redaction 70', serif;
-    /* --font-hover: var(--font); */
+    /*--font: 'Baskervville', serif;*/
+    /*--font: 'EB Garamond', serif;*/
+    --font: 'Plantin MT Pro', serif;
+    /*--font: 'Young Serif', serif;*/
+    /*--font: 'SohneBuch', sans-serif;*/
+    /*--font-plain: 'SohneBuch', sans-serif;*/
+    /*--font: 'Redaction', serif;*/
+    /*--font-hover: 'Redaction 70', serif;*/
+    --font-plain: var(--font);
+    --font-hover: var(--font);
     --text: #333;
     --muted: #666;
-    --bg: #fbfbf7;
-    --bg-secondary: #efefe8;
+    --bg: #f6f7f9;
+    --bg-secondary: #e9ebef;
     --dot-color: #666;
 
-    --color-white-500: #fbfbf7;
+    --color-white-500: #f6f7f9;
 
     --gap: 1rem;
 
