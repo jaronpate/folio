@@ -1,28 +1,42 @@
 <script setup lang="ts">
+import {
+    DEFAULT_IMAGE,
+    SITE_NAME,
+    SITE_URL,
+    personId,
+    websiteId,
+} from '~/utils/site';
+
 // const { data: pages } = await useAsyncData('writing-pages', () =>
 //     queryCollection('writing').order('date', 'DESC').all(),
 // );
 
 const pages = ref([]);
 
-const siteUrl = 'https://jaron.sh';
-const writingUrl = `${siteUrl}/writing`;
-const personId = `${siteUrl}/#person`;
-const websiteId = `${siteUrl}/#website`;
+const writingUrl = `${SITE_URL}/writing`;
 const collectionId = `${writingUrl}#collection`;
 const blogId = `${writingUrl}#blog`;
+const writingTitle = 'Writing';
+const writingDescription =
+    "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.";
 
 useSeoMeta({
-    title: 'Writing',
-    ogTitle: 'Writing',
-    description:
-        "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
-    ogDescription:
-        "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
-    ogUrl: useRequestURL().href,
+    title: writingTitle,
+    ogTitle: writingTitle,
+    description: writingDescription,
+    ogDescription: writingDescription,
+    ogUrl: writingUrl,
+    ogType: 'website',
+    ogImage: DEFAULT_IMAGE,
+    ogImageAlt: writingTitle,
+    twitterCard: 'summary',
+    twitterTitle: writingTitle,
+    twitterDescription: writingDescription,
+    twitterImage: DEFAULT_IMAGE,
 });
 
 useHead({
+    link: [{ rel: 'canonical', href: writingUrl }],
     script: [
         {
             key: 'json-ld-writing',
@@ -34,12 +48,15 @@ useHead({
                         '@type': 'CollectionPage',
                         '@id': collectionId,
                         url: writingUrl,
-                        name: 'Writing',
-                        description:
-                            "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+                        name: writingTitle,
+                        description: writingDescription,
                         inLanguage: 'en-US',
                         isPartOf: { '@id': websiteId },
-                        author: { '@id': personId },
+                        author: {
+                            '@type': 'Person',
+                            '@id': personId,
+                            name: SITE_NAME,
+                        },
                         mainEntity: { '@id': blogId },
                         breadcrumb: { '@id': `${collectionId}#breadcrumb` },
                     },
@@ -48,11 +65,14 @@ useHead({
                         '@id': blogId,
                         url: writingUrl,
                         name: 'Jaron Pate Writing',
-                        description:
-                            "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.",
+                        description: writingDescription,
                         inLanguage: 'en-US',
                         isPartOf: { '@id': websiteId },
-                        publisher: { '@id': personId },
+                        publisher: {
+                            '@type': 'Person',
+                            '@id': personId,
+                            name: SITE_NAME,
+                        },
                         blogPost: (pages.value ?? []).map((page) => ({
                             '@id': `${writingUrl}/${page.path}#article`,
                         })),
@@ -78,12 +98,12 @@ useHead({
                                 '@type': 'ListItem',
                                 position: 1,
                                 name: 'Home',
-                                item: siteUrl,
+                                item: SITE_URL,
                             },
                             {
                                 '@type': 'ListItem',
                                 position: 2,
-                                name: 'Writing',
+                                name: writingTitle,
                                 item: writingUrl,
                             },
                         ],

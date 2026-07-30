@@ -39,7 +39,8 @@ export default defineNuxtConfig({
             meta: [
                 {
                     name: 'description',
-                    content: 'Software Engineer by trade — tinkerer by nature.',
+                    content:
+                        'Developer. Reformed Rust enjoyer, Golang padawan.',
                 },
             ],
             link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],

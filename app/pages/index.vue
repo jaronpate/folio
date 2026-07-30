@@ -5,19 +5,35 @@ let sectionsRevealed = false;
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import {
+    DEFAULT_DESCRIPTION,
+    DEFAULT_IMAGE,
+    DEFAULT_TITLE,
+    SITE_URL,
+    personId,
+    personSchema,
+    websiteId,
+} from '~/utils/site';
 
-const siteUrl = 'https://jaron.sh';
-const currentUrl = useRequestURL().href;
-const personId = `${siteUrl}/#person`;
-const websiteId = `${siteUrl}/#website`;
-const webpageId = `${siteUrl}/#homepage`;
+const webpageId = `${SITE_URL}/#homepage`;
 
 useSeoMeta({
-    title: "Hey, I'm Jaron.",
-    ogTitle: "Hey, I'm Jaron.",
-    description: 'Developer. Reformed Rust enjoyer, Golang padawan.',
-    ogDescription: 'Developer. Reformed Rust enjoyer, Golang padawan.',
-    ogUrl: currentUrl,
+    title: DEFAULT_TITLE,
+    ogTitle: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    ogDescription: DEFAULT_DESCRIPTION,
+    ogUrl: SITE_URL,
+    ogType: 'profile',
+    ogImage: DEFAULT_IMAGE,
+    ogImageAlt: DEFAULT_TITLE,
+    twitterCard: 'summary',
+    twitterTitle: DEFAULT_TITLE,
+    twitterDescription: DEFAULT_DESCRIPTION,
+    twitterImage: DEFAULT_IMAGE,
+});
+
+useHead({
+    link: [{ rel: 'canonical', href: SITE_URL }],
 });
 
 const titles = [
@@ -118,17 +134,18 @@ useHead({
                     {
                         '@type': 'ProfilePage',
                         '@id': webpageId,
-                        url: siteUrl,
-                        name: "Hey, I'm Jaron.",
-                        description:
-                            'Developer. Reformed Rust enjoyer, Golang padawan.',
+                        url: SITE_URL,
+                        name: DEFAULT_TITLE,
+                        description: DEFAULT_DESCRIPTION,
                         inLanguage: 'en-US',
                         isPartOf: { '@id': websiteId },
                         about: { '@id': personId },
-                        mainEntity: { '@id': personId },
+                        // Google requires mainEntity to be an inline Person with name —
+                        // a bare @id reference fails Rich Results validation.
+                        mainEntity: personSchema(),
                         primaryImageOfPage: {
                             '@type': 'ImageObject',
-                            url: `${siteUrl}/favicon.png`,
+                            url: DEFAULT_IMAGE,
                         },
                     },
                     {
@@ -155,12 +172,11 @@ useHead({
                             '@type': 'ListItem',
                             position: index + 1,
                             item: {
-                                '@type': 'SoftwareApplication',
+                                '@type': 'CreativeWork',
                                 name: project.title,
                                 description: project.description,
                                 url: project.href,
                                 author: { '@id': personId },
-                                applicationCategory: 'DeveloperApplication',
                             },
                         })),
                     },

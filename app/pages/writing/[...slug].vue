@@ -1,12 +1,17 @@
 <script lang="ts" setup>
+import {
+    DEFAULT_IMAGE,
+    SITE_NAME,
+    SITE_URL,
+    personId,
+    websiteId,
+} from '~/utils/site';
+
 const route = useRoute();
-const siteUrl = 'https://jaron.sh';
-const personId = `${siteUrl}/#person`;
-const websiteId = `${siteUrl}/#website`;
-const articleUrl = `${siteUrl}${route.path}`;
+const articleUrl = `${SITE_URL}${route.path}`;
 const webpageId = `${articleUrl}#webpage`;
 const articleId = `${articleUrl}#article`;
-const blogId = `${siteUrl}/writing#blog`;
+const blogId = `${SITE_URL}/writing#blog`;
 const { data: page } = await useAsyncData(route.path, () => {
     return queryCollection('writing')
         .path(route.path.replace('/writing/', ''))
@@ -17,15 +22,29 @@ if (!page.value) {
     throw createError({ statusCode: 404, statusMessage: 'Page Not Found' });
 }
 
+const articleTitle = page.value.title;
+const articleDescription = page.value.description;
+
 useSeoMeta({
-    title: page.value?.title,
-    ogTitle: page.value?.title,
-    description: page.value?.description,
-    ogDescription: page.value?.description,
-    ogUrl: useRequestURL().href,
+    title: articleTitle,
+    ogTitle: articleTitle,
+    description: articleDescription,
+    ogDescription: articleDescription,
+    ogUrl: articleUrl,
+    ogType: 'article',
+    ogImage: DEFAULT_IMAGE,
+    ogImageAlt: articleTitle,
+    twitterCard: 'summary',
+    twitterTitle: articleTitle,
+    twitterDescription: articleDescription,
+    twitterImage: DEFAULT_IMAGE,
+    articlePublishedTime: new Date(page.value.date).toISOString(),
+    articleModifiedTime: new Date(page.value.date).toISOString(),
+    articleAuthor: [SITE_NAME],
 });
 
 useHead({
+    link: [{ rel: 'canonical', href: articleUrl }],
     script: [
         {
             key: 'json-ld-article',
@@ -37,8 +56,8 @@ useHead({
                         '@type': 'WebPage',
                         '@id': webpageId,
                         url: articleUrl,
-                        name: page.value.title,
-                        description: page.value.description,
+                        name: articleTitle,
+                        description: articleDescription,
                         inLanguage: 'en-US',
                         isPartOf: { '@id': websiteId },
                         breadcrumb: { '@id': `${articleUrl}#breadcrumb` },
@@ -47,30 +66,43 @@ useHead({
                     {
                         '@type': 'Blog',
                         '@id': blogId,
-                        url: `${siteUrl}/writing`,
+                        url: `${SITE_URL}/writing`,
                         name: 'Jaron Pate Writing',
                         inLanguage: 'en-US',
                         isPartOf: { '@id': websiteId },
-                        publisher: { '@id': personId },
+                        publisher: {
+                            '@type': 'Person',
+                            '@id': personId,
+                            name: SITE_NAME,
+                        },
                     },
                     {
                         '@type': 'BlogPosting',
                         '@id': articleId,
                         url: articleUrl,
-                        headline: page.value.title,
-                        description: page.value.description,
+                        headline: articleTitle,
+                        description: articleDescription,
                         datePublished: new Date(page.value.date).toISOString(),
                         dateModified: new Date(page.value.date).toISOString(),
                         image: {
                             '@type': 'ImageObject',
                             '@id': `${articleUrl}#article-image`,
-                            url: `${siteUrl}/favicon.png`,
+                            url: DEFAULT_IMAGE,
                         },
                         inLanguage: 'en-US',
                         isPartOf: { '@id': blogId },
                         mainEntityOfPage: { '@id': webpageId },
-                        author: { '@id': personId },
-                        publisher: { '@id': personId },
+                        author: {
+                            '@type': 'Person',
+                            '@id': personId,
+                            name: SITE_NAME,
+                            url: SITE_URL,
+                        },
+                        publisher: {
+                            '@type': 'Person',
+                            '@id': personId,
+                            name: SITE_NAME,
+                        },
                     },
                     {
                         '@type': 'BreadcrumbList',
@@ -80,18 +112,18 @@ useHead({
                                 '@type': 'ListItem',
                                 position: 1,
                                 name: 'Home',
-                                item: siteUrl,
+                                item: SITE_URL,
                             },
                             {
                                 '@type': 'ListItem',
                                 position: 2,
                                 name: 'Writing',
-                                item: `${siteUrl}/writing`,
+                                item: `${SITE_URL}/writing`,
                             },
                             {
                                 '@type': 'ListItem',
                                 position: 3,
-                                name: page.value.title,
+                                name: articleTitle,
                                 item: articleUrl,
                             },
                         ],
