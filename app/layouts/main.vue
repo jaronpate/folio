@@ -218,9 +218,7 @@ svg[height='0'] {
     align-items: flex-start;
     justify-content: center;
     gap: 16px;
-
-    padding: 3.25rem 2.5rem;
-    min-height: 20vh;
+    padding: 3rem 2.5rem;
     color: var(--color-white-500);
     border-radius: 16px;
     overflow: hidden;
@@ -245,7 +243,6 @@ svg[height='0'] {
 .footer-upper {
     padding: 3.25rem 2.5rem;
     color: var(--color-white-500);
-    min-height: 16vh;
     border-radius: 16px;
     overflow: hidden;
     position: relative;
