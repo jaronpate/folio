@@ -85,7 +85,7 @@ I've learned a lot since then and still have much more to learn.
 These days I build things because I find joy in making something someone else really enjoys using.
 I get excited about reaching a level of polish that users don't even notice.
 
-In a time where code is cheap I pride myself in taste and utility.
+In a time where code is cheap I pride myself in taste and execution.
 The best sticking point — in my limited opinion so far — is the way using your product feels.
 So I want everything I make to simply feel the best to use.
 
