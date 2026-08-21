@@ -332,7 +332,7 @@ onMounted(() => {
                 <h5>About</h5>
                 <div class="section__content">
                     <p>
-                        I left school, my job, and moved 800+ miles in 2022 to write
+                        I left school, my job, and moved to Austin in 2022 to write
                         code full time. That was definitely one of the best and
                         most life changing decisions I've ever made. I've learned
                         a lot since then and <em>still</em> have much more to learn.

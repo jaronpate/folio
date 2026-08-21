@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
             res += box({
                 title: 'About',
                 text: `\
-I left school, my job, and moved 800+ miles in 2022 to write code full time.
+I left school, my job, and moved to Austin in 2022 to write code full time.
 That was definitely one of the best and most life changing decisions I've ever made.
 I've learned a lot since then and still have much more to learn.
 
