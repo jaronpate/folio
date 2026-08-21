@@ -78,16 +78,22 @@ export default defineEventHandler(async (event) => {
             res += box({
                 title: 'About',
                 text: `\
-I build things to solve problems from the ground up.
+I left school, my job, and moved 800+ miles in 2022 to write code full time.
+That was definitely one of the best and most life changing decisions I've ever made.
+I've learned a lot since then and still have much more to learn.
 
-I left school and my job at Chick-fil-A in 2022 to write code full time.
-It's definitely one of the best decisions I've ever made.
-I've learned a lot since then and still have so much more to learn.
+These days I build things because I find joy in making something someone else really enjoys using.
+I get excited about reaching a level of polish that users don't even notice.
+
+In a time where code is cheap I pride myself in taste and utility.
+The best sticking point — in my limited opinion so far — is the way using your product feels.
+So I want everything I make to simply feel the best to use.
 
 If you want to build something cool or connect hit me up
 we'll grab a coffee or beer in you're in Austin! 🤠🦇
 
 Also check out some of my work at https://jaron.sh`,
+
                 footer: ['Austin, TX', 'yo@jp.wtf'],
                 padding: [2, 1],
             });

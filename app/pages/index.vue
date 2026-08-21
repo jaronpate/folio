@@ -331,17 +331,27 @@ onMounted(() => {
             <section class="about">
                 <h5>About</h5>
                 <div class="section__content">
-                    <p>I build things to solve problems from the ground up.</p>
                     <p>
-                        I left school and my job at Chick-fil-A in 2022 to write
-                        code full time. It's definitely one of the best
-                        decisions I've ever made. I've learned a lot since then
-                        and
-                        <em>still</em> much to learn and build.
+                        I left school, my job, and moved 800+ miles in 2022 to write
+                        code full time. That was definitely one of the best and
+                        most life changing decisions I've ever made. I've learned
+                        a lot since then and <em>still</em> have much more to learn.
                     </p>
                     <p>
-                        If you want to build something cool or connect hit me up
-                        — we'll grab a coffee or beer in you're in Austin! I
+                        These days I build things because I find joy in making something
+                        someone else really enjoys using. I get excited about reaching a
+                        level of polish that users don't even notice.
+                    </p>
+                    <p>
+                        In a time where code is cheap I pride myself in taste and utility.
+                        The best sticking point — in my limited opinion so far — is the
+                        way using your product <em>feels</em>. So I want everything I make to
+                        simply <em>feel</em> the best to use.
+                    </p>
+                    <p>
+                        If you want to build something cool or connect
+                        <a class="basic-link" href="mailto:yo@jp.wtf">hit me up</a>
+                        — we'll grab a coffee or beer if you're in Austin! I
                         still dont know enough people to form a band yet ;)
                     </p>
                 </div>

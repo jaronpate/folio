@@ -11,7 +11,7 @@ import {
 //     queryCollection('writing').order('date', 'DESC').all(),
 // );
 
-const pages = ref([]);
+const pages = ref<any[]>([]);
 
 const writingUrl = `${SITE_URL}/writing`;
 const collectionId = `${writingUrl}#collection`;
