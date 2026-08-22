@@ -27,6 +27,17 @@ export default defineNuxtConfig({
             type: 'd1',
             bindingName: 'DB',
         },
+        build: {
+            markdown: {
+                highlight: {
+                    theme: {
+                        default: 'github-light',
+                        'light-mode': 'github-light',
+                        'dark-mode': 'github-dark',
+                    },
+                },
+            },
+        },
     },
 
     css: ['~/assets/css/main.css'],

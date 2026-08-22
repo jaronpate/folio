@@ -53,7 +53,7 @@ const onFontChange = (event: Event) => {
                                 </option>
                             </select>
                         </label>
-                        <label class="theme-picker">
+                        <!-- <label class="theme-picker">
                             <span class="visually-hidden">Font</span>
                             <select
                                 class="theme-select"
@@ -68,7 +68,7 @@ const onFontChange = (event: Event) => {
                                     {{ font.label }}
                                 </option>
                             </select>
-                        </label>
+                        </label> -->
                     </nav>
                 </div>
                 <h1 class="hero__title">{{ title }}</h1>
