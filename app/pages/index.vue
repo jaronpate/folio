@@ -652,6 +652,10 @@ section:last-of-type {
 }
 
 @media (max-width: 768px) {
+    section > .section__content {
+        padding: 0 var(--gap);
+    }
+
     .photo-grid {
         grid-template-columns: 1fr;
     }

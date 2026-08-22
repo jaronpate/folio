@@ -203,6 +203,7 @@ svg[height='0'] {
 
 .header-upper {
     height: 8vh;
+    min-height: 3.5rem;
 }
 
 .header-upper-nav {
@@ -263,8 +264,9 @@ svg[height='0'] {
 }
 
 .footer-lower {
-    padding: 2rem;
+    padding: 0 2rem;
     height: 8vh;
+    min-height: 3.5rem;
     font-size: small;
     gap: 1rem;
 }
@@ -295,6 +297,18 @@ svg[height='0'] {
 }
 
 @media (max-width: 768px) {
+    .header-upper-nav {
+        padding: 0 1.5rem;
+    }
+
+    .name {
+        font-size: 2rem;
+    }
+
+    .title {
+        font-size: 1rem;
+    }
+
     .page-wrapper {
         --main-width: 100vw;
         padding: 0 1rem;
@@ -302,7 +316,12 @@ svg[height='0'] {
 
     .header-lower,
     .footer-upper {
+        padding: 1.5rem 1.5rem;
         border-radius: 12px;
+    }
+
+    .footer-lower {
+        padding: 1.5rem 1.5rem;
     }
 
     .header-lower::before,
