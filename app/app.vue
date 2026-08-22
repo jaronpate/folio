@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '~/assets/css/main.css';
 import {
     DEFAULT_DESCRIPTION,
     DEFAULT_IMAGE,
@@ -41,8 +40,6 @@ useHead({
         },
     ],
 });
-
-onMounted(() => {});
 </script>
 
 <template>

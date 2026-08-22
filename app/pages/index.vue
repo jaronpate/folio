@@ -1,10 +1,4 @@
-<script lang="ts">
-// module-scoped so the reveal only plays once per visit
-let sectionsRevealed = false;
-</script>
-
 <script setup lang="ts">
-import { ref } from 'vue';
 import {
     DEFAULT_DESCRIPTION,
     DEFAULT_IMAGE,
@@ -36,19 +30,11 @@ useHead({
     link: [{ rel: 'canonical', href: SITE_URL }],
 });
 
-const titles = [
-    "Hey, I'm Jaron.",
-    'Nice to meet you.',
-    'Welcome.',
-    'Willkommen.',
-    'Bienvenue.',
-];
-
 const selectedWorks = [
     {
         title: 'Edlink',
         description:
-            "I built many things I'm proud of at Edlink. Notably, I designed and shipped Edlink’s internal billing platform for ~150 clients, a flat file ingestion engine that enabled arbitrary data mapping, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live data-preview service.",
+            "I built many things I'm proud of at Edlink. Notably, I designed and shipped the internal billing platform for ~150 clients, a flat file ingestion engine that enabled importing of arbitrary data, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live data-preview service.",
         link: 'https://ed.link',
         images: [
             {
@@ -186,474 +172,121 @@ useHead({
     ],
 });
 
-const photos = [
-    {
-        src: '/photography/athens_red_scooter.jpg',
-        alt: 'Red scooter in Athens',
-        location: 'Athens',
-        year: '2026',
-    },
-    {
-        src: '/photography/athens_subway.jpg',
-        alt: 'Athens metro station',
-        location: 'Athens',
-        year: '2026',
-    },
-    {
-        src: '/photography/athens_sunset.jpg',
-        alt: 'Athens at sunset',
-        location: 'Athens',
-        year: '2026',
-    },
-    {
-        src: '/photography/london_porsche.jpg',
-        alt: 'Porsche shop in London',
-        location: 'London',
-        year: '2025',
-    },
-    {
-        src: '/photography/underground.jpg',
-        alt: 'Entrace to the London underground',
-        location: 'London',
-        year: '2026',
-    },
-    {
-        src: '/photography/austin_parking.jpg',
-        alt: 'Parking garage in Austin',
-        location: 'Austin',
-        year: '2024',
-    },
-];
-
-const pageTitle = ref(titles[0]);
-
-const rotateTitle = () => {
-    setTimeout(() => {
-        const i = titles.findIndex((t) => t === pageTitle.value);
-        pageTitle.value = titles[i + 1] ?? titles[0] ?? 'Oops!';
-        rotateTitle();
-    }, 2000);
-};
-
 definePageMeta({
     layout: false,
-});
-
-const { $gsap } = useNuxtApp();
-const pageRoot = ref<HTMLElement | null>(null);
-
-onMounted(() => {
-    rotateTitle();
-
-    useHead({
-        title: pageTitle,
-    });
-
-    if (!$gsap || !pageRoot.value || sectionsRevealed) return;
-    sectionsRevealed = true;
-
-    const reduced = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-    ).matches;
-
-    const ctx = $gsap.context(() => {
-        if (reduced) return;
-
-        // sections in view on load are revealed by the layout's intro;
-        // below-the-fold sections rise in as they enter the viewport
-        $gsap.utils.toArray<HTMLElement>('main section').forEach((el) => {
-            const inView = el.getBoundingClientRect().top < window.innerHeight;
-            if (inView) return;
-
-            $gsap.from(el, {
-                autoAlpha: 0,
-                y: 24,
-                duration: 0.6,
-                ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: el,
-                    start: 'top 92%',
-                },
-            });
-        });
-    }, pageRoot.value);
-
-    onBeforeUnmount(() => ctx.revert());
 });
 </script>
 
 <template>
-    <div ref="pageRoot">
-        <NuxtLayout name="main">
-            <section class="rows">
-                <h5>Selected Work</h5>
-                <div class="section__content">
-                    <a
-                        v-for="work in selectedWorks"
-                        :key="work.title"
-                        class="work"
-                        :href="work.link"
-                        target="_blank"
+    <NuxtLayout name="main">
+        <article>
+            <h3>Selected Work</h3>
+            <template v-for="work in selectedWorks" :key="work.title">
+                <p>
+                    <a :href="work.link" target="_blank" rel="noopener">{{
+                        work.title
+                    }}</a>:
+                    {{ work.description }}
+                </p>
+                <div class="work__images">
+                    <figure
+                        v-for="image in work.images"
+                        :key="image.src"
+                        class="work__image"
                     >
-                        <h3 class="work__title">{{ work.title }}</h3>
-                        <p class="work__description">
-                            {{ work.description }}
-                        </p>
-                        <div class="work__images">
-                            <figure
-                                v-for="image in work.images"
-                                :key="image.src"
-                                class="work__image"
-                            >
-                                <img :src="image.src" :alt="image.alt" />
-                            </figure>
-                        </div>
-                    </a>
+                        <img :src="image.src" :alt="image.alt" />
+                    </figure>
                 </div>
-            </section>
-            <section class="rows">
-                <h5>Projects</h5>
-                <div class="section__content">
-                    <a
-                        v-for="project in projects"
-                        :key="project.href"
-                        :href="project.href"
-                        target="_blank"
-                        class="project"
-                    >
-                        <h3 class="project__title">{{ project.title }}</h3>
-                        <p class="project__description">
-                            {{ project.description }}
-                        </p>
-                    </a>
-                </div>
-            </section>
-            <section class="about">
-                <h5>About</h5>
-                <div class="section__content">
+            </template>
+
+            <h3>Projects</h3>
+            <ul>
+                <li v-for="project in projects" :key="project.href">
                     <p>
-                        I left school, my job, and moved to Austin in 2022 to write
-                        code full time. That was definitely one of the best and
-                        most life changing decisions I've ever made. I've learned
-                        a lot since then and <em>still</em> have much more to learn.
+                        <a :href="project.href" target="_blank" rel="noopener">{{
+                            project.title
+                        }}</a>:
+                        {{ project.description }}
                     </p>
-                    <p>
-                        These days I build things because I find joy in making something
-                        someone else really enjoys using. I get excited about reaching a
-                        level of polish that users don't even notice.
-                    </p>
-                    <p>
-                        In a time where code is cheap I pride myself in taste and execution.
-                        The best sticking point — in my limited opinion so far — is the
-                        way using your product <em>feels</em>. So I want everything I make to
-                        simply <em>feel</em> the best to use.
-                    </p>
-                    <p>
-                        If you want to build something cool or connect
-                        <a class="basic-link" href="mailto:yo@jp.wtf">hit me up</a>
-                        — we'll grab a coffee or beer if you're in Austin! I
-                        still dont know enough people to form a band yet ;)
-                    </p>
-                </div>
-            </section>
-            <!-- <section class="photos">
-                <h5>Photos</h5>
-                <div class="section__content">
-                    <div class="photo-grid">
-                        <div
-                            v-for="photo in photos"
-                            :key="photo.src"
-                            class="photo-grid__item"
-                        >
-                            <div class="photo__image">
-                                <img :src="photo.src" :alt="photo.alt" />
-                            </div>
-                            <div class="photo__overlay">
-                                <p>{{ photo.location }}</p>
-                                <p>{{ photo.year }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section> -->
-        </NuxtLayout>
-    </div>
+                </li>
+            </ul>
+
+            <h3>About</h3>
+            <p>
+                I left school, my job, and moved to Austin in 2022 to write code
+                full time. That was definitely one of the best and most life
+                changing decisions I've ever made. I've learned a lot since then
+                and <em>still</em> have much more to learn.
+            </p>
+            <p>
+                These days I build things because I find joy in making something
+                someone else really enjoys using. I get excited about reaching a
+                level of polish that users don't even notice.
+            </p>
+            <p>
+                In a time where code is cheap I pride myself in taste and
+                execution. The best sticking point (in my limited opinion so far)
+                is the way using your product <em>feels</em>. So I want
+                everything I make to simply <em>feel</em> the best to use.
+            </p>
+            <p>
+                If you want to build something cool or connect
+                <a href="mailto:yo@jp.wtf">hit me up</a> — we'll grab a coffee or
+                beer if you're in Austin! I still dont know enough people to form
+                a band yet ;)
+            </p>
+        </article>
+    </NuxtLayout>
 </template>
 
 <style scoped>
-section {
-    margin-top: calc(var(--gap) * 2);
-}
-
-section > .section__content {
-    padding: 0 calc(var(--gap) * 2);
-}
-
-/* section:not(:has(h5)) > .section__content {
-    padding: 2rem;
-} */
-
-section > h5 {
-    --flare-length: 1.125rem; /* how far the flare extends horizontally */
-    --flare-spread: 1.125rem; /* how far the arms open up/down */
-
-    font-weight: 400;
-    font-style: italic;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 0 0 var(--gap) 0;
-    line-height: 1;
-}
-
-section > h5::before {
-    content: '';
-    width: var(--flare-length);
-    height: var(--flare-spread);
-    flex-shrink: 0;
-    background-color: var(--muted);
-    /* Optically center */
-    transform: translateY(-0.12em);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-        center / 100% 100% no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-        center / 100% 100% no-repeat;
-}
-
-section > h5::after {
-    content: '';
-    height: var(--flare-spread);
-    flex-grow: 1;
-    background-color: var(--muted);
-    /* Optically center */
-    transform: translateY(-0.12em);
-    -webkit-mask:
-        linear-gradient(#000, #000) left center /
-            calc(100% - var(--flare-length) * 0.45) 1px no-repeat,
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            right center / var(--flare-length) 100% no-repeat;
-    mask:
-        linear-gradient(#000, #000) left center /
-            calc(100% - var(--flare-length) * 0.45) 1px no-repeat,
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            right center / var(--flare-length) 100% no-repeat;
-}
-
-section:last-of-type {
-    margin-bottom: calc(var(--gap) * 2);
-}
-
-.work {
-}
-
 .work__images {
-    /*display: flex;
-    flex-wrap: no-wrap;
-    align-items: center;
-    justify-content: center;*/
+    --dot-color: #666;
+
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: max-content;
     gap: var(--gap);
     overflow-x: auto;
     overflow-y: hidden;
-    margin-top: var(--gap);
+    margin: 1.25rem 0 1.75rem;
+    padding-bottom: 0.35rem;
 }
 
 .work__image {
     --dot-size: 6%;
 
     margin: 0;
-    /*padding: calc(var(--gap) * 2) var(--gap) var(--gap);*/
     padding: var(--gap);
     flex-shrink: 0;
     border-radius: var(--radius);
+    background-color: var(--bg-secondary);
     background-image: radial-gradient(
         circle at 4px 4px,
         var(--dot-color) var(--dot-size),
         transparent calc(var(--dot-size) + 1%)
     );
-
     background-position: 4px 4px;
     background-size: 12px 12px;
     background-repeat: repeat;
-    background-color: var(--bg-secondary);
-
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    gap: var(--gap);
 }
 
 .work__image img {
-    border-radius: var(--radius);
-    object-fit: cover;
+    max-width: none;
+    width: auto;
+    height: auto;
     max-height: 350px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: none;
 }
 
 @media screen and (max-width: 750px) {
     .work__image img {
         max-height: 300px;
-    }
-}
-
-.work__image figcaption {
-    font-size: 0.6rem;
-    line-height: 1;
-    font-family: var(--font-plain);
-    background: var(--bg-secondary);
-    border-radius: 2px;
-    padding: 3px 4px;
-    background: var(--dot-color);
-    /*border: 1px solid var(--dot-color);*/
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.rows > .section__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap);
-}
-
-.project,
-.work {
-    /*border-bottom: 1px solid var(--muted);*/
-    /*padding: var(--gap) 0;*/
-    display: block;
-    text-decoration: none;
-    color: inherit;
-}
-
-.work {
-    border: 0;
-}
-
-.project:first-of-type,
-.work:first-of-type {
-    padding-top: 0;
-}
-
-.project:last-of-type,
-.work:last-of-type {
-    padding-bottom: 0;
-}
-
-.project:last-child {
-    border-bottom: none;
-}
-
-.project:hover > .project__title {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    font-style: italic;
-    font-family: var(--font-hover);
-}
-
-.project__title,
-.work__title {
-    margin: 0;
-    font-weight: 400;
-    margin-bottom: calc(var(--gap) * 0.5);
-}
-
-.project__title::after,
-.work__title::after {
-    content: '↗';
-    position: relative;
-    display: inline-block;
-    margin-left: 0.4em;
-    font-size: 0.75em;
-    opacity: 0;
-    vertical-align: center;
-    transform: translate(-6px, 6px);
-    transition:
-        opacity 0.25s ease,
-        transform 0.25s ease;
-}
-
-.project:hover .project__title::after,
-.work:hover .work__title::after {
-    opacity: 1;
-    transform: translate(0, 0);
-}
-
-.project__description,
-.work__description {
-    margin: 0;
-    font-size: small;
-    font-weight: 400;
-    font-style: italic;
-    color: var(--muted);
-}
-
-.photo-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.photo-grid__item {
-    cursor: pointer;
-    position: relative;
-    aspect-ratio: 1 / 1;
-}
-
-.photo-grid__item:hover > .photo__overlay {
-    opacity: 1;
-}
-
-.photo__image {
-    width: 100%;
-    height: 100%;
-}
-
-.photo__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.photo__overlay {
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    color: var(--color-white-500);
-    z-index: 2;
-    transition: opacity 0.2s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.photo__overlay p {
-    font-weight: 500;
-    margin: 0;
-}
-
-.photo__overlay p:nth-child(2) {
-    font-weight: 300;
-    font-style: italic;
-    font-size: small;
-}
-
-.about p:last-child {
-    margin: 0;
-}
-
-@media (max-width: 768px) {
-    .photo-grid {
-        grid-template-columns: 1fr;
     }
 }
 </style>

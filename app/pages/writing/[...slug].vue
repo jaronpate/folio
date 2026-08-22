@@ -12,127 +12,177 @@ const articleUrl = `${SITE_URL}${route.path}`;
 const webpageId = `${articleUrl}#webpage`;
 const articleId = `${articleUrl}#article`;
 const blogId = `${SITE_URL}/writing#blog`;
-const { data: page } = await useAsyncData(route.path, () => {
-    return queryCollection('writing')
-        .path(route.path.replace('/writing/', ''))
-        .first();
-});
+const slug = computed(() =>
+    Array.isArray(route.params.slug)
+        ? route.params.slug.join('/')
+        : String(route.params.slug ?? ''),
+);
+const contentPath = computed(() => '/' + slug.value);
+const folderName = computed(
+    () => slug.value.split('/').filter(Boolean).at(-1) ?? slug.value,
+);
 
-if (!page.value) {
+const { data } = await useAsyncData(
+    () => `writing:${route.path}`,
+    async () => {
+        const all = await queryCollection('writing').order('date', 'DESC').all();
+        const visible = all.filter((page) => import.meta.dev || !page.demo);
+        const article = visible.find(
+            (page) =>
+                page.path === contentPath.value || page.stem === slug.value,
+        );
+
+        if (article) {
+            return { kind: 'article' as const, article, pages: [] };
+        }
+
+        const prefix = contentPath.value.endsWith('/')
+            ? contentPath.value
+            : `${contentPath.value}/`;
+        const pages = visible.filter((page) => page.path.startsWith(prefix));
+
+        if (!pages.length) return null;
+        return { kind: 'folder' as const, article: null, pages };
+    },
+    { watch: [() => route.path] },
+);
+
+if (!data.value) {
     throw createError({ statusCode: 404, statusMessage: 'Page Not Found' });
 }
 
-const articleTitle = page.value.title;
-const articleDescription = page.value.description;
+const page = computed(() => data.value?.article ?? null);
+const isFolder = computed(() => data.value?.kind === 'folder');
+const articleTitle = page.value?.title ?? folderName.value;
+const articleDescription = page.value?.description ?? '';
 
 useSeoMeta({
     title: articleTitle,
     ogTitle: articleTitle,
-    description: articleDescription,
-    ogDescription: articleDescription,
+    description: articleDescription || articleTitle,
+    ogDescription: articleDescription || articleTitle,
     ogUrl: articleUrl,
-    ogType: 'article',
+    ogType: isFolder.value ? 'website' : 'article',
     ogImage: DEFAULT_IMAGE,
     ogImageAlt: articleTitle,
     twitterCard: 'summary',
     twitterTitle: articleTitle,
-    twitterDescription: articleDescription,
+    twitterDescription: articleDescription || articleTitle,
     twitterImage: DEFAULT_IMAGE,
-    articlePublishedTime: new Date(page.value.date).toISOString(),
-    articleModifiedTime: new Date(page.value.date).toISOString(),
-    articleAuthor: [SITE_NAME],
+    articlePublishedTime: page.value
+        ? new Date(page.value.date).toISOString()
+        : undefined,
+    articleModifiedTime: page.value
+        ? new Date(page.value.date).toISOString()
+        : undefined,
+    articleAuthor: page.value ? [SITE_NAME] : undefined,
 });
 
 useHead({
     link: [{ rel: 'canonical', href: articleUrl }],
-    script: [
-        {
-            key: 'json-ld-article',
-            type: 'application/ld+json',
-            innerHTML: JSON.stringify({
-                '@context': 'https://schema.org',
-                '@graph': [
-                    {
-                        '@type': 'WebPage',
-                        '@id': webpageId,
-                        url: articleUrl,
-                        name: articleTitle,
-                        description: articleDescription,
-                        inLanguage: 'en-US',
-                        isPartOf: { '@id': websiteId },
-                        breadcrumb: { '@id': `${articleUrl}#breadcrumb` },
-                        mainEntity: { '@id': articleId },
-                    },
-                    {
-                        '@type': 'Blog',
-                        '@id': blogId,
-                        url: `${SITE_URL}/writing`,
-                        name: 'Jaron Pate Writing',
-                        inLanguage: 'en-US',
-                        isPartOf: { '@id': websiteId },
-                        publisher: {
-                            '@type': 'Person',
-                            '@id': personId,
-                            name: SITE_NAME,
-                        },
-                    },
-                    {
-                        '@type': 'BlogPosting',
-                        '@id': articleId,
-                        url: articleUrl,
-                        headline: articleTitle,
-                        description: articleDescription,
-                        datePublished: new Date(page.value.date).toISOString(),
-                        dateModified: new Date(page.value.date).toISOString(),
-                        image: {
-                            '@type': 'ImageObject',
-                            '@id': `${articleUrl}#article-image`,
-                            url: DEFAULT_IMAGE,
-                        },
-                        inLanguage: 'en-US',
-                        isPartOf: { '@id': blogId },
-                        mainEntityOfPage: { '@id': webpageId },
-                        author: {
-                            '@type': 'Person',
-                            '@id': personId,
-                            name: SITE_NAME,
-                            url: SITE_URL,
-                        },
-                        publisher: {
-                            '@type': 'Person',
-                            '@id': personId,
-                            name: SITE_NAME,
-                        },
-                    },
-                    {
-                        '@type': 'BreadcrumbList',
-                        '@id': `${articleUrl}#breadcrumb`,
-                        itemListElement: [
-                            {
-                                '@type': 'ListItem',
-                                position: 1,
-                                name: 'Home',
-                                item: SITE_URL,
-                            },
-                            {
-                                '@type': 'ListItem',
-                                position: 2,
-                                name: 'Writing',
-                                item: `${SITE_URL}/writing`,
-                            },
-                            {
-                                '@type': 'ListItem',
-                                position: 3,
-                                name: articleTitle,
-                                item: articleUrl,
-                            },
-                        ],
-                    },
-                ],
-            }),
-        },
-    ],
+    script: page.value
+        ? [
+              {
+                  key: 'json-ld-article',
+                  type: 'application/ld+json',
+                  innerHTML: JSON.stringify({
+                      '@context': 'https://schema.org',
+                      '@graph': [
+                          {
+                              '@type': 'WebPage',
+                              '@id': webpageId,
+                              url: articleUrl,
+                              name: articleTitle,
+                              description: articleDescription,
+                              inLanguage: 'en-US',
+                              isPartOf: { '@id': websiteId },
+                              breadcrumb: { '@id': `${articleUrl}#breadcrumb` },
+                              mainEntity: { '@id': articleId },
+                          },
+                          {
+                              '@type': 'Blog',
+                              '@id': blogId,
+                              url: `${SITE_URL}/writing`,
+                              name: 'Jaron Pate Writing',
+                              inLanguage: 'en-US',
+                              isPartOf: { '@id': websiteId },
+                              publisher: {
+                                  '@type': 'Person',
+                                  '@id': personId,
+                                  name: SITE_NAME,
+                              },
+                          },
+                          {
+                              '@type': 'BlogPosting',
+                              '@id': articleId,
+                              url: articleUrl,
+                              headline: articleTitle,
+                              description: articleDescription,
+                              datePublished: new Date(
+                                  page.value.date,
+                              ).toISOString(),
+                              dateModified: new Date(
+                                  page.value.date,
+                              ).toISOString(),
+                              image: {
+                                  '@type': 'ImageObject',
+                                  '@id': `${articleUrl}#article-image`,
+                                  url: DEFAULT_IMAGE,
+                              },
+                              inLanguage: 'en-US',
+                              isPartOf: { '@id': blogId },
+                              mainEntityOfPage: { '@id': webpageId },
+                              author: {
+                                  '@type': 'Person',
+                                  '@id': personId,
+                                  name: SITE_NAME,
+                                  url: SITE_URL,
+                              },
+                              publisher: {
+                                  '@type': 'Person',
+                                  '@id': personId,
+                                  name: SITE_NAME,
+                              },
+                          },
+                          {
+                              '@type': 'BreadcrumbList',
+                              '@id': `${articleUrl}#breadcrumb`,
+                              itemListElement: [
+                                  {
+                                      '@type': 'ListItem',
+                                      position: 1,
+                                      name: 'Home',
+                                      item: SITE_URL,
+                                  },
+                                  {
+                                      '@type': 'ListItem',
+                                      position: 2,
+                                      name: 'Writing',
+                                      item: `${SITE_URL}/writing`,
+                                  },
+                                  {
+                                      '@type': 'ListItem',
+                                      position: 3,
+                                      name: articleTitle,
+                                      item: articleUrl,
+                                  },
+                              ],
+                          },
+                      ],
+                  }),
+              },
+          ]
+        : [],
 });
+
+const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+};
 
 definePageMeta({
     layout: false,
@@ -140,46 +190,21 @@ definePageMeta({
 </script>
 
 <template>
-    <div>
-        <NuxtLayout
-            name="main"
-            :title="page?.title"
-            :description="page?.description"
-        >
-            <template #header-upper>
-                <div class="header-upper-inner">
-                    <NuxtLink
-                        to="/writing"
-                        class="back-link"
-                        aria-label="Back to writing"
-                    >
-                        <span class="arrow">←</span>
-                        <span>Back</span>
-                    </NuxtLink>
-                </div>
-            </template>
-            <ContentRenderer
-                class="writing__content"
-                v-if="page"
-                :value="page"
-            />
-        </NuxtLayout>
-    </div>
+    <NuxtLayout
+        name="main"
+        :title="page ? page.title : folderName"
+        :description="page ? formatDate(page.date) : `Writing from ${folderName}`"
+    >
+        <article v-if="page">
+            <div class="article-body">
+                <p v-if="page.description">
+                    <strong>{{ page.description }}</strong>
+                </p>
+                <ContentRenderer :value="page" />
+            </div>
+        </article>
+        <article v-else>
+            <WritingList :pages="data?.pages ?? []" />
+        </article>
+    </NuxtLayout>
 </template>
-
-<style scoped>
-.header-upper-inner {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0 2rem;
-}
-
-.writing__content {
-    padding: 2rem;
-}
-
-.writing__content :deep(> :first-child) {
-    margin-top: 0;
-}
-</style>

@@ -27,10 +27,22 @@ export default defineNuxtConfig({
             type: 'd1',
             bindingName: 'DB',
         },
+        build: {
+            markdown: {
+                highlight: {
+                    theme: {
+                        default: 'github-light',
+                        'light-mode': 'github-light',
+                        'dark-mode': 'github-dark',
+                    },
+                },
+            },
+        },
     },
 
+    css: ['~/assets/css/main.css'],
+
     app: {
-        pageTransition: { name: 'page', mode: 'out-in' },
         head: {
             htmlAttrs: { lang: 'en' },
             charset: 'utf-8',
@@ -44,17 +56,21 @@ export default defineNuxtConfig({
                 },
             ],
             link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
+            script: [
+                {
+                    innerHTML: `(function(){try{var t=localStorage.getItem('bg-theme')||'dusk';var f=localStorage.getItem('body-font')||'plantin';document.documentElement.classList.add('theme-'+t,'font-'+f);}catch(e){document.documentElement.classList.add('theme-dusk','font-plantin');}})();`,
+                    tagPosition: 'head',
+                },
+            ],
         },
     },
 
     modules: ['@nuxt/content', '@nuxtjs/color-mode'],
     colorMode: {
-        preference: 'system', // default value of $colorMode.preference
-        fallback: 'light', // fallback value if not system preference found
-        globalName: '__NUXT_COLOR_MODE__',
-        componentName: 'ColorScheme',
+        preference: 'dark',
+        fallback: 'dark',
         classPrefix: '',
-        classSuffix: '-mode', // Results in .dark-mode or .light-mode
+        classSuffix: '-mode',
         storageKey: 'color-mode',
     },
 });
