@@ -1,6 +1,6 @@
 ---
 title: 'hot take: frontend developers are underpaid.'
-date: 2026-05-03
+date: 2026-09-22
 description: that shit is hard
 ---
 

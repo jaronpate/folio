@@ -7,9 +7,10 @@ import {
     websiteId,
 } from '~/utils/site';
 
-const { data: pages } = await useAsyncData('writing-pages', () =>
-    queryCollection('writing').order('date', 'DESC').all(),
-);
+const { data: pages } = await useAsyncData('writing-pages', async () => {
+    const all = await queryCollection('writing').order('date', 'DESC').all();
+    return import.meta.dev ? all : all.filter((page) => !page.demo);
+});
 
 const writingUrl = `${SITE_URL}/writing`;
 const collectionId = `${writingUrl}#collection`;

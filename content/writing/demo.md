@@ -2,6 +2,7 @@
 title: Notes in the margin
 date: 2026-08-22
 description: Every mark this site knows how to make — body type, asides, notices, redaction, quotes, lists, code, and images.
+demo: true
 ---
 
 This page is a working sample, not an essay. Walk it when you change type, color, or a content component. The **description** above is the article lead — bold, then the body.
