@@ -113,15 +113,6 @@ useHead({
     ],
 });
 
-const formatDate = (dateString: string | Date) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-};
-
 definePageMeta({
     layout: false,
 });
@@ -134,70 +125,7 @@ definePageMeta({
         description="Thoughts I've had here and there. Maybe you'll find something helpful or interesting here."
     >
         <article>
-            <template v-if="pages?.length">
-                <NuxtLink
-                    v-for="page in pages"
-                    :key="page.path"
-                    :to="'/writing' + page.path"
-                    class="listing"
-                >
-                    <span class="listing__title">{{ page.title }}</span>
-                    <time :datetime="new Date(page.date).toISOString()">{{
-                        formatDate(page.date)
-                    }}</time>
-                </NuxtLink>
-            </template>
-            <p v-else class="empty-state">No thoughts...head empty</p>
+            <WritingList :pages="pages ?? []" />
         </article>
     </NuxtLayout>
 </template>
-
-<style scoped>
-.listing {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin: 0 0 0.65rem;
-    text-decoration: none;
-    color: inherit;
-}
-
-.listing:hover {
-    text-decoration: none;
-}
-
-.listing:hover .listing__title {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    font-style: italic;
-}
-
-.listing__title {
-    color: var(--text);
-}
-
-.listing time {
-    margin-left: auto;
-    font-family: var(--font-plain);
-    font-size: 0.75rem;
-    font-style: italic;
-    color: var(--muted);
-    white-space: nowrap;
-}
-
-.empty-state {
-    color: var(--muted);
-    font-style: italic;
-}
-
-@media (max-width: 640px) {
-    .listing {
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    .listing time {
-        margin-left: 0;
-    }
-}
-</style>
