@@ -34,7 +34,7 @@ const selectedWorks = [
     {
         title: 'Edlink',
         description:
-            "I built many things I'm proud of at Edlink. Notably, I designed and shipped Edlink’s internal billing platform for ~150 clients, a flat file ingestion engine that enabled arbitrary data mapping, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live data-preview service.",
+            "I built many things I'm proud of at Edlink. Notably, I designed and shipped the internal billing platform for ~150 clients, a flat file ingestion engine that enabled importing of arbitrary data, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live data-preview service.",
         link: 'https://ed.link',
         images: [
             {

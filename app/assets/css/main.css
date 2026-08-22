@@ -221,6 +221,7 @@ body {
     background: var(--bg);
     color: var(--text);
     overflow-x: clip;
+    overscroll-behavior-y: none;
 }
 
 body {
