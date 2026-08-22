@@ -185,8 +185,8 @@ definePageMeta({
                 <p>
                     <a :href="work.link" target="_blank" rel="noopener">{{
                         work.title
-                    }}</a>
-                    — {{ work.description }}
+                    }}</a>:
+                    {{ work.description }}
                 </p>
                 <div class="work__images">
                     <figure
@@ -205,8 +205,8 @@ definePageMeta({
                     <p>
                         <a :href="project.href" target="_blank" rel="noopener">{{
                             project.title
-                        }}</a>
-                        — {{ project.description }}
+                        }}</a>:
+                        {{ project.description }}
                     </p>
                 </li>
             </ul>
@@ -225,8 +225,8 @@ definePageMeta({
             </p>
             <p>
                 In a time where code is cheap I pride myself in taste and
-                execution. The best sticking point — in my limited opinion so far
-                — is the way using your product <em>feels</em>. So I want
+                execution. The best sticking point (in my limited opinion so far)
+                is the way using your product <em>feels</em>. So I want
                 everything I make to simply <em>feel</em> the best to use.
             </p>
             <p>
