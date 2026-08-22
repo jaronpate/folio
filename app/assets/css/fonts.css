@@ -1,13 +1,22 @@
-/* Sohne Buch */
-/*@font-face {
-    font-family: 'SohneBuch';
-    src:
-        url('~/assets/fonts/Sohne/Sohne-Buch.woff') format('woff'),
-        url('~/assets/fonts/Sohne/Sohne-Buch.ttf') format('truetype');
-    font-display: swap;
-}*/
-
 /* Plantin MT Pro */
+@font-face {
+    font-family: 'Plantin MT Pro';
+    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProLight.TTF')
+        format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Plantin MT Pro';
+    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProLightIt.TTF')
+        format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
 @font-face {
     font-family: 'Plantin MT Pro';
     src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProRg.TTF')
@@ -46,18 +55,73 @@
 
 @font-face {
     font-family: 'Plantin MT Pro';
-    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProLight.TTF')
+    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProSmBd.TTF')
         format('truetype');
-    font-weight: 300;
+    font-weight: 600;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
     font-family: 'Plantin MT Pro';
-    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProLightIt.TTF')
+    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProSemiBdIt.TTF')
         format('truetype');
-    font-weight: 300;
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Plantin MT Pro';
+    src: url('~/assets/fonts/Plantin MT Pro/PlantinMTProCnBd.TTF')
+        format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-stretch: condensed;
+    font-display: swap;
+}
+
+/* Sohne Buch */
+@font-face {
+    font-family: 'SohneBuch';
+    src:
+        url('~/assets/fonts/Sohne/Sohne-Buch.woff') format('woff'),
+        url('~/assets/fonts/Sohne/Sohne-Buch.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Alegreya */
+@font-face {
+    font-family: 'Alegreya';
+    src: url('~/assets/fonts/Alegreya HT/Alegreya-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Alegreya';
+    src: url('~/assets/fonts/Alegreya HT/Alegreya-Italic.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Alegreya';
+    src: url('~/assets/fonts/Alegreya HT/Alegreya-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Alegreya';
+    src: url('~/assets/fonts/Alegreya HT/Alegreya-BoldItalic.woff2')
+        format('woff2');
+    font-weight: 700;
     font-style: italic;
     font-display: swap;
 }
@@ -70,13 +134,7 @@
     font-style: normal;
     font-display: swap;
 }
-@font-face {
-    font-family: 'Redaction';
-    src: url('~/assets/fonts/Redaction/Redaction-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
+
 @font-face {
     font-family: 'Redaction';
     src: url('~/assets/fonts/Redaction/Redaction-Italic.woff2') format('woff2');
@@ -85,57 +143,14 @@
     font-display: swap;
 }
 
-/* Redaction 10 */
 @font-face {
-    font-family: 'Redaction 10';
-    src: url('~/assets/fonts/Redaction/Redaction_10-Regular.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 10';
-    src: url('~/assets/fonts/Redaction/Redaction_10-Bold.woff2') format('woff2');
+    font-family: 'Redaction';
+    src: url('~/assets/fonts/Redaction/Redaction-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
-@font-face {
-    font-family: 'Redaction 10';
-    src: url('~/assets/fonts/Redaction/Redaction_10-Italic.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
 
-/* Redaction 20 */
-@font-face {
-    font-family: 'Redaction 20';
-    src: url('~/assets/fonts/Redaction/Redaction_20-Regular.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 20';
-    src: url('~/assets/fonts/Redaction/Redaction_20-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 20';
-    src: url('~/assets/fonts/Redaction/Redaction_20-Italic.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
-/* Redaction 35 */
 @font-face {
     font-family: 'Redaction 35';
     src: url('~/assets/fonts/Redaction/Redaction_35-Regular.woff2')
@@ -144,13 +159,7 @@
     font-style: normal;
     font-display: swap;
 }
-@font-face {
-    font-family: 'Redaction 35';
-    src: url('~/assets/fonts/Redaction/Redaction_35-Bold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
+
 @font-face {
     font-family: 'Redaction 35';
     src: url('~/assets/fonts/Redaction/Redaction_35-Italic.woff2')
@@ -160,80 +169,36 @@
     font-display: swap;
 }
 
-/* Redaction 50 */
 @font-face {
-    font-family: 'Redaction 50';
-    src: url('~/assets/fonts/Redaction/Redaction_50-Regular.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 50';
-    src: url('~/assets/fonts/Redaction/Redaction_50-Bold.woff2') format('woff2');
+    font-family: 'Redaction 35';
+    src: url('~/assets/fonts/Redaction/Redaction_35-Bold.woff2') format('woff2');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
+
+/* Space Mono */
 @font-face {
-    font-family: 'Redaction 50';
-    src: url('~/assets/fonts/Redaction/Redaction_50-Italic.woff2')
-        format('woff2');
+    font-family: 'Space Mono';
+    src: url('~/assets/fonts/Space Mono/SpaceMono-Regular.ttf')
+        format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Space Mono';
+    src: url('~/assets/fonts/Space Mono/SpaceMono-Italic.ttf') format('truetype');
     font-weight: 400;
     font-style: italic;
     font-display: swap;
 }
 
-/* Redaction 70 */
 @font-face {
-    font-family: 'Redaction 70';
-    src: url('~/assets/fonts/Redaction/Redaction_70-Regular.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 70';
-    src: url('~/assets/fonts/Redaction/Redaction_70-Bold.woff2') format('woff2');
+    font-family: 'Space Mono';
+    src: url('~/assets/fonts/Space Mono/SpaceMono-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
 }
-@font-face {
-    font-family: 'Redaction 70';
-    src: url('~/assets/fonts/Redaction/Redaction_70-Italic.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
-/* Redaction 100 */
-@font-face {
-    font-family: 'Redaction 100';
-    src: url('~/assets/fonts/Redaction/Redaction_100-Regular.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 100';
-    src: url('~/assets/fonts/Redaction/Redaction_100-Bold.woff2')
-        format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-@font-face {
-    font-family: 'Redaction 100';
-    src: url('~/assets/fonts/Redaction/Redaction_100-Italic.woff2')
-        format('woff2');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-}
-
-/*@import url('https://fonts.googleapis.com/css2?family=Young+Serif&display=swap');*/

@@ -7,11 +7,9 @@ import {
     websiteId,
 } from '~/utils/site';
 
-// const { data: pages } = await useAsyncData('writing-pages', () =>
-//     queryCollection('writing').order('date', 'DESC').all(),
-// );
-
-const pages = ref<any[]>([]);
+const { data: pages } = await useAsyncData('writing-pages', () =>
+    queryCollection('writing').order('date', 'DESC').all(),
+);
 
 const writingUrl = `${SITE_URL}/writing`;
 const collectionId = `${writingUrl}#collection`;
@@ -74,7 +72,7 @@ useHead({
                             name: SITE_NAME,
                         },
                         blogPost: (pages.value ?? []).map((page) => ({
-                            '@id': `${writingUrl}/${page.path}#article`,
+                            '@id': `${writingUrl}${page.path}#article`,
                         })),
                     },
                     {
@@ -85,7 +83,7 @@ useHead({
                             (page, index) => ({
                                 '@type': 'ListItem',
                                 position: index + 1,
-                                url: `${writingUrl}/${page.path}`,
+                                url: `${writingUrl}${page.path}`,
                                 name: page.title,
                             }),
                         ),
@@ -114,10 +112,13 @@ useHead({
     ],
 });
 
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    // ex. May 5, 2026
-    return `${date.toLocaleDateString('en-US', { month: 'short' })} ${date.getDate()}, ${date.getFullYear()}`;
+const formatDate = (dateString: string | Date) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
 };
 
 definePageMeta({
@@ -126,116 +127,76 @@ definePageMeta({
 </script>
 
 <template>
-    <div>
-        <NuxtLayout
-            name="main"
-            title="Writing"
-            description="Thoughts I've had here and there. Maybe you'll find something helpful or interesting here."
-        >
-            <template #header-upper>
-                <div class="header-upper-inner">
-                    <NuxtLink
-                        to="/"
-                        class="back-link"
-                        aria-label="Back to Home"
-                    >
-                        <span class="arrow">←</span>
-                        <span>Home</span>
-                    </NuxtLink>
-                </div>
+    <NuxtLayout
+        name="main"
+        title="Writing"
+        description="Thoughts I've had here and there. Maybe you'll find something helpful or interesting here."
+    >
+        <article>
+            <template v-if="pages?.length">
+                <NuxtLink
+                    v-for="page in pages"
+                    :key="page.path"
+                    :to="'/writing' + page.path"
+                    class="listing"
+                >
+                    <span class="listing__title">{{ page.title }}</span>
+                    <time :datetime="new Date(page.date).toISOString()">{{
+                        formatDate(page.date)
+                    }}</time>
+                </NuxtLink>
             </template>
-            <section>
-                <div class="section__content">
-                    <template v-if="pages?.length">
-                        <NuxtLink
-                            v-for="page in pages"
-                            :to="'/writing/' + page.path"
-                            :key="page.path"
-                            class="article"
-                        >
-                            <h3 class="article__title">{{ page.title }}</h3>
-                            <!-- <p class="article__date">
-                            {{ formatDate(page.date) }}
-                        </p> -->
-                            <p class="article__description">
-                                {{ page.description }}
-                            </p>
-                        </NuxtLink>
-                    </template>
-                    <template v-else>
-                        <div class="empty-state">
-                            <p>No thoughts...head empty</p>
-                        </div>
-                    </template>
-                </div>
-            </section>
-        </NuxtLayout>
-    </div>
+            <p v-else class="empty-state">No thoughts...head empty</p>
+        </article>
+    </NuxtLayout>
 </template>
 
 <style scoped>
-.header-upper-inner {
+.listing {
     display: flex;
-    align-items: center;
-    height: 100%;
-    padding: 0 2rem;
-}
-
-section > .section__content {
-    padding: 0 2rem;
-}
-
-section:not(:has(h5)) > .section__content {
-    padding: 2rem;
-}
-
-.article {
-    border-bottom: 1px solid var(--muted);
-    padding: 1rem 0;
-    display: block;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0 0 0.65rem;
     text-decoration: none;
     color: inherit;
 }
 
-.article:first-of-type {
-    padding-top: 0;
+.listing:hover {
+    text-decoration: none;
 }
 
-.article:last-of-type {
-    padding-bottom: 0;
-}
-
-.article:last-child {
-    border-bottom: none;
-}
-
-.article:hover > .article__title {
+.listing:hover .listing__title {
     text-decoration: underline;
-    text-underline-offset: 4px;
+    text-underline-offset: 3px;
     font-style: italic;
-    font-family: var(--font-hover);
 }
 
-.article__title {
-    margin: 0;
-    font-weight: 400;
+.listing__title {
+    color: var(--text);
 }
 
-.article__date {
-    margin: 0;
-    font-weight: 400;
-    font-size: small;
+.listing time {
+    margin-left: auto;
+    font-family: var(--font-plain);
+    font-size: 0.75rem;
+    font-style: italic;
     color: var(--muted);
-}
-
-.article__description {
-    margin: 0;
-    font-size: small;
-    font-weight: 400;
-    font-style: italic;
+    white-space: nowrap;
 }
 
 .empty-state {
     color: var(--muted);
+    font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .listing {
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .listing time {
+        margin-left: 0;
+    }
 }
 </style>

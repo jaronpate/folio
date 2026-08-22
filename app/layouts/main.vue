@@ -1,332 +1,301 @@
-<script lang="ts">
-// module-scoped so it survives client-side navigation —
-// the intro should only ever play once per visit
-let introPlayed = false;
-</script>
-
 <script setup lang="ts">
-defineProps<{
-    title?: string;
-    description?: string;
-}>();
+withDefaults(
+    defineProps<{
+        title?: string;
+        description?: string;
+    }>(),
+    {
+        title: "Hey, I'm Jaron.",
+        description: 'Software engineer by trade — builder by nature.',
+    },
+);
 
-const theme = useColorMode();
+const { id, themes, setTheme } = useBgTheme();
+const { id: fontId, fonts, setFont } = useBodyFont();
 
-const toggleTheme = () => {
-    theme.preference = theme.preference === 'light' ? 'dark' : 'light';
+const onThemeChange = (event: Event) => {
+    const value = (event.target as HTMLSelectElement).value;
+    const next = themes.find((theme) => theme.id === value);
+    if (next) setTheme(next.id);
 };
 
-const { $gsap } = useNuxtApp();
-const pageEl = useTemplateRef('pageEl');
-const initialized = ref(false);
-
-onMounted(() => {
-    initialized.value = true;
-
-    if (!$gsap || !pageEl.value || introPlayed) return;
-    introPlayed = true;
-
-    const reduced = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-    ).matches;
-
-    const ctx = $gsap.context(() => {
-        if (reduced) return;
-
-        const tl = $gsap.timeline({
-            defaults: { ease: 'power3.out' },
-        });
-
-        tl.from('.header-lower', {
-            autoAlpha: 0,
-            y: 12,
-            duration: 0.9,
-            ease: 'power2.out',
-        })
-            .from('.name', { yPercent: 110, duration: 0.9 }, 0.2)
-            .from(
-                '.title',
-                { yPercent: 120, autoAlpha: 0, duration: 0.8 },
-                0.35,
-            )
-            .from(
-                ['.footer-upper', '.footer-lower'],
-                { autoAlpha: 0, duration: 0.7, ease: 'power2.out' },
-                0.55,
-            )
-            .from('.header-upper', { autoAlpha: 0, duration: 0.7 }, 0.55);
-
-        tl.from(
-            'main',
-            { autoAlpha: 0, y: 16, duration: 0.8, ease: 'power2.out' },
-            0.4,
-        );
-    }, pageEl.value);
-
-    onBeforeUnmount(() => ctx.revert());
-});
+const onFontChange = (event: Event) => {
+    const value = (event.target as HTMLSelectElement).value;
+    const next = fonts.find((font) => font.id === value);
+    if (next) setFont(next.id);
+};
 </script>
 
 <template>
-    <div v-show="initialized">
-        <svg width="0" height="0" aria-hidden="true" style="position: absolute">
-            <filter id="grainy" x="0" y="0" width="100%" height="100%">
-                <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency=".85"
-                    numOctaves="3"
-                ></feTurbulence>
-                <feColorMatrix type="saturate" values="0"></feColorMatrix>
-                <feBlend mode="multiply" in="SourceGraphic"></feBlend>
-            </filter>
-        </svg>
-        <div class="page-wrapper" ref="pageEl">
-            <header class="header">
-                <div class="header-upper">
-                    <slot name="header-upper">
-                        <div class="flex-center header-upper-nav">
-                            <button
-                                class="theme-toggle"
-                                @click="toggleTheme"
-                                v-if="!theme.unknown"
+    <div class="site">
+        <header class="hero">
+            <div class="hero__inner">
+                <div class="hero__nav">
+                    <NuxtLink to="/" class="wordmark" aria-label="Home">
+                        @jaronpate
+                    </NuxtLink>
+                    <nav class="site-nav">
+                        <NuxtLink to="/writing">Writing</NuxtLink>
+                        <a href="https://github.com/jaronpate">GitHub</a>
+                        <label class="theme-picker">
+                            <span class="visually-hidden">Background</span>
+                            <select
+                                class="theme-select"
+                                :value="id"
+                                @change="onThemeChange"
                             >
-                                {{ theme.value === 'dark' ? '🌚' : '🌝' }}
-                            </button>
-                            <div class="flex-ff"></div>
-                            <a
-                                class="basic-link"
-                                href="https://github.com/jaronpate"
+                                <option
+                                    v-for="theme in themes"
+                                    :key="theme.id"
+                                    :value="theme.id"
+                                >
+                                    {{ theme.label }}
+                                </option>
+                            </select>
+                        </label>
+                        <label class="theme-picker">
+                            <span class="visually-hidden">Font</span>
+                            <select
+                                class="theme-select"
+                                :value="fontId"
+                                @change="onFontChange"
                             >
-                                GitHub
-                            </a>
-                            <NuxtLink to="/writing" class="basic-link">
-                                Writing
-                            </NuxtLink>
-                        </div>
-                    </slot>
+                                <option
+                                    v-for="font in fonts"
+                                    :key="font.id"
+                                    :value="font.id"
+                                >
+                                    {{ font.label }}
+                                </option>
+                            </select>
+                        </label>
+                    </nav>
                 </div>
-                <div class="header-lower">
-                    <slot name="header-lower">
-                        <div class="mask">
-                            <h1 class="name">
-                                {{ title || "Hey, I'm Jaron" }}
-                            </h1>
-                        </div>
-                        <div class="mask">
-                            <p class="title">
-                                {{
-                                    description ||
-                                    'Software Engineer by trade — builder by nature.'
-                                }}
-                            </p>
-                        </div>
-                    </slot>
-                </div>
-            </header>
+                <h1 class="hero__title">{{ title }}</h1>
+                <p v-if="description" class="hero__sub">{{ description }}</p>
+            </div>
+        </header>
 
-            <main>
-                <slot />
-                <div style="flex: 1"></div>
-            </main>
-
-            <footer class="footer">
-                <div class="footer-upper flex-center">
-                    <p>
-                        <a class="punch-link" href="mailto:yo@jp.wtf"
-                            >Say hi.</a
-                        >
-                    </p>
-                    <div class="flex-ff"></div>
-                    <p style="text-align: right">Let's make something cool.</p>
-                </div>
-                <div class="footer-lower flex-center" style="gap: var(--gap)">
-                    <p style="text-align: right">Est. 2003</p>
-                    <!-- <p style="font-family: monospace">🐟🎩.dev</p> -->
-                    <div class="flex-ff"></div>
-                    <p style="text-align: right">Austin, TX</p>
-                </div>
-            </footer>
+        <div class="page-body">
+            <slot />
         </div>
+
+        <footer class="site-footer">
+            <a href="mailto:yo@jp.wtf">yo@jp.wtf</a>
+            <div class="flex-ff"></div>
+            <span>Est. 2003</span>
+            <span>Austin, TX</span>
+        </footer>
     </div>
 </template>
 
 <style scoped>
-.page-wrapper {
-    --main-width: 50vw;
-    width: var(--main-width);
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    /*gap: 1.5rem;*/
+.site {
+    width: 100%;
     min-height: 100vh;
-    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-main {
+.page-body {
     flex: 1;
+    padding-top: 2.25rem;
+}
+
+.hero {
+    --hero-text: #fbfbf7;
+    position: relative;
+    isolation: isolate;
+    color: var(--hero-text);
+    padding: 1.25rem 0 3rem;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        linear-gradient(rgba(12, 12, 18, 0.1), rgba(12, 12, 18, 0.18)),
+        url('~/assets/images/blend.jpeg') center / cover no-repeat;
+}
+
+.hero__inner {
+    width: var(--col);
+    margin-left: var(--col-left);
+}
+
+.hero__nav {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2.75rem;
+    font-family: var(--font-plain);
+    font-size: 0.8rem;
 }
 
-svg[height='0'] {
-    position: fixed;
+.wordmark,
+.site-nav a,
+.theme-select {
+    color: var(--hero-text);
 }
 
-.mask {
-    overflow: hidden;
-}
-
-.name {
-    font-size: 3rem;
+.wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
     font-weight: 400;
-    line-height: 1.2;
-    margin: 0;
+    line-height: 1;
 }
 
-.title {
-    font-weight: 300;
-    margin: 0;
-    font-style: italic;
-    color: var(--color-white-500);
+.wordmark:hover,
+.wordmark.router-link-active {
+    color: var(--hero-text);
+    text-decoration: none;
+    opacity: 0.75;
 }
 
-.header {
+.site-nav {
     display: flex;
-    flex-direction: column;
-}
-
-.footer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.header-upper {
-    height: 8vh;
-    min-height: 3.5rem;
-}
-
-.header-upper-nav {
-    padding: 0 2rem;
-    height: 100%;
-    font-size: small;
+    align-items: center;
     gap: 1rem;
+    margin-left: auto;
 }
 
-.header-lower {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 16px;
-    padding: 3rem 2.5rem;
-    color: var(--color-white-500);
-    border-radius: 16px;
-    overflow: hidden;
-
-    position: relative;
-    isolation: isolate;
+.site-nav a:hover,
+.site-nav a.router-link-active {
+    color: var(--hero-text);
+    opacity: 0.7;
 }
 
-.header-lower::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url('~/assets/images/blend.jpeg');
-    background-size: cover;
-    background-position: left top;
+.theme-picker {
+    display: inline-flex;
+    align-items: center;
+}
+
+.theme-select {
+    appearance: none;
+    background-color: rgba(255, 255, 255, 0.14);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23fbfbf7' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    filter: url(#grainy);
-    border-radius: 16px;
-    z-index: -1;
-}
-
-.footer-upper {
-    padding: 3.25rem 2.5rem;
-    color: var(--color-white-500);
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
-    isolation: isolate;
-}
-
-.footer-upper::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url('~/assets/images/blend.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: url(#grainy);
-    border-radius: 16px;
-    z-index: -1;
-}
-
-.footer-lower {
-    padding: 0 2rem;
-    height: 8vh;
-    min-height: 3.5rem;
-    font-size: small;
-    gap: 1rem;
-}
-
-.theme-toggle {
-    background: transparent;
-    border: none;
+    background-position: right 0.55em center;
+    background-size: 0.5em;
+    border: 1px solid rgba(251, 251, 247, 0.35);
+    border-radius: 4px;
     cursor: pointer;
-    font-size: large;
-    font-weight: bold;
-    color: var(--text);
-    transition: opacity 0.2s ease;
+    font-family: var(--font-plain);
+    font-size: 0.8rem;
+    line-height: 1;
+    padding: 0.35em 1.55em 0.35em 0.65em;
+}
+
+.theme-select:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.theme-select option {
+    color: #1a1a1a;
+    background: #fff;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
     padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
-.theme-toggle:hover {
-    opacity: 0.5;
-}
-
-.footer p {
+.hero__title {
     margin: 0;
+    font-size: 2.75rem;
+    font-weight: 400;
+    line-height: 1.15;
 }
 
-@media (max-width: 1024px) {
-    .page-wrapper {
-        --main-width: 80vw;
-    }
+.hero__sub {
+    margin: 0.6rem 0 0;
+    font-weight: var(--body-weight);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: rgba(251, 251, 247, 0.88);
 }
 
-@media (max-width: 768px) {
-    .header-upper-nav {
-        padding: 0 1.5rem;
+.site-footer {
+    --flare-length: 1.125rem;
+    --flare-spread: 1.125rem;
+    --flare-overhang: 1.5rem;
+
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    width: var(--col);
+    margin-top: 2rem;
+    margin-left: var(--col-left);
+    margin-right: auto;
+    padding: calc(var(--flare-spread) + 0.45rem) 0 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.site-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--flare-overhang));
+    right: calc(-1 * var(--flare-overhang));
+    height: var(--flare-spread);
+    background-color: var(--muted);
+    pointer-events: none;
+    -webkit-mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            left center / var(--flare-length) 100% no-repeat,
+        linear-gradient(#000, #000) center /
+            calc(100% - var(--flare-length) * 1.55) 1px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            right center / var(--flare-length) 100% no-repeat;
+    mask:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            left center / var(--flare-length) 100% no-repeat,
+        linear-gradient(#000, #000) center /
+            calc(100% - var(--flare-length) * 1.55) 1px no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+            right center / var(--flare-length) 100% no-repeat;
+}
+
+.site-footer a {
+    color: var(--muted);
+}
+
+.site-footer a:hover {
+    color: var(--accent);
+}
+
+.flex-ff {
+    flex: 1;
+}
+
+@media (max-width: 640px) {
+    .hero {
+        padding-bottom: 2.25rem;
     }
 
-    .name {
+    .hero__nav {
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+    }
+
+    .hero__title {
         font-size: 2rem;
-    }
-
-    .title {
-        font-size: 1rem;
-    }
-
-    .page-wrapper {
-        --main-width: 100vw;
-        padding: 0 1rem;
-    }
-
-    .header-lower,
-    .footer-upper {
-        padding: 1.5rem 1.5rem;
-        border-radius: 12px;
-    }
-
-    .footer-lower {
-        padding: 1.5rem 1.5rem;
-    }
-
-    .header-lower::before,
-    .footer-upper::before {
-        border-radius: 12px;
     }
 }
 </style>
