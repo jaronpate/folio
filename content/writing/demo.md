@@ -55,7 +55,7 @@ And when it needs to break the column:
 
 ## Redaction
 
-A span can be set in Redaction. `strength` is a grade: `0` is the clean face, `100` is almost gone. Other numbers snap to `0`, `10`, `20`, `35`, `50`, `70`, or `100`. Default is `35`.
+A span can be set in Redaction. `strength` is a grade: `0` is the clean face, `100` is almost gone. Other numbers snap to `0`, `10`, `20`, `35`, `50`, `70`, or `100`. Default is `100`.
 
 ```md
 :redacted[these words]{strength="50"}

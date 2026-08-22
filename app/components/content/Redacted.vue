@@ -9,7 +9,7 @@ const props = withDefaults(
         strength?: number | string;
     }>(),
     {
-        strength: 35,
+        strength: 100,
     },
 );
 
