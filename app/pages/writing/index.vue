@@ -7,13 +7,10 @@ import {
     websiteId,
 } from '~/utils/site';
 
-// TODO: Uncomment when ready to show writing
-// const { data: pages } = await useAsyncData('writing-pages', async () => {
-//     const all = await queryCollection('writing').order('date', 'DESC').all();
-//     return import.meta.dev ? all : all.filter((page) => !page.demo);
-// });
-
-const pages = ref<any[]>([]);
+const { data: pages } = await useAsyncData('writing-pages', async () => {
+    const all = await queryCollection('writing').order('date', 'DESC').all();
+    return import.meta.dev ? all : all.filter((page) => !page.hidden);
+});
 
 const writingUrl = `${SITE_URL}/writing`;
 const collectionId = `${writingUrl}#collection`;

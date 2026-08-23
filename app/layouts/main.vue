@@ -129,7 +129,7 @@ const onFontChange = (event: Event) => {
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    margin-bottom: 2.75rem;
+    margin-bottom: 3.5rem;
     font-family: var(--font-plain);
     font-size: 0.8rem;
 }

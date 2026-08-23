@@ -12,7 +12,7 @@ export default defineContentConfig({
                 title: z.string(),
                 date: z.coerce.date(),
                 description: z.string(),
-                demo: z.boolean().optional(),
+                hidden: z.boolean().optional(),
             }),
         }),
     },

@@ -26,7 +26,7 @@ const { data } = await useAsyncData(
     () => `writing:${route.path}`,
     async () => {
         const all = await queryCollection('writing').order('date', 'DESC').all();
-        const visible = all.filter((page) => import.meta.dev || !page.demo);
+        const visible = all.filter((page) => import.meta.dev || !page.hidden);
         const article = visible.find(
             (page) =>
                 page.path === contentPath.value || page.stem === slug.value,
