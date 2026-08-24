@@ -1,14 +1,8 @@
 <script setup lang="ts">
-withDefaults(
-    defineProps<{
-        title?: string;
-        description?: string;
-    }>(),
-    {
-        title: "Hey, I'm Jaron.",
-        description: 'Software engineer by trade — builder by nature.',
-    },
-);
+defineProps<{
+    title: string;
+    description: string;
+}>()
 
 const { id, themes, setTheme } = useBgTheme();
 const { id: fontId, fonts, setFont } = useBodyFont();
@@ -36,40 +30,25 @@ const onFontChange = (event: Event) => {
                     </NuxtLink>
                     <nav class="site-nav">
                         <NuxtLink to="/writing">Writing</NuxtLink>
+                        <NuxtLink to="/projects">Projects</NuxtLink>
                         <a href="https://github.com/jaronpate">GitHub</a>
-                        <label class="theme-picker">
-                            <span class="visually-hidden">Background</span>
-                            <select
-                                class="theme-select"
-                                :value="id"
-                                @change="onThemeChange"
-                            >
-                                <option
-                                    v-for="theme in themes"
-                                    :key="theme.id"
-                                    :value="theme.id"
-                                >
-                                    {{ theme.label }}
-                                </option>
-                            </select>
-                        </label>
-                        <!-- <label class="theme-picker">
-                            <span class="visually-hidden">Font</span>
-                            <select
-                                class="theme-select"
-                                :value="fontId"
-                                @change="onFontChange"
-                            >
-                                <option
-                                    v-for="font in fonts"
-                                    :key="font.id"
-                                    :value="font.id"
-                                >
-                                    {{ font.label }}
-                                </option>
-                            </select>
-                        </label> -->
                     </nav>
+                    <label class="theme-picker">
+                        <span class="visually-hidden">Background</span>
+                        <select
+                            class="theme-select"
+                            :value="id"
+                            @change="onThemeChange"
+                        >
+                            <option
+                                v-for="theme in themes"
+                                :key="theme.id"
+                                :value="theme.id"
+                            >
+                                {{ theme.label }}
+                            </option>
+                        </select>
+                    </label>
                 </div>
                 <h1 class="hero__title">{{ title }}</h1>
                 <p v-if="description" class="hero__sub">{{ description }}</p>
@@ -127,6 +106,7 @@ const onFontChange = (event: Event) => {
 
 .hero__nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 1.25rem;
     margin-bottom: 3.5rem;
@@ -160,6 +140,7 @@ const onFontChange = (event: Event) => {
 
 .site-nav {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 1rem;
     margin-left: auto;
@@ -290,8 +271,12 @@ const onFontChange = (event: Event) => {
     }
 
     .hero__nav {
-        flex-wrap: wrap;
         margin-bottom: 1.75rem;
+    }
+
+    .theme-picker {
+        flex-basis: 100%;
+        justify-content: flex-end;
     }
 
     .hero__title {

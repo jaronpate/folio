@@ -15,5 +15,19 @@ export default defineContentConfig({
                 hidden: z.boolean().optional(),
             }),
         }),
+        projects: defineCollection({
+            type: 'page',
+            source: {
+                include: 'projects/**/*.md',
+                prefix: '',
+            },
+            schema: z.object({
+                title: z.string(),
+                description: z.string(),
+                href: z.string().optional(),
+                hidden: z.boolean().optional(),
+                image: z.string().optional(),
+            }),
+        }),
     },
 });

@@ -92,7 +92,8 @@ const selectedWorks = [
 const projects = [
     {
         title: 'Unicord',
-        href: 'https://unicord.hat.fish/',
+        // href: 'https://unicord.hat.fish/',
+        href: '/projects/unicord',
         description: 'Discord bot SDK inspired by webserver architecture.',
     },
     {
@@ -102,10 +103,10 @@ const projects = [
             'An AI-driven mystery detective game. Generate, investigate, solve.',
     },
     {
-        title: 'Rune Buddy',
+        title: 'Rift Buddy',
         href: 'https://github.com/jaronpate/rift-buddy',
         description:
-            'League of Legends runepage manager. Save & organise your pages for free.',
+            'Save, edit, and hot-swap rune pages alongside League of Legends.',
     },
 ];
 
@@ -178,7 +179,9 @@ definePageMeta({
 </script>
 
 <template>
-    <NuxtLayout name="main">
+    <NuxtLayout name="main"
+    title="Hey, I'm Jaron"
+    description="I build software for a living, but also other things">
         <article>
             <h3>Selected Work</h3>
             <template v-for="work in selectedWorks" :key="work.title">
@@ -188,14 +191,8 @@ definePageMeta({
                     }}</a>:
                     {{ work.description }}
                 </p>
-                <div class="work__images">
-                    <figure
-                        v-for="image in work.images"
-                        :key="image.src"
-                        class="work__image"
-                    >
-                        <img :src="image.src" :alt="image.alt" />
-                    </figure>
+                <div class="work-carousel">
+                    <Carousel :images="work.images" />
                 </div>
             </template>
 
@@ -203,7 +200,7 @@ definePageMeta({
             <ul>
                 <li v-for="project in projects" :key="project.href">
                     <p>
-                        <a :href="project.href" target="_blank" rel="noopener">{{
+                        <a :href="project.href">{{
                             project.title
                         }}</a>:
                         {{ project.description }}
@@ -240,53 +237,11 @@ definePageMeta({
 </template>
 
 <style scoped>
-.work__images {
-    --dot-color: #666;
-
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: max-content;
-    gap: var(--gap);
-    overflow-x: auto;
-    overflow-y: hidden;
+.work-carousel {
     margin: 1.25rem 0 1.75rem;
-    padding-bottom: 0.35rem;
 }
 
-.work__image {
-    --dot-size: 6%;
-
+.work-carousel :deep(.carousel) {
     margin: 0;
-    padding: var(--gap);
-    flex-shrink: 0;
-    border-radius: var(--radius);
-    background-color: var(--bg-secondary);
-    background-image: radial-gradient(
-        circle at 4px 4px,
-        var(--dot-color) var(--dot-size),
-        transparent calc(var(--dot-size) + 1%)
-    );
-    background-position: 4px 4px;
-    background-size: 12px 12px;
-    background-repeat: repeat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.work__image img {
-    max-width: none;
-    width: auto;
-    height: auto;
-    max-height: 350px;
-    object-fit: cover;
-    border-radius: var(--radius);
-    background: none;
-}
-
-@media screen and (max-width: 750px) {
-    .work__image img {
-        max-height: 300px;
-    }
 }
 </style>

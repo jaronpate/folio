@@ -1,15 +1,16 @@
 export const BG_THEMES = [
     { id: 'dusk', label: 'Dusk' },
+    { id: 'paper', label: 'Paper' },
     { id: 'navy', label: 'Navy' },
     { id: 'midnight', label: 'Midnight' },
     { id: 'indigo', label: 'Indigo' },
-    { id: 'storm', label: 'Storm' },
     { id: 'slate', label: 'Slate' },
     { id: 'ink', label: 'Ink' },
-    { id: 'pine', label: 'Pine' },
-    { id: 'wine', label: 'Wine' },
-    { id: 'cocoa', label: 'Cocoa' },
-    { id: 'paper', label: 'Paper' },
+    // Disabled for now, I don't like them as much
+    // { id: 'storm', label: 'Storm' },
+    // { id: 'pine', label: 'Pine' },
+    // { id: 'wine', label: 'Wine' },
+    // { id: 'cocoa', label: 'Cocoa' },
 ] as const;
 
 export type BgThemeId = (typeof BG_THEMES)[number]['id'];

@@ -370,6 +370,12 @@ code {
     background: var(--code-bg);
     padding: 0.12em 0.35em;
     border-radius: 3px;
+    display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    vertical-align: baseline;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
 }
 
 pre {
@@ -383,6 +389,8 @@ pre {
 }
 
 pre code {
+    display: inline;
+    max-width: none;
     padding: 0;
     color: inherit;
     background: none;
