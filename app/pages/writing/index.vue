@@ -112,10 +112,6 @@ useHead({
         },
     ],
 });
-
-definePageMeta({
-    layout: false,
-});
 </script>
 
 <template>
