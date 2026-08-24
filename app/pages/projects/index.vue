@@ -18,7 +18,7 @@ const collectionId = `${projectsUrl}#collection`;
 const listId = `${projectsUrl}#list`;
 const projectsTitle = 'Projects';
 const projectsDescription =
-    "Things I've made. Some for work, some because I wanted them to exist.";
+    "Things I've made which you may find of some interest.";
 
 useSeoMeta({
     title: projectsTitle,
@@ -111,8 +111,8 @@ definePageMeta({
 <template>
     <NuxtLayout
         name="main"
-        title="Projects"
-        description="Things I've made which you may find of some interest."
+        :title="projectsTitle"
+        :description="projectsDescription"
     >
         <article>
             <ProjectList :pages="pages ?? []" />

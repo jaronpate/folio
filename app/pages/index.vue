@@ -181,7 +181,7 @@ definePageMeta({
 <template>
     <NuxtLayout name="main"
     title="Hey, I'm Jaron"
-    description="I build software for a living, but also other things">
+    :description="DEFAULT_DESCRIPTION">
         <article>
             <h3>Selected Work</h3>
             <template v-for="work in selectedWorks" :key="work.title">

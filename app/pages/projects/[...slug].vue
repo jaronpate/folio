@@ -59,7 +59,9 @@ if (!data.value) {
 const page = computed(() => data.value?.project ?? null);
 const isFolder = computed(() => data.value?.kind === 'folder');
 const projectTitle = page.value?.title ?? folderName.value;
-const projectDescription = page.value?.description ?? '';
+const projectDescription = page.value
+    ? page.value.description
+    : `Projects from ${folderName.value}`;
 const liveHref = computed(() => page.value?.href ?? '');
 const ogImage = projectOgImage(
     page.value?.image,
@@ -70,15 +72,15 @@ const ogImage = projectOgImage(
 useSeoMeta({
     title: projectTitle,
     ogTitle: projectTitle,
-    description: projectDescription || projectTitle,
-    ogDescription: projectDescription || projectTitle,
+    description: projectDescription,
+    ogDescription: projectDescription,
     ogUrl: pageUrl,
     ogType: isFolder.value ? 'website' : 'article',
     ogImage,
     ogImageAlt: projectTitle,
     twitterCard: 'summary',
     twitterTitle: projectTitle,
-    twitterDescription: projectDescription || projectTitle,
+    twitterDescription: projectDescription,
     twitterImage: ogImage,
 });
 
@@ -170,9 +172,7 @@ definePageMeta({
     <NuxtLayout
         name="main"
         :title="page ? page.title : folderName"
-        :description="
-            page ? page.description : `Projects from ${folderName}`
-        "
+        :description="projectDescription"
     >
         <article v-if="page">
             <div class="article-body">

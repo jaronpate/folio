@@ -121,8 +121,8 @@ definePageMeta({
 <template>
     <NuxtLayout
         name="main"
-        title="Writing"
-        description="Thoughts I've had here and there. Maybe you'll find something helpful or interesting here."
+        :title="writingTitle"
+        :description="writingDescription"
     >
         <article>
             <WritingList :pages="pages ?? []" />

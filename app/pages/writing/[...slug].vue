@@ -54,20 +54,33 @@ if (!data.value) {
 const page = computed(() => data.value?.article ?? null);
 const isFolder = computed(() => data.value?.kind === 'folder');
 const articleTitle = page.value?.title ?? folderName.value;
-const articleDescription = page.value?.description ?? '';
+const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',
+    });
+};
+const articleDescription = page.value
+    ? page.value.description
+    : `Writing from ${folderName.value}`;
+const layoutDescription = page.value
+    ? formatDate(page.value.date)
+    : articleDescription;
 
 useSeoMeta({
     title: articleTitle,
     ogTitle: articleTitle,
-    description: articleDescription || articleTitle,
-    ogDescription: articleDescription || articleTitle,
+    description: articleDescription,
+    ogDescription: articleDescription,
     ogUrl: articleUrl,
     ogType: isFolder.value ? 'website' : 'article',
     ogImage: DEFAULT_IMAGE,
     ogImageAlt: articleTitle,
     twitterCard: 'summary',
     twitterTitle: articleTitle,
-    twitterDescription: articleDescription || articleTitle,
+    twitterDescription: articleDescription,
     twitterImage: DEFAULT_IMAGE,
     articlePublishedTime: page.value
         ? new Date(page.value.date).toISOString()
@@ -175,15 +188,6 @@ useHead({
         : [],
 });
 
-const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-};
-
 definePageMeta({
     layout: false,
 });
@@ -193,7 +197,7 @@ definePageMeta({
     <NuxtLayout
         name="main"
         :title="page ? page.title : folderName"
-        :description="page ? formatDate(page.date) : `Writing from ${folderName}`"
+        :description="layoutDescription"
     >
         <article v-if="page">
             <div class="article-body">
