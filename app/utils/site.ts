@@ -3,10 +3,10 @@ export const SITE_NAME = 'Jaron Pate';
 export const SITE_HANDLE = 'jaronpate';
 
 export const DEFAULT_TITLE = "Hey, I'm Jaron.";
-export const DEFAULT_DESCRIPTION =
-    'Developer. Reformed Rust enjoyer, Golang padawan.';
+// export const DEFAULT_DESCRIPTION = 'Developer. Reformed Rust enjoyer, Golang padawan.';
+export const DEFAULT_DESCRIPTION = 'I build software for a living, but also other things.';
 export const PERSON_DESCRIPTION =
-    'Developer. Reformed Rust enjoyer, Golang padawan. Building producst in Austin, Texas.';
+    'I build software for a living, but also other things. Reformed Rust enjoyer, Golang padawan. Based in Austin, Texas.';
 
 export const DEFAULT_IMAGE = `${SITE_URL}/favicon.png`;
 

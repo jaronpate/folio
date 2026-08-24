@@ -52,7 +52,8 @@ export default defineNuxtConfig({
                 {
                     name: 'description',
                     content:
-                        'Developer. Reformed Rust enjoyer, Golang padawan.',
+                        // 'Developer. Reformed Rust enjoyer, Golang padawan.',
+                        'I build software for a living, but also other things',
                 },
             ],
             link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
