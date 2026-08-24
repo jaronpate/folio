@@ -112,7 +112,7 @@ definePageMeta({
     <NuxtLayout
         name="main"
         title="Projects"
-        description="Software engineer by trade — builder by nature."
+        description="Things I've made which you may find of some interest."
     >
         <article>
             <ProjectList :pages="pages ?? []" />
