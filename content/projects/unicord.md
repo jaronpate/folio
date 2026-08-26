@@ -121,7 +121,7 @@ client.applicationCommands.register('avatar', ApplicationCommandType.Chat, avata
 
 And use it in Discord like so:
 
-![Example command used in Discord](/projects/unicord/command-example-discord.png)
+![Example command used in Discord](/projects/unicord/command-example-discord.png "A chat command, answered in Discord")
 
 ---
 

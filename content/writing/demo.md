@@ -108,9 +108,15 @@ const family = redactionFamily(grade);
 
 ## Image
 
-A figure in the column. This is an old Edlink shot, just to see the matte and radius.
+A figure in the column. This is an old Edlink shot, just to see the matte, radius, and caption line.
 
-![Billing overview](/work/edlink/billing-overview.png)
+![Billing overview](/work/edlink/billing-overview.png "The billing screen")
+
+The quoted title becomes the caption. Skip it and the image still sits in a figure, never wider than itself.
+
+```md
+![Billing overview](/work/edlink/billing-overview.png "The billing screen")
+```
 
 ---
 
