@@ -60,7 +60,7 @@ export default defineNuxtConfig({
             link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
             script: [
                 {
-                    innerHTML: `(function(){try{var t=localStorage.getItem('bg-theme')||'dusk';var f=localStorage.getItem('body-font')||'plantin';document.documentElement.classList.add('theme-'+t,'font-'+f);}catch(e){document.documentElement.classList.add('theme-dusk','font-plantin');}})();`,
+                    innerHTML: `(function(){try{var t=localStorage.getItem('bg-theme')||'dusk';var f=localStorage.getItem('body-font')||'plantin';var m=t==='paper'?'light-mode':'dark-mode';document.documentElement.classList.add('theme-'+t,'font-'+f,m,'is-loading');}catch(e){document.documentElement.classList.add('theme-dusk','font-plantin','dark-mode','is-loading');}setTimeout(function(){document.documentElement.classList.remove('is-loading')},4000);})();`,
                     tagPosition: 'head',
                 },
             ],
