@@ -66,6 +66,10 @@ const selectedWorks = [
                 alt: 'Provider Selection',
             },
             {
+                src: '/work/edlink/getting-started.png',
+                alt: 'First time setup',
+            },
+            {
                 src: '/work/edlink/onboarding-edit-source.png',
                 alt: 'Source Creation',
             },
