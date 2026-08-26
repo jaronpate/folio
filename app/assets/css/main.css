@@ -29,82 +29,105 @@
     --radius: 4px;
 }
 
-html.font-plantin {
+html.font-plantin,
+.font-plantin {
     --font: 'Plantin MT Pro', Georgia, serif;
     --body-weight: 300;
 }
 
-html.font-sohne {
+html.font-sohne,
+.font-sohne {
     --font: 'SohneBuch', -apple-system, BlinkMacSystemFont, sans-serif;
     --body-weight: 400;
 }
 
-html.font-space {
+html.font-space,
+.font-space {
     --font: 'Space Mono', ui-monospace, Menlo, monospace;
     --body-weight: 400;
 }
 
-html.font-georgia {
+html.font-georgia,
+.font-georgia {
     --font: Georgia, 'Times New Roman', Times, serif;
     --body-weight: 400;
 }
 
-html.font-palatino {
+html.font-palatino,
+.font-palatino {
     --font: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
     --body-weight: 400;
 }
 
-html.font-redaction {
+html.font-redaction,
+.font-redaction {
     --font: 'Redaction', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-10 {
+html.font-redaction-10,
+.font-redaction-10 {
     --font: 'Redaction 10', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-20 {
+html.font-redaction-20,
+.font-redaction-20 {
     --font: 'Redaction 20', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-35 {
+html.font-redaction-35,
+.font-redaction-35 {
     --font: 'Redaction 35', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-50 {
+html.font-redaction-50,
+.font-redaction-50 {
     --font: 'Redaction 50', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-70 {
+html.font-redaction-70,
+.font-redaction-70 {
     --font: 'Redaction 70', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-redaction-100 {
+html.font-redaction-100,
+.font-redaction-100 {
     --font: 'Redaction 100', Georgia, serif;
     --body-weight: 400;
 }
 
-html.font-system {
+html.font-system,
+.font-system {
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --body-weight: 400;
 }
 
 .dark-mode,
 html.theme-navy,
+.theme-navy,
 html.theme-dusk,
+.theme-dusk,
 html.theme-midnight,
+.theme-midnight,
 html.theme-indigo,
+.theme-indigo,
 html.theme-storm,
+.theme-storm,
 html.theme-slate,
+.theme-slate,
 html.theme-ink,
+.theme-ink,
 html.theme-pine,
+.theme-pine,
 html.theme-wine,
-html.theme-cocoa {
+.theme-wine,
+html.theme-cocoa,
+.theme-cocoa {
     --text: #fbfbf7;
     --muted: #9aa4b8;
     --accent: #e78c88;
@@ -112,7 +135,8 @@ html.theme-cocoa {
     --navy: #3c48a8;
 }
 
-html.theme-paper {
+html.theme-paper,
+.theme-paper {
     --bg: #f6f7f9;
     --bg-secondary: #e9ebef;
     --text: #2e3140;
@@ -125,7 +149,8 @@ html.theme-paper {
     --img-matte: #e9ebef;
 }
 
-html.theme-navy {
+html.theme-navy,
+.theme-navy {
     --bg: #12192c;
     --bg-secondary: #1a2238;
     --hairline: #2a334c;
@@ -133,7 +158,8 @@ html.theme-navy {
     --img-matte: #1a2238;
 }
 
-html.theme-dusk {
+html.theme-dusk,
+.theme-dusk {
     --bg: #1a2236;
     --bg-secondary: #252d44;
     --hairline: #343e58;
@@ -141,7 +167,8 @@ html.theme-dusk {
     --img-matte: #252d44;
 }
 
-html.theme-midnight {
+html.theme-midnight,
+.theme-midnight {
     --bg: #0e1424;
     --bg-secondary: #161d30;
     --hairline: #242c42;
@@ -149,7 +176,8 @@ html.theme-midnight {
     --img-matte: #161d30;
 }
 
-html.theme-indigo {
+html.theme-indigo,
+.theme-indigo {
     --bg: #16142a;
     --bg-secondary: #1f1c38;
     --hairline: #2e2a4a;
@@ -157,7 +185,8 @@ html.theme-indigo {
     --img-matte: #1f1c38;
 }
 
-html.theme-storm {
+html.theme-storm,
+.theme-storm {
     --bg: #1c2438;
     --bg-secondary: #283044;
     --hairline: #3a4458;
@@ -165,7 +194,8 @@ html.theme-storm {
     --img-matte: #283044;
 }
 
-html.theme-slate {
+html.theme-slate,
+.theme-slate {
     --bg: #1e212b;
     --bg-secondary: #2a2d3a;
     --hairline: #3a3e4c;
@@ -173,7 +203,8 @@ html.theme-slate {
     --img-matte: #2a2d3a;
 }
 
-html.theme-ink {
+html.theme-ink,
+.theme-ink {
     --bg: #0c0c0c;
     --bg-secondary: #1c1c1c;
     --hairline: #2a2a2a;
@@ -181,7 +212,8 @@ html.theme-ink {
     --img-matte: #1c1c1c;
 }
 
-html.theme-pine {
+html.theme-pine,
+.theme-pine {
     --bg: #121c22;
     --bg-secondary: #1a262c;
     --hairline: #2a3840;
@@ -189,7 +221,8 @@ html.theme-pine {
     --img-matte: #1a262c;
 }
 
-html.theme-wine {
+html.theme-wine,
+.theme-wine {
     --bg: #1a1520;
     --bg-secondary: #261c28;
     --hairline: #3a2c38;
@@ -197,7 +230,8 @@ html.theme-wine {
     --img-matte: #261c28;
 }
 
-html.theme-cocoa {
+html.theme-cocoa,
+.theme-cocoa {
     --bg: #1c1814;
     --bg-secondary: #2a241c;
     --hairline: #3c3428;
