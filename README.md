@@ -28,7 +28,7 @@ Converts `public/resume/index.html` to a Letter-size PDF.
 # One-time: install Chromium for Playwright
 bunx playwright install chromium
 
-# Generate PDF (writes public/resume/jaron-pate-resume.pdf)
+# Generate PDF (writes public/resume/paper.pdf)
 bun run resume:pdf
 
 # Optional custom output path
