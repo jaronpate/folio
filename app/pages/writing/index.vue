@@ -9,7 +9,7 @@ import {
 
 const { data: pages } = await useAsyncData('writing-pages', async () => {
     const all = await queryCollection('writing').order('date', 'DESC').all();
-    return import.meta.dev ? all : all.filter((page) => !page.hidden);
+    return all.filter((page) => !page.hidden);
 });
 
 const writingUrl = `${SITE_URL}/writing`;

@@ -10,6 +10,7 @@ import {
     isExternalHref,
     projectEntryHref,
     projectOgImage,
+    sortProjects,
 } from '~/utils/projects';
 
 const route = useRoute();
@@ -30,7 +31,7 @@ const folderName = computed(
 const { data } = await useAsyncData(
     () => `projects:${route.path}`,
     async () => {
-        const all = await queryCollection('projects').order('title', 'ASC').all();
+        const all = await queryCollection('projects').all();
         const visible = all.filter((page) => import.meta.dev || !page.hidden);
         const project = visible.find(
             (page) =>
@@ -44,7 +45,9 @@ const { data } = await useAsyncData(
         const prefix = contentPath.value.endsWith('/')
             ? contentPath.value
             : `${contentPath.value}/`;
-        const pages = visible.filter((page) => page.path.startsWith(prefix));
+        const pages = sortProjects(
+            visible.filter((page) => page.path.startsWith(prefix)),
+        );
 
         if (!pages.length) return null;
         return { kind: 'folder' as const, project: null, pages };

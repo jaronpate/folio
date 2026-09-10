@@ -6,6 +6,7 @@ import {
 } from '~/utils/fonts';
 import { BG_THEMES } from '~/utils/themes';
 import { SITE_URL } from '~/utils/site';
+import { sortProjects } from '~/utils/projects';
 
 const TOKEN_NAMES = [
     '--bg',
@@ -51,8 +52,8 @@ const { data: writingPages } = await useAsyncData(
 const { data: projectPages } = await useAsyncData(
     'styleguide-projects',
     async () => {
-        const all = await queryCollection('projects').order('title', 'ASC').all();
-        return all.filter((page) => !page.hidden).slice(0, 4);
+        const all = await queryCollection('projects').all();
+        return sortProjects(all.filter((page) => !page.hidden)).slice(0, 4);
     },
 );
 

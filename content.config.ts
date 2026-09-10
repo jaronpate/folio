@@ -26,6 +26,7 @@ export default defineContentConfig({
                 description: z.string(),
                 href: z.string().optional(),
                 hidden: z.boolean().optional(),
+                date: z.coerce.date().optional(),
                 image: z.string().optional(),
             }),
         }),

@@ -6,11 +6,16 @@ import {
     personId,
     websiteId,
 } from '~/utils/site';
-import { isExternalHref, projectEntryHref } from '~/utils/projects';
+import {
+    isExternalHref,
+    projectEntryHref,
+    sortProjects,
+} from '~/utils/projects';
 
 const { data: pages } = await useAsyncData('project-pages', async () => {
-    const all = await queryCollection('projects').order('title', 'ASC').all();
-    return import.meta.dev ? all : all.filter((page) => !page.hidden);
+    const all = await queryCollection('projects').all();
+    const visible = all.filter((page) => !page.hidden);
+    return sortProjects(visible);
 });
 
 const projectsUrl = `${SITE_URL}/projects`;
