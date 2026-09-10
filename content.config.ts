@@ -10,7 +10,7 @@ export default defineContentConfig({
             },
             schema: z.object({
                 title: z.string(),
-                date: z.coerce.date(),
+                date: z.string(),
                 description: z.string(),
                 hidden: z.boolean().optional(),
             }),
@@ -26,7 +26,7 @@ export default defineContentConfig({
                 description: z.string(),
                 href: z.string().optional(),
                 hidden: z.boolean().optional(),
-                date: z.coerce.date().optional(),
+                date: z.string().optional(),
                 image: z.string().optional(),
             }),
         }),

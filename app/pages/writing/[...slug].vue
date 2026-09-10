@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { contentDateAttr, formatContentDate } from '~/utils/dates';
 import {
     DEFAULT_IMAGE,
     SITE_NAME,
@@ -54,19 +55,11 @@ if (!data.value) {
 const page = computed(() => data.value?.article ?? null);
 const isFolder = computed(() => data.value?.kind === 'folder');
 const articleTitle = page.value?.title ?? folderName.value;
-const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-};
 const articleDescription = page.value
     ? page.value.description
     : `Writing from ${folderName.value}`;
 const layoutDescription = page.value
-    ? formatDate(page.value.date)
+    ? formatContentDate(page.value.date, 'long')
     : articleDescription;
 
 useSeoMeta({
@@ -83,10 +76,10 @@ useSeoMeta({
     twitterDescription: articleDescription,
     twitterImage: DEFAULT_IMAGE,
     articlePublishedTime: page.value
-        ? new Date(page.value.date).toISOString()
+        ? contentDateAttr(page.value.date)
         : undefined,
     articleModifiedTime: page.value
-        ? new Date(page.value.date).toISOString()
+        ? contentDateAttr(page.value.date)
         : undefined,
     articleAuthor: page.value ? [SITE_NAME] : undefined,
 });
@@ -131,12 +124,8 @@ useHead({
                               url: articleUrl,
                               headline: articleTitle,
                               description: articleDescription,
-                              datePublished: new Date(
-                                  page.value.date,
-                              ).toISOString(),
-                              dateModified: new Date(
-                                  page.value.date,
-                              ).toISOString(),
+                              datePublished: contentDateAttr(page.value.date),
+                              dateModified: contentDateAttr(page.value.date),
                               image: {
                                   '@type': 'ImageObject',
                                   '@id': `${articleUrl}#article-image`,

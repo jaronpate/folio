@@ -5,16 +5,14 @@ export function projectEntryHref(page: {
     return page.href || `/projects${page.path}`;
 }
 
-export function sortProjects<
-    T extends { title: string; date?: Date | string | null },
->(pages: T[]) {
+export function sortProjects<T extends { title: string; date?: string | null }>(
+    pages: T[],
+) {
     return [...pages].sort((a, b) => {
-        const aTime = a.date ? new Date(a.date).getTime() : Number.NaN;
-        const bTime = b.date ? new Date(b.date).getTime() : Number.NaN;
-        const aHasDate = !Number.isNaN(aTime);
-        const bHasDate = !Number.isNaN(bTime);
-        if (aHasDate && bHasDate && aTime !== bTime) return bTime - aTime;
-        if (aHasDate !== bHasDate) return aHasDate ? -1 : 1;
+        if (!a.date && !b.date) return a.title.localeCompare(b.title);
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        if (a.date !== b.date) return b.date.localeCompare(a.date);
         return a.title.localeCompare(b.title);
     });
 }

@@ -1,20 +1,13 @@
 <script setup lang="ts">
+import { contentDateAttr, formatContentDate } from '~/utils/dates';
+
 defineProps<{
     pages: Array<{
         path: string;
         title: string;
-        date: string | Date;
+        date: string;
     }>;
 }>();
-
-const formatDate = (dateString: string | Date) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',
-    });
-};
 </script>
 
 <template>
@@ -27,8 +20,8 @@ const formatDate = (dateString: string | Date) => {
         >
             <span class="listing__title">{{ page.title }}</span>
             <span class="listing__rule" aria-hidden="true"></span>
-            <time :datetime="new Date(page.date).toISOString()">{{
-                formatDate(page.date)
+            <time :datetime="contentDateAttr(page.date)">{{
+                formatContentDate(page.date)
             }}</time>
         </NuxtLink>
     </template>

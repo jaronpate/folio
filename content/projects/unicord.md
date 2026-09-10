@@ -2,6 +2,7 @@
 title: Unicord 🦄
 description: A Discord bot SDK that works like a web server.
 # href: https://unicord.hat.fish
+date: 2025-01-12
 ---
 
 I wanted writing a Discord bot to feel like writing a small web app. Register a handler, get a request, send a reply. *Bang!...bot done.* This became particularly interesting once bots could be served over HTTP.

@@ -2,6 +2,7 @@
 title: AI and the Barrier of Entry
 date: 2023-03-25T12:00:00.000Z
 description: We are witnessing the next major wave of technological innovation. And it's never been easier to be a part of it.
+hidden: true
 ---
 
 To be fair the term itself, **AI**, has had its meaning stretched pretty thin in the last few years. :margin-note[(Artificial Intelligence. The label has been doing too much work.)] It's been used to describe everything from a simple chatbot to a self driving car. That use is extremely broad. It doesn't really describe the space we think of as "AI".
