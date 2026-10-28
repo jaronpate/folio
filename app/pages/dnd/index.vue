@@ -20,6 +20,10 @@ useSeoMeta({
     ogType: 'website',
     ogImage: DEFAULT_IMAGE,
     ogImageAlt: sectionTitle,
+    twitterCard: 'summary',
+    twitterTitle: sectionTitle,
+    twitterDescription: sectionDescription,
+    twitterImage: DEFAULT_IMAGE,
     robots: 'noindex',
 });
 
