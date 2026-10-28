@@ -806,11 +806,7 @@ onBeforeUnmount(() => {
     .audio-player__volume {
         flex: none;
         width: auto;
-        max-width: none;
-    }
-
-    .audio-player__level {
-        display: none;
+        max-width: 6.5rem;
     }
 }
 </style>
