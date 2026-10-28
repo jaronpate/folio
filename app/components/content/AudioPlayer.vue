@@ -68,6 +68,10 @@ const scrubbing = ref(false);
 const resumeAfterSeek = ref(false);
 const failed = ref(false);
 
+const PLAYBACK_RATES = [0.8, 1, 1.2, 1.5, 2] as const;
+type PlaybackRate = (typeof PLAYBACK_RATES)[number];
+const rate = ref<PlaybackRate>(1);
+
 const canSeek = computed(() => duration.value > 0 && !failed.value);
 const seekFill = computed(() => {
     if (duration.value <= 0) return '0%';
@@ -75,6 +79,7 @@ const seekFill = computed(() => {
     return `${ratio * 100}%`;
 });
 const volumeFill = computed(() => `${volume.value * 100}%`);
+const rateLabel = computed(() => `${rate.value.toFixed(1)}x`);
 
 function formatTime(seconds: number) {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -91,6 +96,10 @@ function applyVolume() {
     if (audio.value) audio.value.volume = volume.value;
 }
 
+function applyRate() {
+    if (audio.value) audio.value.playbackRate = rate.value;
+}
+
 function syncDuration() {
     const el = audio.value;
     if (!el || !Number.isFinite(el.duration) || el.duration <= 0) return;
@@ -101,6 +110,7 @@ function syncDuration() {
 function onLoaded() {
     syncDuration();
     applyVolume();
+    applyRate();
 }
 
 function onTime() {
@@ -228,6 +238,13 @@ function toggleMute() {
     applyVolume();
 }
 
+function cycleRate() {
+    const index = PLAYBACK_RATES.indexOf(rate.value);
+    const next = PLAYBACK_RATES[(index + 1) % PLAYBACK_RATES.length];
+    rate.value = next ?? 1;
+    applyRate();
+}
+
 watch(
     () => props.src,
     () => {
@@ -244,6 +261,7 @@ let pinObserver: IntersectionObserver | null = null;
 
 onMounted(() => {
     applyVolume();
+    applyRate();
     syncDuration();
     const el = audio.value;
     if (el) {
@@ -359,34 +377,46 @@ onBeforeUnmount(() => {
                     </div>
                 </IconoirProvider>
 
-                <span class="audio-player__time">
-                    <span class="audio-player__sr">Elapsed</span>
-                    {{ formatTime(current) }}
-                </span>
+                <div class="audio-player__timeline">
+                    <span class="audio-player__time">
+                        <span class="audio-player__sr">Elapsed</span>
+                        {{ formatTime(current) }}
+                    </span>
 
-                <div class="audio-player__seek">
-                    <input
-                        class="audio-player__range"
-                        type="range"
-                        min="0"
-                        :max="canSeek ? duration : 0"
-                        step="any"
-                        :value="current"
-                        :disabled="!canSeek"
-                        :style="{ '--fill': seekFill }"
-                        :aria-valuetext="formatTime(current)"
-                        aria-label="Seek"
-                        @input="onSeekInput"
-                        @change="finishSeek"
-                        @pointerup="finishSeek"
-                        @keyup="finishSeek"
-                    />
+                    <div class="audio-player__seek">
+                        <input
+                            class="audio-player__range"
+                            type="range"
+                            min="0"
+                            :max="canSeek ? duration : 0"
+                            step="any"
+                            :value="current"
+                            :disabled="!canSeek"
+                            :style="{ '--fill': seekFill }"
+                            :aria-valuetext="formatTime(current)"
+                            aria-label="Seek"
+                            @input="onSeekInput"
+                            @change="finishSeek"
+                            @pointerup="finishSeek"
+                            @keyup="finishSeek"
+                        />
+                    </div>
+
+                    <span class="audio-player__time audio-player__time--total">
+                        <span class="audio-player__sr">Duration</span>
+                        {{ formatTime(duration) }}
+                    </span>
                 </div>
 
-                <span class="audio-player__time audio-player__time--total">
-                    <span class="audio-player__sr">Duration</span>
-                    {{ formatTime(duration) }}
-                </span>
+                <button
+                    type="button"
+                    class="audio-player__speed"
+                    :aria-label="`Playback speed ${rateLabel}`"
+                    :aria-valuetext="rateLabel"
+                    @click="cycleRate"
+                >
+                    {{ rateLabel }}
+                </button>
 
                 <div class="audio-player__volume">
                     <IconoirProvider :icon-props="volumeIcon">
@@ -547,7 +577,8 @@ onBeforeUnmount(() => {
 
 .audio-player__play,
 .audio-player__skip,
-.audio-player__mute {
+.audio-player__mute,
+.audio-player__speed {
     appearance: none;
     display: flex;
     align-items: center;
@@ -581,6 +612,22 @@ onBeforeUnmount(() => {
     color: var(--accent);
 }
 
+.audio-player__speed {
+    min-width: 2.6rem;
+    padding: 0.3rem 0.4rem;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.audio-player__speed:hover {
+    color: var(--accent);
+}
+
 .audio-player__skip {
     background: transparent;
     color: var(--text);
@@ -598,6 +645,7 @@ onBeforeUnmount(() => {
 .audio-player__play:focus-visible,
 .audio-player__skip:focus-visible,
 .audio-player__mute:focus-visible,
+.audio-player__speed:focus-visible,
 .audio-player__download:focus-visible,
 .audio-player__range:focus-visible {
     outline: 2px solid var(--accent);
@@ -620,6 +668,14 @@ onBeforeUnmount(() => {
     transform: translateX(6%);
 }
 
+.audio-player__timeline {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
 .audio-player__time {
     flex: none;
     font-family: var(--font-mono);
@@ -635,7 +691,7 @@ onBeforeUnmount(() => {
 
 .audio-player__seek {
     flex: 1 1 8rem;
-    min-width: 6rem;
+    min-width: 4rem;
 }
 
 .audio-player__volume {
@@ -733,9 +789,24 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 560px) {
+    .audio-player__bar {
+        gap: 0.55rem 0.65rem;
+    }
+
+    .audio-player__timeline {
+        order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+    }
+
+    .audio-player__speed {
+        margin-left: auto;
+    }
+
     .audio-player__volume {
-        flex-basis: 100%;
-        max-width: none;
+        flex: none;
+        width: auto;
+        max-width: 6.5rem;
     }
 }
 </style>
