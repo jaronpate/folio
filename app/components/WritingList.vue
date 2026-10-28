@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { contentDateAttr, formatContentDate } from '~/utils/dates';
 
-defineProps<{
-    pages: Array<{
-        path: string;
-        title: string;
-        date: string;
-    }>;
-}>();
+withDefaults(
+    defineProps<{
+        pages: Array<{
+            path: string;
+            title: string;
+            date: string;
+        }>;
+        base?: string;
+    }>(),
+    { base: '/writing' },
+);
 </script>
 
 <template>
@@ -15,7 +19,7 @@ defineProps<{
         <NuxtLink
             v-for="page in pages"
             :key="page.path"
-            :to="'/writing' + page.path"
+            :to="base + page.path"
             class="listing"
         >
             <span class="listing__title">{{ page.title }}</span>

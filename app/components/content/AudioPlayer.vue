@@ -1,0 +1,741 @@
+<script setup lang="ts">
+import {
+    Backward15Seconds,
+    Download,
+    Forward15Seconds,
+    IconoirProvider,
+    PauseSolid,
+    PlaySolid,
+    SoundHighSolid,
+    SoundLowSolid,
+    SoundMinSolid,
+    SoundOffSolid,
+} from '@iconoir/vue';
+import { joinURL, withLeadingSlash, withTrailingSlash } from 'ufo';
+
+const iconSize = { width: '1.35rem', height: '1.35rem' };
+const volumeIcon = { width: '1rem', height: '1rem' };
+const downloadIcon = { width: '0.9rem', height: '0.9rem' };
+
+const props = withDefaults(
+    defineProps<{
+        src: string;
+        title?: string;
+        download?: boolean | string;
+        sticky?: boolean;
+    }>(),
+    {
+        title: '',
+        download: false,
+        sticky: false,
+    },
+);
+
+const titleId = useId();
+
+const canDownload = computed(
+    () =>
+        props.download === true ||
+        props.download === '' ||
+        props.download === 'true',
+);
+
+const resolvedSrc = computed(() => {
+    const raw = props.src?.trim() ?? '';
+    if (raw.startsWith('/') && !raw.startsWith('//')) {
+        const base = withLeadingSlash(
+            withTrailingSlash(useRuntimeConfig().app.baseURL),
+        );
+        if (base !== '/' && !raw.startsWith(base)) return joinURL(base, raw);
+    }
+    return raw;
+});
+
+const downloadName = computed(() => {
+    const path = resolvedSrc.value.split(/[?#]/)[0] ?? '';
+    return path.split('/').filter(Boolean).pop() || 'audio';
+});
+
+const audio = ref<HTMLAudioElement | null>(null);
+const sentinel = ref<HTMLElement | null>(null);
+const pinned = ref(false);
+const playing = ref(false);
+const current = ref(0);
+const duration = ref(0);
+const volume = ref(1);
+const lastAudible = ref(1);
+const scrubbing = ref(false);
+const resumeAfterSeek = ref(false);
+const failed = ref(false);
+
+const canSeek = computed(() => duration.value > 0 && !failed.value);
+const seekFill = computed(() => {
+    if (duration.value <= 0) return '0%';
+    const ratio = Math.min(1, Math.max(0, current.value / duration.value));
+    return `${ratio * 100}%`;
+});
+const volumeFill = computed(() => `${volume.value * 100}%`);
+
+function formatTime(seconds: number) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+    const whole = Math.floor(seconds);
+    const hours = Math.floor(whole / 3600);
+    const minutes = Math.floor((whole % 3600) / 60);
+    const secs = whole % 60;
+    const clock = `${minutes}:${secs.toString().padStart(2, '0')}`;
+    if (hours <= 0) return clock;
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function applyVolume() {
+    if (audio.value) audio.value.volume = volume.value;
+}
+
+function syncDuration() {
+    const el = audio.value;
+    if (!el || !Number.isFinite(el.duration) || el.duration <= 0) return;
+    duration.value = el.duration;
+    failed.value = false;
+}
+
+function onLoaded() {
+    syncDuration();
+    applyVolume();
+}
+
+function onTime() {
+    if (scrubbing.value || !audio.value) return;
+    current.value = audio.value.currentTime;
+}
+
+function onPlay() {
+    playing.value = true;
+    failed.value = false;
+    const mine = audio.value;
+    if (!mine) return;
+    for (const other of document.querySelectorAll('audio')) {
+        if (other !== mine) other.pause();
+    }
+}
+
+function onPause() {
+    playing.value = false;
+}
+
+function onEnded() {
+    playing.value = false;
+    if (audio.value) current.value = audio.value.currentTime;
+}
+
+function onSeeked() {
+    if (audio.value) current.value = audio.value.currentTime;
+    if (resumeAfterSeek.value) settleSeek();
+    else scrubbing.value = false;
+}
+
+function onError() {
+    if (audio.value?.error?.code === MediaError.MEDIA_ERR_ABORTED) return;
+    failed.value = true;
+    playing.value = false;
+}
+
+async function toggle() {
+    const el = audio.value;
+    if (!el) return;
+    if (scrubbing.value) {
+        resumeAfterSeek.value = !resumeAfterSeek.value;
+        return;
+    }
+    if (!el.paused) {
+        el.pause();
+        return;
+    }
+    if (failed.value) {
+        failed.value = false;
+        el.load();
+    }
+    try {
+        await el.play();
+    } catch {
+        // play() rejects on an autoplay block. A bad file also emits error.
+    }
+}
+
+function readInput(event: Event) {
+    const next = Number((event.target as HTMLInputElement).value);
+    return Number.isFinite(next) ? next : null;
+}
+
+function skip(delta: number) {
+    const el = audio.value;
+    if (!el || !canSeek.value) return;
+    const base = scrubbing.value ? current.value : el.currentTime;
+    const next = Math.min(duration.value, Math.max(0, base + delta));
+    current.value = next;
+    if (Math.abs(el.currentTime - next) >= 0.05) el.currentTime = next;
+}
+
+function onSeekInput(event: Event) {
+    const next = readInput(event);
+    if (next === null) return;
+    const el = audio.value;
+    if (!scrubbing.value) resumeAfterSeek.value = !!el && !el.paused;
+    scrubbing.value = true;
+    current.value = next;
+    el?.pause();
+}
+
+function finishSeek(event: Event) {
+    const next = readInput(event);
+    const el = audio.value;
+    if (next === null || !el) {
+        settleSeek();
+        return;
+    }
+    current.value = next;
+    const pending = scrubbing.value || resumeAfterSeek.value;
+    if (Math.abs(el.currentTime - next) >= 0.05) el.currentTime = next;
+    if (!pending) {
+        scrubbing.value = false;
+        return;
+    }
+    if (Math.abs(el.currentTime - next) < 0.05) settleSeek();
+}
+
+function settleSeek() {
+    const shouldResume = resumeAfterSeek.value;
+    scrubbing.value = false;
+    resumeAfterSeek.value = false;
+    if (!shouldResume) return;
+    audio.value?.play().catch(() => {});
+}
+
+function onVolumeInput(event: Event) {
+    const next = readInput(event);
+    if (next === null) return;
+    volume.value = Math.min(1, Math.max(0, next));
+    if (volume.value > 0) lastAudible.value = volume.value;
+    applyVolume();
+}
+
+function toggleMute() {
+    if (volume.value > 0) {
+        lastAudible.value = volume.value;
+        volume.value = 0;
+    } else {
+        volume.value = lastAudible.value || 1;
+    }
+    applyVolume();
+}
+
+watch(
+    () => props.src,
+    () => {
+        playing.value = false;
+        current.value = 0;
+        duration.value = 0;
+        failed.value = false;
+        scrubbing.value = false;
+        resumeAfterSeek.value = false;
+    },
+);
+
+let pinObserver: IntersectionObserver | null = null;
+
+onMounted(() => {
+    applyVolume();
+    syncDuration();
+    const el = audio.value;
+    if (el) {
+        current.value = el.currentTime;
+        playing.value = !el.paused;
+    }
+
+    const mark = sentinel.value;
+    if (!props.sticky || !mark) return;
+    pinObserver = new IntersectionObserver(([entry]) => {
+        pinned.value = !!entry && entry.boundingClientRect.top < 0;
+    });
+    pinObserver.observe(mark);
+});
+
+onBeforeUnmount(() => {
+    pinObserver?.disconnect();
+});
+</script>
+
+<template>
+    <div
+        v-if="resolvedSrc && sticky"
+        ref="sentinel"
+        class="audio-player__sentinel"
+        aria-hidden="true"
+    />
+    <div
+        v-if="resolvedSrc"
+        class="audio-player"
+        :class="{
+            'audio-player--sticky': sticky,
+            'is-pinned': pinned,
+        }"
+        role="region"
+        :aria-labelledby="title ? titleId : undefined"
+        :aria-label="title ? undefined : 'Audio player'"
+    >
+        <div class="audio-player__panel">
+            <audio
+                ref="audio"
+                class="audio-player__media"
+                :src="resolvedSrc"
+                preload="metadata"
+                playsinline
+                @loadedmetadata="onLoaded"
+                @durationchange="syncDuration"
+                @timeupdate="onTime"
+                @play="onPlay"
+                @pause="onPause"
+                @ended="onEnded"
+                @seeked="onSeeked"
+                @error="onError"
+            />
+
+            <div v-if="title || canDownload" class="audio-player__head">
+                <p v-if="title" :id="titleId" class="audio-player__title">
+                    {{ title }}
+                </p>
+                <a
+                    v-if="canDownload"
+                    class="audio-player__download"
+                    :href="resolvedSrc"
+                    :download="downloadName"
+                >
+                    <span
+                        class="audio-player__download-icon"
+                        aria-hidden="true"
+                    >
+                        <IconoirProvider :icon-props="downloadIcon">
+                            <Download />
+                        </IconoirProvider>
+                    </span>
+                    Download
+                </a>
+            </div>
+
+            <div class="audio-player__bar">
+                <IconoirProvider :icon-props="iconSize">
+                    <div class="audio-player__transport">
+                        <button
+                            type="button"
+                            class="audio-player__skip"
+                            aria-label="Back 15 seconds"
+                            :disabled="!canSeek"
+                            @click="skip(-15)"
+                        >
+                            <Backward15Seconds />
+                        </button>
+                        <button
+                            type="button"
+                            class="audio-player__play"
+                            :aria-label="playing ? 'Pause' : 'Play'"
+                            @click="toggle"
+                        >
+                            <span
+                                v-if="!playing"
+                                class="audio-player__glyph--play"
+                            >
+                                <PlaySolid />
+                            </span>
+                            <PauseSolid v-else />
+                        </button>
+                        <button
+                            type="button"
+                            class="audio-player__skip"
+                            aria-label="Forward 15 seconds"
+                            :disabled="!canSeek"
+                            @click="skip(15)"
+                        >
+                            <Forward15Seconds />
+                        </button>
+                    </div>
+                </IconoirProvider>
+
+                <span class="audio-player__time">
+                    <span class="audio-player__sr">Elapsed</span>
+                    {{ formatTime(current) }}
+                </span>
+
+                <div class="audio-player__seek">
+                    <input
+                        class="audio-player__range"
+                        type="range"
+                        min="0"
+                        :max="canSeek ? duration : 0"
+                        step="any"
+                        :value="current"
+                        :disabled="!canSeek"
+                        :style="{ '--fill': seekFill }"
+                        :aria-valuetext="formatTime(current)"
+                        aria-label="Seek"
+                        @input="onSeekInput"
+                        @change="finishSeek"
+                        @pointerup="finishSeek"
+                        @keyup="finishSeek"
+                    />
+                </div>
+
+                <span class="audio-player__time audio-player__time--total">
+                    <span class="audio-player__sr">Duration</span>
+                    {{ formatTime(duration) }}
+                </span>
+
+                <div class="audio-player__volume">
+                    <IconoirProvider :icon-props="volumeIcon">
+                        <button
+                            type="button"
+                            class="audio-player__mute"
+                            :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
+                            @click="toggleMute"
+                        >
+                            <SoundOffSolid v-if="volume <= 0.02" />
+                            <SoundMinSolid v-else-if="volume <= 0.33" />
+                            <SoundLowSolid v-else-if="volume <= 0.66" />
+                            <SoundHighSolid v-else />
+                        </button>
+                    </IconoirProvider>
+                    <input
+                        class="audio-player__range audio-player__level"
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        :value="volume"
+                        :style="{ '--fill': volumeFill }"
+                        :aria-valuetext="`${Math.round(volume * 100)}%`"
+                        aria-label="Volume"
+                        @input="onVolumeInput"
+                    />
+                </div>
+            </div>
+
+            <p v-if="failed" class="audio-player__error">
+                This recording didn't load.
+            </p>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.audio-player {
+    position: relative;
+    margin: 1.25rem 0;
+}
+
+.audio-player__panel {
+    position: relative;
+    z-index: 1;
+    padding: 0.85rem 0.95rem 0.8rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    background: var(--bg);
+}
+
+.audio-player__sentinel {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.audio-player.audio-player--sticky {
+    --stick-gap: 1.5rem;
+    position: sticky;
+    top: var(--stick-gap);
+    z-index: 5;
+    margin-top: 0;
+}
+
+.audio-player.is-pinned::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    left: -0.5rem;
+    right: -0.5rem;
+    top: calc(-1 * var(--stick-gap) - 0.5rem);
+    bottom: -0.5rem;
+    background: var(--bg);
+    pointer-events: none;
+}
+
+.audio-player.is-pinned .audio-player__panel {
+    box-shadow: 0 10px 22px -16px rgba(0, 0, 0, 0.7);
+}
+
+.audio-player__media {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.audio-player__head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.audio-player__title {
+    margin: 0;
+    min-width: 0;
+    font-family: var(--font);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 0.98rem;
+    line-height: 1.3;
+    color: var(--muted);
+}
+
+.audio-player__download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+    flex: none;
+    padding: 0.35rem 0.6rem;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.audio-player__download:hover {
+    background: var(--accent-soft);
+    color: #fff;
+    text-decoration: none;
+}
+
+.audio-player__download-icon {
+    display: flex;
+    flex: none;
+    line-height: 0;
+}
+
+.audio-player__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.audio-player__transport {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex: none;
+}
+
+.audio-player__play,
+.audio-player__skip,
+.audio-player__mute {
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    padding: 0;
+    border: 0;
+    line-height: 0;
+    cursor: pointer;
+}
+
+.audio-player__play {
+    padding: 0.4rem;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--bg);
+}
+
+.audio-player__play:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+.audio-player__mute {
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--text);
+}
+
+.audio-player__mute:hover {
+    color: var(--accent);
+}
+
+.audio-player__skip {
+    background: transparent;
+    color: var(--text);
+}
+
+.audio-player__skip:hover:not(:disabled) {
+    color: var(--accent);
+}
+
+.audio-player__skip:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.audio-player__play:focus-visible,
+.audio-player__skip:focus-visible,
+.audio-player__mute:focus-visible,
+.audio-player__download:focus-visible,
+.audio-player__range:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.audio-player__play svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    display: block;
+}
+
+.audio-player__play svg path {
+    fill: currentColor;
+}
+
+.audio-player__glyph--play {
+    /* Iconoir's triangle sits left of the frame. Nudge it onto the button center. */
+    display: block;
+    transform: translateX(6%);
+}
+
+.audio-player__time {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--muted);
+}
+
+.audio-player__time--total {
+    text-align: right;
+}
+
+.audio-player__seek {
+    flex: 1 1 8rem;
+    min-width: 6rem;
+}
+
+.audio-player__volume {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1 1 7rem;
+    width: auto;
+    max-width: 7.5rem;
+}
+
+.audio-player__level {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+}
+
+.audio-player__range {
+    appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    width: 100%;
+    height: 1.25rem;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    --fill: 0%;
+}
+
+.audio-player__range:disabled {
+    cursor: default;
+    opacity: 0.45;
+}
+
+.audio-player__range::-webkit-slider-runnable-track {
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(
+        to right,
+        var(--accent) var(--fill),
+        var(--hairline) var(--fill)
+    );
+}
+
+.audio-player__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-top: calc((3px - 0.75rem) / 2);
+    border: 0;
+    border-radius: 50%;
+    background: var(--text);
+}
+
+.audio-player__range::-moz-range-track {
+    height: 3px;
+    border: 0;
+    border-radius: 2px;
+    background: var(--hairline);
+}
+
+.audio-player__range::-moz-range-progress {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+}
+
+.audio-player__range::-moz-range-thumb {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--text);
+}
+
+.audio-player__error {
+    margin: 0.55rem 0 0;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.audio-player__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 560px) {
+    .audio-player__volume {
+        flex-basis: 100%;
+        max-width: none;
+    }
+}
+</style>

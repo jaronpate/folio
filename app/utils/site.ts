@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://jaron.sh';
+export const SITE_URL = 'https://jaronpate.com';
 export const SITE_NAME = 'Jaron Pate';
 export const SITE_HANDLE = 'jaronpate';
 

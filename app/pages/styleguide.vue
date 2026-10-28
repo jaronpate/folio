@@ -44,7 +44,9 @@ useHead({
 const { data: writingPages } = await useAsyncData(
     'styleguide-writing',
     async () => {
-        const all = await queryCollection('writing').order('date', 'DESC').all();
+        const all = await queryCollection('writing')
+            .order('date', 'DESC')
+            .all();
         return all.filter((page) => !page.hidden).slice(0, 4);
     },
 );
@@ -152,9 +154,9 @@ onMounted(() => {
     >
         <article>
             <p>
-                This is the kitchen sink. Change the theme up top and the
-                colors below update with it. The fonts on this page keep their
-                own face so you can actually compare them.
+                This is the kitchen sink. Change the theme up top and the colors
+                below update with it. The fonts on this page keep their own face
+                so you can actually compare them.
             </p>
 
             <ul class="guide-toc">
@@ -165,16 +167,10 @@ onMounted(() => {
             </ul>
 
             <h2 id="color">Color</h2>
-            <p>
-                Flip the background in the header and these chips follow.
-            </p>
+            <p>Flip the background in the header and these chips follow.</p>
 
             <div class="swatches">
-                <div
-                    v-for="name in TOKEN_NAMES"
-                    :key="name"
-                    class="swatch"
-                >
+                <div v-for="name in TOKEN_NAMES" :key="name" class="swatch">
                     <div
                         class="swatch__chip"
                         :style="{ background: `var(${name})` }"
@@ -214,18 +210,24 @@ onMounted(() => {
                         themeTokens[theme.id]?.['--bg'] || '—'
                     }}</code>
                     <span class="theme-card__chips" aria-hidden="true">
-                        <span class="theme-card__chip theme-card__chip--secondary" />
-                        <span class="theme-card__chip theme-card__chip--accent" />
-                        <span class="theme-card__chip theme-card__chip--muted" />
-                        <span class="theme-card__chip theme-card__chip--hairline" />
+                        <span
+                            class="theme-card__chip theme-card__chip--secondary"
+                        />
+                        <span
+                            class="theme-card__chip theme-card__chip--accent"
+                        />
+                        <span
+                            class="theme-card__chip theme-card__chip--muted"
+                        />
+                        <span
+                            class="theme-card__chip theme-card__chip--hairline"
+                        />
                     </span>
                 </button>
             </div>
 
             <h2 id="type">Type</h2>
-            <p>
-                Body font is whatever you pick here.
-            </p>
+            <p>Body font is whatever you pick here.</p>
             <label class="guide-label">
                 Body font
                 <select
@@ -244,13 +246,15 @@ onMounted(() => {
             </label>
 
             <p>
-                Three jobs: the body face you pick, Sohne for UI, Space Mono
-                for code.
+                Three jobs: the body face you pick, Sohne for UI, Space Mono for
+                code.
             </p>
             <p class="role-plain">
                 Sohne for nav, dates, captions, and this line.
             </p>
-            <p class="role-mono">Space Mono for the wordmark, footer, and code.</p>
+            <p class="role-mono">
+                Space Mono for the wordmark, footer, and code.
+            </p>
 
             <h3>Fonts</h3>
             <div class="font-list">
@@ -277,7 +281,8 @@ onMounted(() => {
                     <span
                         class="redaction-sample"
                         :class="redactionClass(grade)"
-                    >you werent supposed to see this</span>
+                        >you werent supposed to see this</span
+                    >
                     <span class="grade-face">{{ redactionFamily(grade) }}</span>
                 </li>
             </ul>
@@ -362,7 +367,10 @@ onMounted(() => {
                 Two in a row so you can see them stack. First one.
                 <MarginNote>(Hey, I'm the first note.)</MarginNote>
                 Then another.
-                <MarginNote>(And I'm the second. Should not sit on top of the other one.)</MarginNote>
+                <MarginNote
+                    >(And I'm the second. Should not sit on top of the other
+                    one.)</MarginNote
+                >
                 The rest of the sentence just keeps going.
             </p>
 
@@ -381,6 +389,26 @@ onMounted(() => {
                     the one time you actually want to shout.
                 </p>
             </Notice>
+
+            <h3>Audio</h3>
+            <p>
+                A recording hosted with the site. Play, pause, seek, volume. The
+                download link shows up only when you pass it. This file is just
+                a tone, so the seek position is easy to hear.
+            </p>
+            <AudioPlayer
+                src="/audio/styleguide.wav"
+                title="A reading"
+                download
+            />
+            <p>Same file, without a title or a download link.</p>
+            <AudioPlayer src="/audio/styleguide.wav" />
+            <p>
+                On a post, put the file path in <code>audio</code> and it sits
+                under the description. Add <code>audioTitle</code> for a label
+                and <code>audioDownload: true</code> for the link. The same
+                player can go anywhere else on the site.
+            </p>
 
             <h3>Redacted</h3>
             <p>Same phrase, every grade:</p>
@@ -406,8 +434,7 @@ onMounted(() => {
 
             <h3>Carousel</h3>
             <p>
-                The selected work scroller from the homepage. Flick it
-                sideways.
+                The selected work scroller from the homepage. Flick it sideways.
             </p>
             <Carousel :images="carouselImages" />
 
@@ -416,9 +443,7 @@ onMounted(() => {
             <WritingList :pages="writingPages ?? []" />
 
             <h3>Project list</h3>
-            <p>
-                How projects show up. Hover one that has an image.
-            </p>
+            <p>How projects show up. Hover one that has an image.</p>
             <ProjectList :pages="projectPages ?? []" />
         </article>
     </NuxtLayout>

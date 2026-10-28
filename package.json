@@ -12,6 +12,7 @@
         "resume:pdf": "bun scripts/resume-to-pdf.ts"
     },
     "dependencies": {
+        "@iconoir/vue": "^7.12.1",
         "@nuxt/content": "3.13.0",
         "better-sqlite3": "^12.9.0",
         "chalk": "^5.6.2",

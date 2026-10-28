@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { contentDateAttr, formatContentDate } from '~/utils/dates';
+import { openGraphAudioMeta } from '~/utils/openGraphAudio';
 import {
     DEFAULT_IMAGE,
     SITE_NAME,
@@ -26,7 +27,9 @@ const folderName = computed(
 const { data } = await useAsyncData(
     () => `writing:${route.path}`,
     async () => {
-        const all = await queryCollection('writing').order('date', 'DESC').all();
+        const all = await queryCollection('writing')
+            .order('date', 'DESC')
+            .all();
         const visible = all.filter((page) => import.meta.dev || !page.hidden);
         const article = visible.find(
             (page) =>
@@ -54,6 +57,7 @@ if (!data.value) {
 
 const page = computed(() => data.value?.article ?? null);
 const isFolder = computed(() => data.value?.kind === 'folder');
+
 const articleTitle = page.value?.title ?? folderName.value;
 const articleDescription = page.value
     ? page.value.description
@@ -86,6 +90,7 @@ useSeoMeta({
 
 useHead({
     link: [{ rel: 'canonical', href: articleUrl }],
+    meta: () => openGraphAudioMeta(page.value?.audio),
     script: page.value
         ? [
               {
@@ -189,6 +194,13 @@ useHead({
                 <p v-if="page.description">
                     <strong>{{ page.description }}</strong>
                 </p>
+                <AudioPlayer
+                    v-if="page.audio"
+                    sticky
+                    :src="page.audio"
+                    :title="page.audioTitle"
+                    :download="page.audioDownload"
+                />
                 <ContentRenderer :value="page" />
             </div>
         </article>
