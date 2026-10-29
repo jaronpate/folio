@@ -12,6 +12,7 @@ import {
     SoundOffSolid,
 } from '@iconoir/vue';
 import { joinURL, withLeadingSlash, withTrailingSlash } from 'ufo';
+import { absoluteSiteUrl, SITE_NAME } from '~/utils/site';
 
 const iconSize = { width: '1.35rem', height: '1.35rem' };
 const volumeIcon = { width: '1rem', height: '1rem' };
@@ -21,19 +22,30 @@ const props = withDefaults(
     defineProps<{
         src: string;
         title?: string;
+        /** When false, title stays in Media Session metadata only. */
+        showTitle?: boolean;
         download?: boolean | string;
         sticky?: boolean;
         vtt?: string;
+        /** Absolute or site-relative image for lock-screen / Now Playing. */
+        artwork?: string;
     }>(),
     {
         title: '',
+        showTitle: true,
         download: false,
         sticky: false,
         vtt: '',
+        artwork: '',
     },
 );
 
 const titleId = useId();
+const mediaTitle = computed(() => (props.title ?? '').trim());
+const visibleTitle = computed(
+    () => props.showTitle && Boolean(mediaTitle.value),
+);
+const regionLabel = computed(() => mediaTitle.value || 'Audio player');
 
 const canDownload = computed(
     () =>
@@ -56,6 +68,34 @@ function resolveSitePath(raw: string) {
 
 const resolvedSrc = computed(() => resolveSitePath(props.src ?? ''));
 const resolvedVtt = computed(() => resolveSitePath(props.vtt ?? ''));
+const resolvedArtwork = computed(() => absoluteSiteUrl(props.artwork));
+
+function artworkType(src: string) {
+    const ext = src.split(/[?#]/)[0]?.split('.').pop()?.toLowerCase();
+    switch (ext) {
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        case 'webp':
+            return 'image/webp';
+        case 'gif':
+            return 'image/gif';
+        default:
+            return undefined;
+    }
+}
+
+function mediaArtworkEntries(src: string) {
+    const type = artworkType(src);
+    const sizes = ['96x96', '128x128', '192x192', '256x256', '384x384', '512x512'];
+    return sizes.map((size) => ({
+        src,
+        sizes: size,
+        ...(type ? { type } : {}),
+    }));
+}
 
 const downloadName = computed(() => {
     const path = resolvedSrc.value.split(/[?#]/)[0] ?? '';
@@ -74,6 +114,11 @@ const lastAudible = ref(1);
 const scrubbing = ref(false);
 const resumeAfterSeek = ref(false);
 const failed = ref(false);
+let heldSeek: number | null = null;
+let seekAttempts = 0;
+let seekUntil = 0;
+let seekTimer = 0;
+let seekAssigned = false;
 
 const PLAYBACK_RATES = [0.8, 1, 1.2, 1.5, 2] as const;
 type PlaybackRate = (typeof PLAYBACK_RATES)[number];
@@ -118,11 +163,132 @@ function onLoaded() {
     syncDuration();
     applyVolume();
     applyRate();
+    commitHeldSeek();
+}
+
+function onDuration() {
+    syncDuration();
+    commitHeldSeek();
+}
+
+function mediaTime(duration: number, time: number) {
+    const safe = Math.max(0, time);
+    if (!Number.isFinite(duration) || duration <= 0) return safe;
+    return Math.min(safe, duration);
+}
+
+function assignTime(element: HTMLAudioElement, time: number) {
+    try {
+        element.currentTime = time;
+    } catch {
+        // Safari throws if metadata has not arrived yet.
+    }
+}
+
+function seekReady(element: HTMLAudioElement) {
+    return (
+        element.readyState >= HTMLMediaElement.HAVE_METADATA &&
+        element.seekable.length > 0
+    );
+}
+
+function releaseHeldSeek() {
+    heldSeek = null;
+    seekAttempts = 0;
+    seekUntil = 0;
+    seekAssigned = false;
+    window.clearTimeout(seekTimer);
+}
+
+function commitHeldSeek() {
+    const element = audio.value;
+    if (!element || heldSeek === null || seekAssigned) return;
+    if (!seekReady(element)) return;
+    if (Math.abs(element.currentTime - heldSeek) < 0.05) {
+        releaseHeldSeek();
+        return;
+    }
+    seekAssigned = true;
+    assignTime(element, heldSeek);
+}
+
+function watchHeldSeek() {
+    window.clearTimeout(seekTimer);
+    seekTimer = window.setTimeout(() => {
+        const element = audio.value;
+        if (!element || heldSeek === null) return;
+        if (Math.abs(element.currentTime - heldSeek) <= 0.35) {
+            releaseHeldSeek();
+            current.value = element.currentTime;
+            return;
+        }
+        const waiting = performance.now() < seekUntil;
+        if (waiting && seekAttempts < 6) {
+            if (seekReady(element)) seekAttempts += 1;
+            seekAssigned = false;
+            commitHeldSeek();
+            watchHeldSeek();
+            return;
+        }
+        releaseHeldSeek();
+        current.value = element.currentTime;
+    }, 300);
 }
 
 function onTime() {
-    if (scrubbing.value || !audio.value) return;
+    if (scrubbing.value || !audio.value || heldSeek !== null) return;
     current.value = audio.value.currentTime;
+}
+
+function syncMediaSession() {
+    if (!import.meta.client || !('mediaSession' in navigator)) return;
+    const art = resolvedArtwork.value;
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title: mediaTitle.value || 'Audio',
+        artist: SITE_NAME,
+        artwork: art ? mediaArtworkEntries(art) : [],
+    });
+}
+
+function syncMediaPosition() {
+    if (!import.meta.client || !('mediaSession' in navigator)) return;
+    if (!Number.isFinite(duration.value) || duration.value <= 0) return;
+    try {
+        navigator.mediaSession.setPositionState({
+            duration: duration.value,
+            playbackRate: rate.value,
+            position: Math.min(Math.max(0, current.value), duration.value),
+        });
+    } catch {
+        // Some browsers reject position updates while metadata is settling.
+    }
+}
+
+function bindMediaSessionActions() {
+    if (!import.meta.client || !('mediaSession' in navigator)) return;
+    const session = navigator.mediaSession;
+    session.setActionHandler('play', () => {
+        void toggle();
+    });
+    session.setActionHandler('pause', () => {
+        audio.value?.pause();
+    });
+    session.setActionHandler('seekbackward', (details) => {
+        skip(-(details.seekOffset ?? 15));
+    });
+    session.setActionHandler('seekforward', (details) => {
+        skip(details.seekOffset ?? 15);
+    });
+    session.setActionHandler('seekto', (details) => {
+        if (typeof details.seekTime === 'number') seekTo(details.seekTime);
+    });
+    session.setActionHandler('stop', () => {
+        const el = audio.value;
+        if (!el) return;
+        el.pause();
+        el.currentTime = 0;
+        current.value = 0;
+    });
 }
 
 function onPlay() {
@@ -133,19 +299,38 @@ function onPlay() {
     for (const other of document.querySelectorAll('audio')) {
         if (other !== mine) other.pause();
     }
+    syncMediaSession();
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'playing';
+    }
+    syncMediaPosition();
 }
 
 function onPause() {
     playing.value = false;
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+    }
 }
 
 function onEnded() {
     playing.value = false;
-    if (audio.value) current.value = audio.value.currentTime;
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'none';
+    }
+    if (heldSeek !== null || !audio.value) return;
+    current.value = audio.value.currentTime;
 }
 
 function onSeeked() {
-    if (audio.value) current.value = audio.value.currentTime;
+    const element = audio.value;
+    if (!element) return;
+    if (heldSeek !== null && Math.abs(element.currentTime - heldSeek) > 0.35) {
+        watchHeldSeek();
+        return;
+    }
+    if (heldSeek !== null) releaseHeldSeek();
+    current.value = element.currentTime;
     if (resumeAfterSeek.value) settleSeek();
     else scrubbing.value = false;
 }
@@ -196,6 +381,7 @@ function onSeekInput(event: Event) {
     const next = readInput(event);
     if (next === null) return;
     const el = audio.value;
+    releaseHeldSeek();
     if (!scrubbing.value) resumeAfterSeek.value = !!el && !el.paused;
     scrubbing.value = true;
     current.value = next;
@@ -255,10 +441,15 @@ function cycleRate() {
 function seekTo(time: number) {
     const el = audio.value;
     if (!el || failed.value || !Number.isFinite(time)) return;
-    const limit = Number.isFinite(el.duration) ? el.duration : time;
-    const next = Math.min(Math.max(0, time), limit);
+    const next = mediaTime(el.duration, time);
+    window.clearTimeout(seekTimer);
+    seekAssigned = false;
+    heldSeek = next;
+    seekAttempts = 0;
+    seekUntil = performance.now() + 2000;
     current.value = next;
-    if (Math.abs(el.currentTime - next) >= 0.01) el.currentTime = next;
+    commitHeldSeek();
+    if (heldSeek !== null) watchHeldSeek();
 }
 
 useSpokenHighlight({
@@ -279,8 +470,21 @@ watch(
         failed.value = false;
         scrubbing.value = false;
         resumeAfterSeek.value = false;
+        releaseHeldSeek();
+        syncMediaSession();
     },
 );
+
+watch(
+    [() => props.title, resolvedArtwork],
+    () => {
+        syncMediaSession();
+    },
+);
+
+watch([current, duration, rate], () => {
+    if (playing.value) syncMediaPosition();
+});
 
 let pinObserver: IntersectionObserver | null = null;
 
@@ -288,10 +492,18 @@ onMounted(() => {
     applyVolume();
     applyRate();
     syncDuration();
+    syncMediaSession();
+    bindMediaSessionActions();
     const el = audio.value;
     if (el) {
         current.value = el.currentTime;
         playing.value = !el.paused;
+        if (playing.value) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+            }
+            syncMediaPosition();
+        }
     }
 
     const mark = sentinel.value;
@@ -304,6 +516,23 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     pinObserver?.disconnect();
+    window.clearTimeout(seekTimer);
+    if (!('mediaSession' in navigator)) return;
+    const session = navigator.mediaSession;
+    for (const action of [
+        'play',
+        'pause',
+        'seekbackward',
+        'seekforward',
+        'seekto',
+        'stop',
+    ] as const) {
+        try {
+            session.setActionHandler(action, null);
+        } catch {
+            // Older Safari builds reject clearing some handlers.
+        }
+    }
 });
 </script>
 
@@ -323,8 +552,8 @@ onBeforeUnmount(() => {
             'is-pinned': pinned,
         }"
         role="region"
-        :aria-labelledby="title ? titleId : undefined"
-        :aria-label="title ? undefined : 'Audio player'"
+        :aria-labelledby="visibleTitle ? titleId : undefined"
+        :aria-label="visibleTitle ? undefined : regionLabel"
     >
         <div class="audio-player__panel">
             <audio
@@ -334,7 +563,9 @@ onBeforeUnmount(() => {
                 preload="metadata"
                 playsinline
                 @loadedmetadata="onLoaded"
-                @durationchange="syncDuration"
+                @durationchange="onDuration"
+                @progress="commitHeldSeek"
+                @canplay="commitHeldSeek"
                 @timeupdate="onTime"
                 @play="onPlay"
                 @pause="onPause"
@@ -343,9 +574,13 @@ onBeforeUnmount(() => {
                 @error="onError"
             />
 
-            <div v-if="title || canDownload" class="audio-player__head">
-                <p v-if="title" :id="titleId" class="audio-player__title">
-                    {{ title }}
+            <div v-if="visibleTitle || canDownload" class="audio-player__head">
+                <p
+                    v-if="visibleTitle"
+                    :id="titleId"
+                    class="audio-player__title"
+                >
+                    {{ mediaTitle }}
                 </p>
                 <a
                     v-if="canDownload"
@@ -841,6 +1076,10 @@ onBeforeUnmount(() => {
 ::highlight(spoken) {
     background-color: var(--accent);
     color: #fff;
+}
+
+.spoken-wake {
+    outline: 1px solid transparent;
 }
 
 .spoken-word.is-spoken {

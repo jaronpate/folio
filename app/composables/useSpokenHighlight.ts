@@ -14,6 +14,9 @@ type PlacedWord = AlignedToken<ArticleToken> & {
 const HIGHLIGHT = 'spoken';
 const ROOT = '[data-spoken-root], .article-body';
 const TITLE = '.hero__title';
+const BLOCK =
+    'p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, .hero__title';
+const WAKE = 'spoken-wake';
 const SCROLL_TOP = 150;
 const SCROLL_BOTTOM = 32;
 
@@ -45,6 +48,49 @@ function wordRange(word: PlacedWord): Range | null {
     } catch {
         return null;
     }
+}
+
+function blockOf(range: Range) {
+    const node = range.startContainer;
+    const element = node instanceof Element ? node : node.parentElement;
+    const block = element?.closest(BLOCK);
+    if (block instanceof HTMLElement) return block;
+    return element instanceof HTMLElement ? element : null;
+}
+
+// WebKit does not repaint a block whose highlight range was removed when the
+// registry entry is replaced. The pixels stay until the next full paint, such
+// as leaving Safari and coming back. Nudge only the block that lost the mark.
+function wake(element: HTMLElement) {
+    if (!element.isConnected) return;
+    element.classList.add(WAKE);
+    void element.offsetWidth;
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            element.classList.remove(WAKE);
+        });
+    });
+}
+
+function mutableHighlight(highlight: Highlight) {
+    return highlight as Highlight & {
+        add(range: AbstractRange): void;
+        delete(range: AbstractRange): boolean;
+        clear?: () => void;
+    };
+}
+
+function emptyHighlight(highlight: Highlight) {
+    const list = mutableHighlight(highlight);
+    if (typeof list.clear === 'function') {
+        list.clear();
+        return;
+    }
+    const ranges: AbstractRange[] = [];
+    list.forEach((range) => {
+        ranges.push(range);
+    });
+    for (const range of ranges) list.delete(range);
 }
 
 function inView(range: Range) {
@@ -112,25 +158,30 @@ export function useSpokenHighlight(options: {
     let scrollLock = 0;
     let shown: Range | null = null;
     let ownsHighlight = false;
+    let paintedBlocks = new Set<HTMLElement>();
     let retried = false;
     let rebuilding = false;
     const useRanges = supportsHighlight();
 
     function covering(time: number) {
-        const indexes: number[] = [];
+        // Words are ordered by start time. Keep the latest one still sounding
+        // so a short overlap does not leave the previous word lit.
+        let latest = -1;
         for (let index = 0; index < placed.length; index += 1) {
             const word = placed[index];
             if (!word) continue;
             if (word.timeStart > time) break;
-            if (time < word.timeEnd) indexes.push(index);
+            if (time < word.timeEnd) latest = index;
         }
-        return indexes;
+        return latest < 0 ? [] : [latest];
     }
 
     function clearHighlight() {
-        if (!ownsHighlight) return;
-        CSS.highlights?.delete(HIGHLIGHT);
+        const stale = paintedBlocks;
+        paintedBlocks = new Set();
+        if (ownsHighlight) CSS.highlights?.delete(HIGHLIGHT);
         ownsHighlight = false;
+        for (const element of stale) wake(element);
     }
 
     function unwrap(host: ParentNode) {
@@ -176,21 +227,37 @@ export function useSpokenHighlight(options: {
         const registry = CSS.highlights;
         if (!registry) return false;
         const ranges: Range[] = [];
+        const blocks = new Set<HTMLElement>();
         for (const index of indexes) {
             const word = placed[index];
             if (!word) continue;
             const range = wordRange(word);
-            if (range) ranges.push(range);
+            if (!range) continue;
+            ranges.push(range);
+            const block = blockOf(range);
+            if (block) blocks.add(block);
         }
         if (indexes.length > 0 && ranges.length === 0) return false;
-        if (!ranges.length) {
-            clearHighlight();
-            shown = null;
-            return true;
+
+        const stale = [...paintedBlocks].filter(
+            (element) => !blocks.has(element),
+        );
+        // Replacing the registry entry with set() leaves the previous block
+        // painted in WebKit. Update the registered highlight in place instead.
+        const existing = ownsHighlight ? registry.get(HIGHLIGHT) : undefined;
+        if (existing) {
+            emptyHighlight(existing);
+            const list = mutableHighlight(existing);
+            for (const range of ranges) list.add(range);
+            if (!ranges.length) registry.delete(HIGHLIGHT);
+        } else if (ranges.length) {
+            registry.set(HIGHLIGHT, new Highlight(...ranges));
         }
-        registry.set(HIGHLIGHT, new Highlight(...ranges));
-        ownsHighlight = true;
+
+        ownsHighlight = ranges.length > 0;
+        paintedBlocks = blocks;
         shown = ranges[0] ?? null;
+        for (const element of stale) wake(element);
         return true;
     }
 
@@ -363,7 +430,13 @@ export function useSpokenHighlight(options: {
     function loop() {
         const element = options.audio.value;
         if (!element) return;
-        paint(element.currentTime, true);
+        const media = element.currentTime;
+        const intended = options.current.value;
+        // A word click moves the clock immediately. The element can report the
+        // old time for a moment, and painting that puts the mark back at the start.
+        const slack = Math.max(0.75, element.playbackRate * 0.4);
+        const time = Math.abs(media - intended) > slack ? intended : media;
+        paint(time, true);
         if (!element.paused && !element.ended) {
             frame = requestAnimationFrame(loop);
         }

@@ -4,6 +4,8 @@ date: 2026-10-30
 description: A chronicle of the adventurers of Fornost, October 25–30.
 audio: /dnd/broindor-oct-25-30.mp3
 audioVtt: /dnd/broindor-oct-25-30.json
+logo: /dnd/broindor-logo.jpg
+banner: /dnd/broindor-banner.jpg
 ---
 
 There are tales of great heroes who set forth to challenge ancient evils, restore fallen kingdoms, and bring light to the darkest corners of the world.

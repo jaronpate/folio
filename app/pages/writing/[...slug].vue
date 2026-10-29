@@ -2,6 +2,11 @@
 import { contentDateAttr, formatContentDate } from '~/utils/dates';
 import { openGraphAudioMeta } from '~/utils/openGraphAudio';
 import {
+    postArtwork,
+    postOgImage,
+    postTwitterCard,
+} from '~/utils/postMedia';
+import {
     DEFAULT_IMAGE,
     SITE_NAME,
     SITE_URL,
@@ -65,6 +70,8 @@ const articleDescription = page.value
 const layoutDescription = page.value
     ? formatContentDate(page.value.date, 'long')
     : articleDescription;
+const shareImage = postOgImage(page.value, DEFAULT_IMAGE);
+const artwork = postArtwork(page.value, DEFAULT_IMAGE);
 
 useSeoMeta({
     title: articleTitle,
@@ -73,12 +80,12 @@ useSeoMeta({
     ogDescription: articleDescription,
     ogUrl: articleUrl,
     ogType: isFolder.value ? 'website' : 'article',
-    ogImage: DEFAULT_IMAGE,
+    ogImage: shareImage,
     ogImageAlt: articleTitle,
-    twitterCard: 'summary',
+    twitterCard: postTwitterCard(page.value),
     twitterTitle: articleTitle,
     twitterDescription: articleDescription,
-    twitterImage: DEFAULT_IMAGE,
+    twitterImage: shareImage,
     articlePublishedTime: page.value
         ? contentDateAttr(page.value.date)
         : undefined,
@@ -134,7 +141,7 @@ useHead({
                               image: {
                                   '@type': 'ImageObject',
                                   '@id': `${articleUrl}#article-image`,
-                                  url: DEFAULT_IMAGE,
+                                  url: shareImage,
                               },
                               inLanguage: 'en-US',
                               isPartOf: { '@id': blogId },
@@ -197,10 +204,12 @@ useHead({
                 <AudioPlayer
                     v-if="page.audio"
                     sticky
+                    :show-title="false"
                     :src="page.audio"
                     :vtt="page.audioVtt"
-                    :title="page.audioTitle"
+                    :title="page.audioTitle || page.title"
                     :download="page.audioDownload"
+                    :artwork="artwork"
                 />
                 <ContentRenderer :value="page" />
             </div>

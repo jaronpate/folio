@@ -13,6 +13,21 @@ export const DEFAULT_IMAGE = `${SITE_URL}/banner.jpeg`;
 export const personId = `${SITE_URL}/#person`;
 export const websiteId = `${SITE_URL}/#website`;
 
+/** Turn a site path or absolute URL into an absolute URL on this origin. */
+export function absoluteSiteUrl(src: string | null | undefined) {
+    const raw = src?.trim();
+    if (!raw) return undefined;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    return `${SITE_URL}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}
+
+export function siteImageUrl(
+    src: string | null | undefined,
+    fallback: string = DEFAULT_IMAGE,
+) {
+    return absoluteSiteUrl(src) ?? fallback;
+}
+
 export const personSameAs = [
     'https://github.com/jaronpate',
     'https://www.linkedin.com/in/jaronp/',

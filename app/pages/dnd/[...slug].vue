@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { formatContentDate } from '~/utils/dates';
 import { openGraphAudioMeta } from '~/utils/openGraphAudio';
+import {
+    postArtwork,
+    postOgImage,
+    postTwitterCard,
+} from '~/utils/postMedia';
 import { DEFAULT_IMAGE, SITE_URL } from '~/utils/site';
 
 const route = useRoute();
@@ -33,6 +38,8 @@ if (!data.value) {
 }
 
 const page = computed(() => data.value);
+const shareImage = computed(() => postOgImage(page.value, DEFAULT_IMAGE));
+const artwork = computed(() => postArtwork(page.value, DEFAULT_IMAGE));
 
 useSeoMeta({
     title: () => page.value?.title,
@@ -41,12 +48,12 @@ useSeoMeta({
     ogDescription: () => page.value?.description,
     ogUrl: articleUrl,
     ogType: 'article',
-    ogImage: DEFAULT_IMAGE,
+    ogImage: () => shareImage.value,
     ogImageAlt: () => page.value?.title,
-    twitterCard: 'summary',
+    twitterCard: () => postTwitterCard(page.value),
     twitterTitle: () => page.value?.title,
     twitterDescription: () => page.value?.description,
-    twitterImage: DEFAULT_IMAGE,
+    twitterImage: () => shareImage.value,
     robots: 'noindex',
 });
 
@@ -71,10 +78,12 @@ useHead({
                 <AudioPlayer
                     v-if="page.audio"
                     sticky
+                    :show-title="false"
                     :src="page.audio"
                     :vtt="page.audioVtt"
-                    :title="page.audioTitle"
+                    :title="page.audioTitle || page.title"
                     :download="page.audioDownload"
+                    :artwork="artwork"
                 />
                 <ContentRenderer :value="page" />
             </div>

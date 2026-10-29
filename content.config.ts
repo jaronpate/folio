@@ -17,6 +17,10 @@ export default defineContentConfig({
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
                 audioVtt: z.string().optional(),
+                /** Square image for Now Playing / compact share cards. */
+                logo: z.string().optional(),
+                /** Wide image for link previews. */
+                banner: z.string().optional(),
             }),
         }),
         dnd: defineCollection({
@@ -34,6 +38,10 @@ export default defineContentConfig({
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
                 audioVtt: z.string().optional(),
+                /** Square image for Now Playing / compact share cards. */
+                logo: z.string().optional(),
+                /** Wide image for link previews. */
+                banner: z.string().optional(),
             }),
         }),
         projects: defineCollection({

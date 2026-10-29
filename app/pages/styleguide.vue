@@ -413,11 +413,15 @@ onMounted(() => {
             <AudioPlayer src="/audio/styleguide.wav" />
             <p>
                 On a post, put the file path in <code>audio</code> and it sits
-                under the description. Add <code>audioTitle</code> for a label,
+                under the description. Add <code>audioTitle</code> for the
+                lock-screen / Now Playing name (posts hide that label in the
+                player via <code>showTitle: false</code>),
                 <code>audioDownload: true</code> for the link, and
                 <code>audioVtt</code> for a WebVTT file or a transcript JSON
-                that highlights the article as it plays. The same player can go
-                anywhere else on the site.
+                that highlights the article as it plays. Optional
+                <code>logo</code> (square) and <code>banner</code> (wide) set
+                the share-card image and the artwork on the lock-screen media
+                player. The same player can go anywhere else on the site.
             </p>
 
             <h3>Redacted</h3>
