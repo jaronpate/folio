@@ -198,6 +198,7 @@ useHead({
                     v-if="page.audio"
                     sticky
                     :src="page.audio"
+                    :vtt="page.audioVtt"
                     :title="page.audioTitle"
                     :download="page.audioDownload"
                 />
