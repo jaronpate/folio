@@ -18,7 +18,7 @@ In the waning hours of an autumn afternoon, a company of adventurers departed th
 
 Their purpose was simple enough: capture the young wolves and sell them for coin. It was, by all appearances, a modest undertaking. Yet those who have wandered long upon the roads of this world know that modest undertakings have a peculiar habit of becoming anything but.
 
-Among the company rode Sigurd, a formidable warrior whose great strength was matched only by his enthusiasm for danger. Beside him traveled his faithful war dog and the mercenary Karl. There was also Alok, a ranger well acquainted with the wilderness, and Sulda, a cleric whose talents and inclinations were somewhat less predictable.
+Among the company rode Sigurd, a formidable warrior whose great strength was matched only by his enthusiasm for danger. Beside him traveled his faithful war dog and the mercenary Karl. There was also Alok, a ranger well acquainted with the wilderness, and Sulde, a cleric whose talents and inclinations were somewhat less predictable.
 
 Two mounted crossbowmen joined the expedition, having survived an earlier adventure in the company's service. Their confidence in these adventurers had evidently survived as well, though one would soon have cause to reconsider.
 
@@ -36,17 +36,17 @@ Two more wolves burst from cover and fell upon the horses below. In the confusio
 
 For friendship, even between man and beast, is not so easily measured in gold.
 
-It was then that Sulda revealed the true nature of a curious golden ring he had acquired on an earlier adventure. Having paid a considerable sum to a learned man for its identification, he had discovered that the ring possessed the power to command the minds of mammals.
+It was then that Sulde revealed the true nature of a curious golden ring he had acquired on an earlier adventure. Having paid a considerable sum to a learned man for its identification, he had discovered that the ring possessed the power to command the minds of mammals.
 
-And so, with the wolves still feasting upon their fallen quarry, Sulda bent their wills to his own.
+And so, with the wolves still feasting upon their fallen quarry, Sulde bent their wills to his own.
 
 At his command, the beasts ceased their attack and rolled upon the ground like obedient puppies.
 
 The fighting was over.
 
-With the wolves under his power, Sulda led the company to the den, where three young pups were discovered. The little creatures were gathered into sacks, while the company searched the dark hollow for treasure. They found only bones, dirt, and the remnants of lives already consumed.
+With the wolves under his power, Sulde led the company to the den, where three young pups were discovered. The little creatures were gathered into sacks, while the company searched the dark hollow for treasure. They found only bones, dirt, and the remnants of lives already consumed.
 
-As for the two adult wolves, Sulda considered whether they might be tamed. But the ways of wild beasts are not easily changed, and such an undertaking promised years of uncertain labor.
+As for the two adult wolves, Sulde considered whether they might be tamed. But the ways of wild beasts are not easily changed, and such an undertaking promised years of uncertain labor.
 
 He chose a swifter solution.
 
@@ -74,7 +74,7 @@ With their wolf-hunting venture concluded, the company turned its attention to a
 
 Word had reached them of dwarven miners operating in secret beneath the lands of Lord Guthrie. Gold was being taken from the earth without the lord's permission, and there were whispers of a kingdom in the northwestern mountains whose agents had established hidden outposts.
 
-Sigurd and Sulda entertained a bold idea.
+Sigurd and Sulde entertained a bold idea.
 
 Why merely uncover the mines when one might—seize—the operation itself?!
 
@@ -86,7 +86,7 @@ It did not remain uneventful for long.
 
 Down a narrow alley, the party encountered seven giant rats—each nearly the size of a small dog. The creatures were feeding upon the refuse of the town, bothering no one in particular.
 
-Sulda, however, saw opportunity.
+Sulde, however, saw opportunity.
 
 With his enchanted ring, he seized control of all seven beasts. Thus did the company proceed through the streets of Fornost accompanied by a most unusual procession.
 
@@ -100,7 +100,7 @@ It was then discovered that the would-be robbers were—dwarves!
 
 Battle erupted in the alley!
 
-Sigurd and Karl fought with steel, while Sulda unleashed his rats upon the attackers. Small though they were, the creatures swarmed the dwarves, biting at their ankles and leaping upon their faces. Several rats perished in the struggle, but their interference proved useful.
+Sigurd and Karl fought with steel, while Sulde unleashed his rats upon the attackers. Small though they were, the creatures swarmed the dwarves, biting at their ankles and leaping upon their faces. Several rats perished in the struggle, but their interference proved useful.
 
 As the dwarves began to retreat, Sigurd seized one of them and hurled him bodily back toward his companions, knocking the fellow unconscious.
 
@@ -146,7 +146,7 @@ A chamber they had visited before was now locked, and when its door was forced o
 
 Their blows failed to find him.
 
-Sulda raised his unholy power against the undead, and the creatures fell under its influence, wandering aimlessly about the chamber.
+Sulde raised his unholy power against the undead, and the creatures fell under its influence, wandering aimlessly about the chamber.
 
 Yet something was amiss.
 
@@ -176,7 +176,7 @@ Sigurd retrieved it, and from within drew a faded parchment.
 
 It was a treasure map.
 
-Upon examining its markings, the company realized that it pointed not to the mines beneath their feet, but to a mountain west of Orophs' fortress. There, on the mountain's far side, a hidden treasure was said to lie buried within a deep crevice.
+Upon examining its markings, the company realized that it pointed not to the mines beneath their feet, but to a mountain west of Oroth's fortress. There, on the mountain's far side, a hidden treasure was said to lie buried within a deep crevice.
 
 A new mystery had been placed before them.
 
@@ -228,7 +228,7 @@ The guards, enraged by the deaths of their companions, abandoned their burden an
 
 The battle grew fierce.
 
-One dog suffered a grievous wound. Sigurd himself was struck, and in the confusion Sulda's curse fell not upon the enemy alone, but upon Alok's own hound.
+One dog suffered a grievous wound. Sigurd himself was struck, and in the confusion Sulde's curse fell not upon the enemy alone, but upon Alok's own hound.
 
 Yet the dwarven guards could not withstand the onslaught.
 
@@ -272,7 +272,7 @@ For they had entered the wilderness seeking wolf pups, and returned having uncov
 
 But many questions remained.
 
-Who had furnished the chamber of the walking dead? How deep did the dwarven excavations descend? What lay beyond the wooden lift? And what treasure waited in the crevice beyond Orophs' fortress?
+Who had furnished the chamber of the walking dead? How deep did the dwarven excavations descend? What lay beyond the wooden lift? And what treasure waited in the crevice beyond Oroth's fortress?
 
 These were matters for another journey.
 
