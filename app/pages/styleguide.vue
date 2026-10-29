@@ -396,18 +396,28 @@ onMounted(() => {
                 download link shows up only when you pass it. This file is just
                 a tone, so the seek position is easy to hear.
             </p>
-            <AudioPlayer
-                src="/audio/styleguide.wav"
-                title="A reading"
-                download
-            />
+            <div data-spoken-root>
+                <AudioPlayer
+                    src="/audio/styleguide.wav"
+                    vtt="/audio/styleguide.vtt"
+                    title="A reading"
+                    download
+                />
+                <p>
+                    The highlight follows these words, skips
+                    <code>markup</code>, and keeps going while the tone plays.
+                    This extra clause stays put.
+                </p>
+            </div>
             <p>Same file, without a title or a download link.</p>
             <AudioPlayer src="/audio/styleguide.wav" />
             <p>
                 On a post, put the file path in <code>audio</code> and it sits
-                under the description. Add <code>audioTitle</code> for a label
-                and <code>audioDownload: true</code> for the link. The same
-                player can go anywhere else on the site.
+                under the description. Add <code>audioTitle</code> for a label,
+                <code>audioDownload: true</code> for the link, and
+                <code>audioVtt</code> for a WebVTT file or a transcript JSON
+                that highlights the article as it plays. The same player can go
+                anywhere else on the site.
             </p>
 
             <h3>Redacted</h3>

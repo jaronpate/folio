@@ -7,7 +7,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <span class="margin-note-root">
+    <span class="margin-note-root" data-spoken-skip>
         <span class="margin-note-mark" aria-hidden="true"></span>
         <span class="margin-note"><slot /></span>
     </span>

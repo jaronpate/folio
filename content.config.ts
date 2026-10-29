@@ -16,6 +16,7 @@ export default defineContentConfig({
                 audio: z.string().optional(),
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
+                audioVtt: z.string().optional(),
             }),
         }),
         dnd: defineCollection({
@@ -32,6 +33,7 @@ export default defineContentConfig({
                 audio: z.string().optional(),
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
+                audioVtt: z.string().optional(),
             }),
         }),
         projects: defineCollection({

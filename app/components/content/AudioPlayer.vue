@@ -23,11 +23,13 @@ const props = withDefaults(
         title?: string;
         download?: boolean | string;
         sticky?: boolean;
+        vtt?: string;
     }>(),
     {
         title: '',
         download: false,
         sticky: false,
+        vtt: '',
     },
 );
 
@@ -40,16 +42,20 @@ const canDownload = computed(
         props.download === 'true',
 );
 
-const resolvedSrc = computed(() => {
-    const raw = props.src?.trim() ?? '';
-    if (raw.startsWith('/') && !raw.startsWith('//')) {
+function resolveSitePath(raw: string) {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
         const base = withLeadingSlash(
             withTrailingSlash(useRuntimeConfig().app.baseURL),
         );
-        if (base !== '/' && !raw.startsWith(base)) return joinURL(base, raw);
+        if (base !== '/' && !trimmed.startsWith(base))
+            return joinURL(base, trimmed);
     }
-    return raw;
-});
+    return trimmed;
+}
+
+const resolvedSrc = computed(() => resolveSitePath(props.src ?? ''));
+const resolvedVtt = computed(() => resolveSitePath(props.vtt ?? ''));
 
 const downloadName = computed(() => {
     const path = resolvedSrc.value.split(/[?#]/)[0] ?? '';
@@ -57,6 +63,7 @@ const downloadName = computed(() => {
 });
 
 const audio = ref<HTMLAudioElement | null>(null);
+const playerEl = ref<HTMLElement | null>(null);
 const sentinel = ref<HTMLElement | null>(null);
 const pinned = ref(false);
 const playing = ref(false);
@@ -245,6 +252,24 @@ function cycleRate() {
     applyRate();
 }
 
+function seekTo(time: number) {
+    const el = audio.value;
+    if (!el || failed.value || !Number.isFinite(time)) return;
+    const limit = Number.isFinite(el.duration) ? el.duration : time;
+    const next = Math.min(Math.max(0, time), limit);
+    current.value = next;
+    if (Math.abs(el.currentTime - next) >= 0.01) el.currentTime = next;
+}
+
+useSpokenHighlight({
+    src: resolvedVtt,
+    audio,
+    player: playerEl,
+    playing,
+    current,
+    seekTo,
+});
+
 watch(
     () => props.src,
     () => {
@@ -291,6 +316,7 @@ onBeforeUnmount(() => {
     />
     <div
         v-if="resolvedSrc"
+        ref="playerEl"
         class="audio-player"
         :class="{
             'audio-player--sticky': sticky,
@@ -808,5 +834,17 @@ onBeforeUnmount(() => {
         width: auto;
         max-width: 6.5rem;
     }
+}
+</style>
+
+<style>
+::highlight(spoken) {
+    background-color: var(--accent);
+    color: #fff;
+}
+
+.spoken-word.is-spoken {
+    background-color: var(--accent);
+    color: #fff;
 }
 </style>
