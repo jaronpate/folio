@@ -8,7 +8,7 @@ export const DEFAULT_DESCRIPTION = 'I build software for a living, but also othe
 export const PERSON_DESCRIPTION =
     'I build software for a living, but also other things. Reformed Rust enjoyer, Golang padawan. Based in Austin, Texas.';
 
-export const DEFAULT_IMAGE = `${SITE_URL}/favicon.png`;
+export const DEFAULT_IMAGE = `${SITE_URL}/banner.jpeg`;
 
 export const personId = `${SITE_URL}/#person`;
 export const websiteId = `${SITE_URL}/#website`;
@@ -73,7 +73,7 @@ export function websiteSchema() {
             '@type': 'ImageObject' as const,
             '@id': `${SITE_URL}/#website-image`,
             url: DEFAULT_IMAGE,
-            caption: 'Jaron Pate Logo',
+            caption: SITE_NAME,
         },
     };
 }

@@ -43,6 +43,10 @@ useSeoMeta({
     ogType: 'article',
     ogImage: DEFAULT_IMAGE,
     ogImageAlt: () => page.value?.title,
+    twitterCard: 'summary',
+    twitterTitle: () => page.value?.title,
+    twitterDescription: () => page.value?.description,
+    twitterImage: DEFAULT_IMAGE,
     robots: 'noindex',
 });
 

@@ -4,29 +4,18 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
 
     nitro: {
+        preset: 'node-server',
         prerender: {
             autoSubfolderIndex: false,
             routes: ['/styleguide'],
-        },
-        preset: 'cloudflare_module',
-        cloudflare: {
-            deployConfig: true,
-            wrangler: {
-                d1_databases: [
-                    {
-                        binding: 'DB',
-                        database_name: 'folio',
-                        database_id: '6fd8a531-a673-479a-9501-3b406bb9f76e',
-                    },
-                ],
-            },
         },
     },
 
     content: {
         database: {
-            type: 'd1',
-            bindingName: 'DB',
+            type: 'sqlite',
+            // The server creates this from the content dump on startup.
+            filename: '/tmp/contents.sqlite',
         },
         build: {
             markdown: {
