@@ -3,6 +3,15 @@ export default defineNuxtConfig({
     compatibilityDate: '2026-04-28',
     devtools: { enabled: true },
 
+    routeRules: {
+        '/dnd/2026/oct-25-30': {
+            redirect: {
+                to: '/dnd/2026/broindor-oct-25-30',
+                statusCode: 301,
+            },
+        },
+    },
+
     nitro: {
         preset: 'node-server',
         prerender: {
