@@ -71,7 +71,14 @@ const onFontChange = (event: Event) => {
                         d="M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14"
                     />
                 </svg>
-                <div class="site-footer__rule"></div>
+                <svg
+                    class="site-footer__rule"
+                    viewBox="0 0 4 16"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                >
+                    <path d="M0 8H4" />
+                </svg>
                 <svg
                     class="site-footer__leaf"
                     viewBox="0 0 20 16"
@@ -282,20 +289,24 @@ const onFontChange = (event: Event) => {
     overflow: visible;
 }
 
-.site-footer__leaf path {
+.site-footer__leaf path,
+.site-footer__rule path {
     fill: none;
     stroke: currentColor;
     stroke-width: 1;
     stroke-linecap: round;
+    /* Keep a 1px stroke while the rule SVG stretches horizontally. */
+    vector-effect: non-scaling-stroke;
 }
 
 .site-footer__rule {
     flex: 1 1 auto;
     min-width: 0;
-    height: 1px;
-    /* Pull slightly under the leaf stem caps for a seamless join. */
+    display: block;
+    height: var(--flare-spread);
+    /* Same viewBox y=8 as the leaves; nudge under the stem caps. */
     margin: 0 -1px;
-    background: currentColor;
+    overflow: visible;
 }
 
 .site-footer a {
