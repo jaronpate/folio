@@ -212,7 +212,8 @@ const onFontChange = (event: Event) => {
 .site-footer {
     --flare-length: 1.125rem;
     --flare-spread: 1.125rem;
-    --flare-overhang: 1.5rem;
+    /* Stay within page padding so the rule never causes horizontal scroll. */
+    --flare-overhang: min(1.5rem, var(--page-pad));
 
     position: relative;
     display: flex;
