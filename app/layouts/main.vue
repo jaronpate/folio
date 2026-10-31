@@ -243,8 +243,9 @@ const onFontChange = (event: Event) => {
     --flare-length: 20px;
     --flare-spread: 16px;
     --flare-inset: 0px;
-    /* Keep the rule clear of the viewport edge (and unclipped). */
-    --flare-edge-pad: 1.5rem;
+    /* Tiny clear of the viewport so leaf tips stay visible, while the
+       rule still overhangs the footer text. */
+    --flare-edge-pad: 0.4rem;
     --flare-overhang: min(
         1.5rem,
         max(0px, calc(var(--col-left) - var(--flare-edge-pad))),
@@ -337,12 +338,6 @@ const onFontChange = (event: Event) => {
 
     .hero__title {
         font-size: 2rem;
-    }
-
-    .site-footer {
-        /* Slight inset past the content edge — enough to clear the viewport,
-           without a large empty gutter. */
-        --flare-inset: 0.25rem;
     }
 }
 </style>
