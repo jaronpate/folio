@@ -340,8 +340,9 @@ const onFontChange = (event: Event) => {
     }
 
     .site-footer {
-        /* Pull the rule in from the content edge for clearer viewport padding. */
-        --flare-inset: 1rem;
+        /* Slight inset past the content edge — enough to clear the viewport,
+           without a large empty gutter. */
+        --flare-inset: 0.25rem;
     }
 }
 </style>
