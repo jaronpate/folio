@@ -9,7 +9,7 @@ const { data: pages } = await useAsyncData('dnd-pages', async () => {
 const sectionUrl = `${SITE_URL}/dnd`;
 const sectionTitle = 'D&D';
 const sectionDescription =
-    'Stories from the table, with a reading when there is one.';
+    'Auto generated writeups of great tales from BROindor';
 
 useSeoMeta({
     title: sectionTitle,
