@@ -60,6 +60,36 @@ const onFontChange = (event: Event) => {
         </div>
 
         <footer class="site-footer">
+            <div class="site-footer__flare" aria-hidden="true">
+                <svg
+                    class="site-footer__leaf"
+                    viewBox="0 0 20 16"
+                    width="20"
+                    height="16"
+                >
+                    <path
+                        d="M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14"
+                    />
+                </svg>
+                <svg
+                    class="site-footer__rule"
+                    viewBox="0 0 4 16"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                >
+                    <path d="M0 8H4" />
+                </svg>
+                <svg
+                    class="site-footer__leaf"
+                    viewBox="0 0 20 16"
+                    width="20"
+                    height="16"
+                >
+                    <path
+                        d="M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14"
+                    />
+                </svg>
+            </div>
             <a href="mailto:yo@jp.wtf">yo@jp.wtf</a>
             <div class="flex-ff"></div>
             <span>Est. 2003</span>
@@ -210,12 +240,24 @@ const onFontChange = (event: Event) => {
 }
 
 .site-footer {
-    --flare-length: 1.125rem;
-    --flare-spread: 1.125rem;
-    --flare-overhang: 1.5rem;
+    --flare-length: 20px;
+    --flare-spread: 16px;
+    --flare-inset: 0px;
+    /* Tiny clear of the viewport so leaf tips stay visible, while the
+       rule still overhangs the footer text. */
+    --flare-edge-pad: 0.4rem;
+    --flare-overhang: min(
+        1.5rem,
+        max(0px, calc(var(--col-left) - var(--flare-edge-pad))),
+        max(
+            0px,
+            calc(100vw - var(--col-left) - var(--col) - var(--flare-edge-pad))
+        )
+    );
 
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     gap: 1rem;
     width: var(--col);
@@ -228,29 +270,44 @@ const onFontChange = (event: Event) => {
     color: var(--muted);
 }
 
-.site-footer::before {
-    content: '';
+.site-footer__flare {
     position: absolute;
     top: 0;
-    left: calc(-1 * var(--flare-overhang));
-    right: calc(-1 * var(--flare-overhang));
+    left: calc(-1 * var(--flare-overhang) + var(--flare-inset));
+    right: calc(-1 * var(--flare-overhang) + var(--flare-inset));
+    display: flex;
+    align-items: center;
     height: var(--flare-spread);
-    background-color: var(--muted);
+    color: var(--muted);
     pointer-events: none;
-    -webkit-mask:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            left center / var(--flare-length) 100% no-repeat,
-        linear-gradient(#000, #000) center /
-            calc(100% - var(--flare-length) * 1.55) 1px no-repeat,
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            right center / var(--flare-length) 100% no-repeat;
-    mask:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M20 8H10M10 8C5 8 2.5 4.5 1 2M10 8C5 8 2.5 11.5 1 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            left center / var(--flare-length) 100% no-repeat,
-        linear-gradient(#000, #000) center /
-            calc(100% - var(--flare-length) * 1.55) 1px no-repeat,
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16' preserveAspectRatio='none' fill='none'%3E%3Cpath d='M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14' stroke='black' stroke-width='1' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
-            right center / var(--flare-length) 100% no-repeat;
+}
+
+.site-footer__leaf {
+    flex: none;
+    display: block;
+    width: var(--flare-length);
+    height: var(--flare-spread);
+    overflow: visible;
+}
+
+.site-footer__leaf path,
+.site-footer__rule path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: round;
+    /* Keep a 1px stroke while the rule SVG stretches horizontally. */
+    vector-effect: non-scaling-stroke;
+}
+
+.site-footer__rule {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: block;
+    height: var(--flare-spread);
+    /* Same viewBox y=8 as the leaves; nudge under the stem caps. */
+    margin: 0 -1px;
+    overflow: visible;
 }
 
 .site-footer a {
