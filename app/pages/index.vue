@@ -33,63 +33,65 @@ useHead({
 const selectedWorks = [
     {
         title: 'Edlink',
-        description:
-            "I built many things I'm proud of at Edlink. Notably, I designed and shipped the internal billing platform for ~150 clients, a flat file ingestion engine that enabled importing of arbitrary data, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live data-preview service.",
+        description: `\
+I've built many things I'm proud of at Edlink. Notably, the internal billing platform we use for our ~150 clients, a file ingestion engine that imports CSVs arbitrary format, client-embedded UI widgets, user onboarding flows, and a secure sandbox for running untrusted code with a live preview.
+
+These days I lead some of our greenfield projects. I still get to write plenty of code though, which is how I like it.`,
         link: 'https://ed.link',
-        images: [
-            {
-                src: '/work/edlink/embedded-onboarding.gif',
-                alt: 'Embedded Onboarding',
-            },
-            {
-                src: '/work/edlink/authentication-widget.gif',
-                alt: 'Auth Widget',
-            },
-            {
-                src: '/work/edlink/integration-sharing-rules-widget.png',
-                alt: 'Data Sharing Editor Widget',
-            },
-            {
-                src: '/work/edlink/billing-overview.png',
-                alt: 'Billing Overview',
-            },
-            {
-                src: '/work/edlink/invoice-sheet.png',
-                alt: 'Invoice View',
-            },
-            {
-                src: '/work/edlink/add-payment-method.png',
-                alt: 'Add Payment Method',
-            },
-            {
-                src: '/work/edlink/onboarding-select-provider.png',
-                alt: 'Provider Selection',
-            },
-            {
-                src: '/work/edlink/getting-started.png',
-                alt: 'First time setup',
-            },
-            {
-                src: '/work/edlink/onboarding-edit-source.png',
-                alt: 'Source Creation',
-            },
-            {
-                src: '/work/edlink/onboarding-start.png',
-                alt: 'Onboarding Start',
-            },
-            {
-                src: '/work/edlink/custom-code-editor.png',
-                alt: 'Custom Code Editor',
-            },
-            {
-                src: '/work/edlink/edit-licensing-rules.png',
-                alt: 'Licensing Editor',
-            },
-            {
-                src: '/work/edlink/materialization-preview.png',
-                alt: 'Pending Data Change Preview',
-            },
-        ],
+        // images: [
+        //     {
+        //         src: '/work/edlink/embedded-onboarding.gif',
+        //         alt: 'Embedded Onboarding',
+        //     },
+        //     {
+        //         src: '/work/edlink/authentication-widget.gif',
+        //         alt: 'Auth Widget',
+        //     },
+        //     {
+        //         src: '/work/edlink/integration-sharing-rules-widget.png',
+        //         alt: 'Data Sharing Editor Widget',
+        //     },
+        //     {
+        //         src: '/work/edlink/billing-overview.png',
+        //         alt: 'Billing Overview',
+        //     },
+        //     {
+        //         src: '/work/edlink/invoice-sheet.png',
+        //         alt: 'Invoice View',
+        //     },
+        //     {
+        //         src: '/work/edlink/add-payment-method.png',
+        //         alt: 'Add Payment Method',
+        //     },
+        //     {
+        //         src: '/work/edlink/onboarding-select-provider.png',
+        //         alt: 'Provider Selection',
+        //     },
+        //     {
+        //         src: '/work/edlink/getting-started.png',
+        //         alt: 'First time setup',
+        //     },
+        //     {
+        //         src: '/work/edlink/onboarding-edit-source.png',
+        //         alt: 'Source Creation',
+        //     },
+        //     {
+        //         src: '/work/edlink/onboarding-start.png',
+        //         alt: 'Onboarding Start',
+        //     },
+        //     {
+        //         src: '/work/edlink/custom-code-editor.png',
+        //         alt: 'Custom Code Editor',
+        //     },
+        //     {
+        //         src: '/work/edlink/edit-licensing-rules.png',
+        //         alt: 'Licensing Editor',
+        //     },
+        //     {
+        //         src: '/work/edlink/materialization-preview.png',
+        //         alt: 'Pending Data Change Preview',
+        //     },
+        // ],
     },
 ];
 
@@ -186,10 +188,9 @@ useHead({
             <h3>Selected Work</h3>
             <template v-for="work in selectedWorks" :key="work.title">
                 <p>
-                    <a :href="work.link" target="_blank" rel="noopener">{{
+                    <pre><a :href="work.link" target="_blank" rel="noopener">{{
                         work.title
-                    }}</a>:
-                    {{ work.description }}
+                    }}</a>: {{ work.description }}</pre>
                 </p>
                 <div class="work-carousel">
                     <Carousel :images="work.images" />

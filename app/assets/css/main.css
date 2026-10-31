@@ -425,7 +425,14 @@ code {
     -webkit-box-decoration-break: clone;
 }
 
-pre {
+pre:not(:has(> code)) {
+/*pre {*/
+    font-family: inherit;
+    font-size: inherit;
+    white-space: pre-wrap;
+}
+
+pre:has(> code) {
     margin: 0 0 1em;
     padding: 0.9rem 1rem;
     color: var(--text);
