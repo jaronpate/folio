@@ -738,7 +738,7 @@ onBeforeUnmount(() => {
 }
 
 .audio-player.audio-player--sticky {
-    --stick-gap: 1.5rem;
+    --stick-gap: 0.5rem;
     position: sticky;
     top: var(--stick-gap);
     z-index: 5;
