@@ -40,10 +40,6 @@ if (!data.value) {
 const page = computed(() => data.value);
 const shareImage = computed(() => postOgImage(page.value, DEFAULT_IMAGE));
 const artwork = computed(() => postArtwork(page.value, DEFAULT_IMAGE));
-/** Text-free wide art for the page hero; falls back to share banner. */
-const heroBackground = computed(
-    () => page.value?.heroBackground?.trim() || page.value?.banner?.trim() || null,
-);
 
 useSeoMeta({
     title: () => page.value?.title,
@@ -73,6 +69,7 @@ useHead({
         name="main"
         :title="page.title"
         :description="formatContentDate(page.date, 'long')"
+        :banner="page.banner"
         :forced-theme="page.theme"
     >
         <article>

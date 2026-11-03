@@ -6,8 +6,8 @@ const props = defineProps<{
     description: string;
     /** Theme for this page. Does not replace the visitor's saved theme. */
     forcedTheme?: string | null;
-    /** Optional wide image behind the header title (e.g. DnD post banner). */
-    heroBackground?: string | null;
+    /** Wide image behind the header title. */
+    banner?: string | null;
 }>();
 
 const { id, themes, setTheme, setForcedTheme } = useBgTheme();
@@ -26,12 +26,13 @@ useHead({
 const { id: fontId, fonts, setFont } = useBodyFont();
 
 const heroStyle = computed(() => {
-    const src = props.heroBackground?.trim();
+    const src = props.banner?.trim();
     if (!src) return undefined;
     return { '--hero-bg-image': `url('${src}')` } as Record<string, string>;
 });
 
 const onThemeChange = (event: Event) => {
+    if (forcedThemeId.value) return;
     const value = (event.target as HTMLSelectElement).value;
     const next = themes.find((theme) => theme.id === value);
     if (next) setTheme(next.id);
@@ -48,7 +49,7 @@ const onFontChange = (event: Event) => {
     <div class="site">
         <header
             class="hero"
-            :class="{ 'hero--custom-bg': Boolean(heroBackground?.trim()) }"
+            :class="{ 'hero--custom-bg': Boolean(banner?.trim()) }"
             :style="heroStyle"
         >
             <div class="hero__inner">
@@ -59,13 +60,20 @@ const onFontChange = (event: Event) => {
                     <nav class="site-nav">
                         <NuxtLink to="/writing">Writing</NuxtLink>
                         <NuxtLink to="/projects">Projects</NuxtLink>
-                        <a href="https://github.com/jaronpate">GitHub</a>
+                        <NuxtLink to="/dnd">BROindor</NuxtLink>
+                        <!-- <a href="https://github.com/jaronpate">GitHub</a> -->
                     </nav>
                     <label class="theme-picker">
                         <span class="visually-hidden">Background</span>
                         <select
                             class="theme-select"
                             :value="id"
+                            :disabled="Boolean(forcedThemeId)"
+                            :title="
+                                forcedThemeId
+                                    ? 'This page uses a fixed theme'
+                                    : undefined
+                            "
                             @change="onThemeChange"
                         >
                             <option
@@ -228,6 +236,10 @@ const onFontChange = (event: Event) => {
     align-items: center;
 }
 
+.theme-picker:has(:disabled) {
+    pointer-events: none;
+}
+
 .theme-select {
     appearance: none;
     background-color: rgba(255, 255, 255, 0.14);
@@ -246,6 +258,12 @@ const onFontChange = (event: Event) => {
 
 .theme-select:hover {
     background-color: rgba(255, 255, 255, 0.22);
+}
+
+.theme-select:disabled {
+    opacity: 0.5;
+    color: var(--hero-text);
+    cursor: default;
 }
 
 .theme-select option {
