@@ -1,11 +1,19 @@
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
     title: string;
     description: string;
-}>()
+    /** Optional wide image behind the header title (e.g. DnD post banner). */
+    heroBackground?: string | null;
+}>();
 
 const { id, themes, setTheme } = useBgTheme();
 const { id: fontId, fonts, setFont } = useBodyFont();
+
+const heroStyle = computed(() => {
+    const src = props.heroBackground?.trim();
+    if (!src) return undefined;
+    return { '--hero-bg-image': `url('${src}')` } as Record<string, string>;
+});
 
 const onThemeChange = (event: Event) => {
     const value = (event.target as HTMLSelectElement).value;
@@ -22,7 +30,11 @@ const onFontChange = (event: Event) => {
 
 <template>
     <div class="site">
-        <header class="hero">
+        <header
+            class="hero"
+            :class="{ 'hero--custom-bg': Boolean(heroBackground?.trim()) }"
+            :style="heroStyle"
+        >
             <div class="hero__inner">
                 <div class="hero__nav">
                     <NuxtLink to="/" class="wordmark" aria-label="Home">
@@ -127,6 +139,18 @@ const onFontChange = (event: Event) => {
     background:
         linear-gradient(rgba(12, 12, 18, 0.1), rgba(12, 12, 18, 0.18)),
         url('~/assets/images/blend.jpeg') center / cover no-repeat;
+}
+
+.hero--custom-bg::before {
+    /* Stronger scrim so post titles stay readable over illustrated banners. */
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(8, 14, 18, 0.42) 0%,
+            rgba(8, 14, 18, 0.28) 42%,
+            rgba(8, 14, 18, 0.58) 100%
+        ),
+        var(--hero-bg-image) center / cover no-repeat;
 }
 
 .hero__inner {

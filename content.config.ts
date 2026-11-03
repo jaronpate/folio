@@ -42,6 +42,8 @@ export default defineContentConfig({
                 logo: z.string().optional(),
                 /** Wide image for link previews. */
                 banner: z.string().optional(),
+                /** Optional text-free wide image behind the page header title. */
+                heroBackground: z.string().optional(),
             }),
         }),
         projects: defineCollection({
