@@ -1,10 +1,26 @@
 <script setup lang="ts">
-defineProps<{
+import { FORCED_THEME_ATTR, isBgThemeId } from '~/utils/themes';
+
+const props = defineProps<{
     title: string;
     description: string;
-}>()
+    /** Theme for this page. Does not replace the visitor's saved theme. */
+    forcedTheme?: string | null;
+}>();
 
-const { id, themes, setTheme } = useBgTheme();
+const { id, themes, setTheme, setForcedTheme } = useBgTheme();
+
+const forcedThemeId = computed(() =>
+    isBgThemeId(props.forcedTheme) ? props.forcedTheme : null,
+);
+
+watch(forcedThemeId, (value) => setForcedTheme(value), { immediate: true });
+
+useHead({
+    htmlAttrs: {
+        [FORCED_THEME_ATTR]: computed(() => forcedThemeId.value ?? undefined),
+    },
+});
 const { id: fontId, fonts, setFont } = useBodyFont();
 
 const onThemeChange = (event: Event) => {
@@ -44,6 +60,7 @@ const onFontChange = (event: Event) => {
                                 v-for="theme in themes"
                                 :key="theme.id"
                                 :value="theme.id"
+                                :selected="theme.id === id"
                             >
                                 {{ theme.label }}
                             </option>

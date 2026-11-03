@@ -69,6 +69,7 @@ useHead({
         name="main"
         :title="page.title"
         :description="formatContentDate(page.date, 'long')"
+        :forced-theme="page.theme"
     >
         <article>
             <div class="article-body">
