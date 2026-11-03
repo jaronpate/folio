@@ -53,6 +53,8 @@ export default defineContentConfig({
                 banner: z.string().optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
+                /** Optional text-free wide image behind the page header title. */
+                heroBackground: z.string().optional(),
             }),
         }),
         projects: defineCollection({
