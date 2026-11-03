@@ -1,4 +1,11 @@
 import { defineContentConfig, defineCollection, z } from '@nuxt/content';
+import { BG_THEMES, type BgThemeId } from './app/utils/themes';
+
+const bgThemeIds = BG_THEMES.map((theme) => theme.id) as [
+    BgThemeId,
+    ...BgThemeId[],
+];
+const bgThemeSchema = z.enum(bgThemeIds);
 
 export default defineContentConfig({
     collections: {
@@ -21,6 +28,8 @@ export default defineContentConfig({
                 logo: z.string().optional(),
                 /** Wide image for link previews. */
                 banner: z.string().optional(),
+                /** Open this page in a theme without changing the visitor's saved theme. */
+                theme: bgThemeSchema.optional(),
             }),
         }),
         dnd: defineCollection({
@@ -40,10 +49,10 @@ export default defineContentConfig({
                 audioVtt: z.string().optional(),
                 /** Square image for Now Playing / compact share cards. */
                 logo: z.string().optional(),
-                /** Wide image for link previews. */
+                /** Wide image for the page header and link previews. */
                 banner: z.string().optional(),
-                /** Optional text-free wide image behind the page header title. */
-                heroBackground: z.string().optional(),
+                /** Open this page in a theme without changing the visitor's saved theme. */
+                theme: bgThemeSchema.optional(),
             }),
         }),
         projects: defineCollection({
@@ -59,6 +68,8 @@ export default defineContentConfig({
                 hidden: z.boolean().optional(),
                 date: z.string().optional(),
                 image: z.string().optional(),
+                /** Open this page in a theme without changing the visitor's saved theme. */
+                theme: bgThemeSchema.optional(),
             }),
         }),
     },
