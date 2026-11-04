@@ -195,6 +195,8 @@ useHead({
         name="main"
         :title="page ? page.title : folderName"
         :description="layoutDescription"
+        :banner="page?.banner"
+        :banner-align="page?.bannerAlign"
         :forced-theme="page?.theme"
     >
         <article v-if="page">

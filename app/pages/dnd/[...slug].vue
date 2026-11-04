@@ -70,6 +70,7 @@ useHead({
         :title="page.title"
         :description="formatContentDate(page.date, 'long')"
         :banner="page.banner"
+        :banner-align="page.bannerAlign"
         :forced-theme="page.theme"
     >
         <article>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { bannerAlignOf } from '~/utils/banner';
 import { FORCED_THEME_ATTR, isBgThemeId } from '~/utils/themes';
 
 const props = defineProps<{
@@ -8,6 +9,8 @@ const props = defineProps<{
     forcedTheme?: string | null;
     /** Wide image behind the header title. */
     banner?: string | null;
+    /** Crop of the banner. Defaults to center. */
+    bannerAlign?: string | null;
 }>();
 
 const { id, themes, setTheme, setForcedTheme } = useBgTheme();
@@ -28,7 +31,10 @@ const { id: fontId, fonts, setFont } = useBodyFont();
 const heroStyle = computed(() => {
     const src = props.banner?.trim();
     if (!src) return undefined;
-    return { '--hero-bg-image': `url('${src}')` } as Record<string, string>;
+    return {
+        '--hero-bg-image': `url('${src}')`,
+        '--hero-bg-position': bannerAlignOf(props.bannerAlign),
+    } as Record<string, string>;
 });
 
 const onThemeChange = (event: Event) => {
@@ -175,7 +181,7 @@ const onFontChange = (event: Event) => {
             rgba(8, 14, 18, 0.28) 42%,
             rgba(8, 14, 18, 0.58) 100%
         ),
-        var(--hero-bg-image) center / cover no-repeat;
+        var(--hero-bg-image) var(--hero-bg-position, center) / cover no-repeat;
 }
 
 .hero__inner {

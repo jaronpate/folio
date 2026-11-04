@@ -6,6 +6,7 @@ audio: /dnd/2026/broindor/oct-25-30/audio.mp3
 audioVtt: /dnd/2026/broindor/oct-25-30/transcript.json
 logo: /dnd/broindor/logo.png
 banner: /dnd/broindor/banner.png
+bannerAlign: top
 theme: slate
 ---
 
@@ -91,7 +92,7 @@ Down a narrow alley, the party encountered seven giant rats—each nearly the si
 
 Sulde, however, saw opportunity.
 
-With his enchanted ring, he seized control of all seven beasts. Thus did the company proceed through the streets of Fornost accompanied by a most unusual procession.
+With his enchanted ring, he seized control of all seven beasts. :margin-figure{src="/dnd/2026/broindor/oct-25-30/sulde-rats.jpg" alt="Sulde, a tall man in black, leads a pack of giant rats down a lantern-lit Fornost alley." caption="Sulde walks the rats through Fornost." width="517" height="1024"} Thus did the company proceed through the streets of Fornost accompanied by a most unusual procession.
 
 Before long, they encountered eight rough-looking fellows armed with clubs and daggers.
 

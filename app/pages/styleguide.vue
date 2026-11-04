@@ -421,7 +421,10 @@ onMounted(() => {
                 that highlights the article as it plays. Optional
                 <code>logo</code> (square) and <code>banner</code> (wide) set
                 the share-card image and the artwork on the lock-screen media
-                player. The same player can go anywhere else on the site.
+                player. <code>bannerAlign</code> crops that header image:
+                <code>top</code>, <code>center</code>, or <code>bottom</code>.
+                It defaults to center. The same player can go anywhere else on
+                the site.
             </p>
 
             <h3>Redacted</h3>

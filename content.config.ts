@@ -1,4 +1,5 @@
 import { defineContentConfig, defineCollection, z } from '@nuxt/content';
+import { BANNER_ALIGNS, type BannerAlign } from './app/utils/banner';
 import { BG_THEMES, type BgThemeId } from './app/utils/themes';
 
 const bgThemeIds = BG_THEMES.map((theme) => theme.id) as [
@@ -6,6 +7,9 @@ const bgThemeIds = BG_THEMES.map((theme) => theme.id) as [
     ...BgThemeId[],
 ];
 const bgThemeSchema = z.enum(bgThemeIds);
+
+const bannerAligns = [...BANNER_ALIGNS] as [BannerAlign, ...BannerAlign[]];
+const bannerAlignSchema = z.enum(bannerAligns);
 
 export default defineContentConfig({
     collections: {
@@ -26,8 +30,10 @@ export default defineContentConfig({
                 audioVtt: z.string().optional(),
                 /** Square image for Now Playing / compact share cards. */
                 logo: z.string().optional(),
-                /** Wide image for link previews. */
+                /** Wide image for the page header and link previews. */
                 banner: z.string().optional(),
+                /** Crop of the header banner. Defaults to center. */
+                bannerAlign: bannerAlignSchema.optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
             }),
@@ -51,6 +57,8 @@ export default defineContentConfig({
                 logo: z.string().optional(),
                 /** Wide image for the page header and link previews. */
                 banner: z.string().optional(),
+                /** Crop of the header banner. Defaults to center. */
+                bannerAlign: bannerAlignSchema.optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
             }),

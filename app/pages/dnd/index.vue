@@ -44,6 +44,7 @@ useHead({
         :title="sectionTitle"
         :description="sectionDescription"
         :banner="featured?.banner"
+        :banner-align="featured?.bannerAlign"
         :forced-theme="featured?.theme"
     >
         <article>
