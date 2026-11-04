@@ -6,7 +6,6 @@ audio: /dnd/2026/broindor/oct-25-30/audio.mp3
 audioVtt: /dnd/2026/broindor/oct-25-30/transcript.json
 logo: /dnd/broindor/logo.png
 banner: /dnd/broindor/banner.png
-bannerAlign: top
 theme: slate
 ---
 
