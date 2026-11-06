@@ -69,7 +69,10 @@ const onFontChange = (event: Event) => {
                         <NuxtLink to="/dnd">BROindor</NuxtLink>
                         <!-- <a href="https://github.com/jaronpate">GitHub</a> -->
                     </nav>
-                    <label class="theme-picker">
+                    <label
+                        class="theme-picker"
+                        v-show="!Boolean(forcedThemeId)"
+                    >
                         <span class="visually-hidden">Background</span>
                         <select
                             class="theme-select"
