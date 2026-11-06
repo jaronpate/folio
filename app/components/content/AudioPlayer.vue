@@ -131,6 +131,12 @@ const seekFill = computed(() => {
     return `${ratio * 100}%`;
 });
 const volumeFill = computed(() => `${volume.value * 100}%`);
+const volumeGlyph = computed(() => {
+    if (volume.value <= 0.02) return 'off' as const;
+    if (volume.value <= 0.33) return 'min' as const;
+    if (volume.value <= 0.66) return 'low' as const;
+    return 'high' as const;
+});
 const rateLabel = computed(() => `${rate.value.toFixed(1)}x`);
 
 function formatTime(seconds: number) {
@@ -687,10 +693,19 @@ onBeforeUnmount(() => {
                             :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
                             @click="toggleMute"
                         >
-                            <SoundOffSolid v-if="volume <= 0.02" />
-                            <SoundMinSolid v-else-if="volume <= 0.33" />
-                            <SoundLowSolid v-else-if="volume <= 0.66" />
-                            <SoundHighSolid v-else />
+                            <span
+                                class="audio-player__volume-glyph"
+                                :class="`audio-player__volume-glyph--${volumeGlyph}`"
+                            >
+                                <SoundOffSolid v-if="volumeGlyph === 'off'" />
+                                <SoundMinSolid
+                                    v-else-if="volumeGlyph === 'min'"
+                                />
+                                <SoundLowSolid
+                                    v-else-if="volumeGlyph === 'low'"
+                                />
+                                <SoundHighSolid v-else />
+                            </span>
                         </button>
                     </IconoirProvider>
                     <input
@@ -864,9 +879,42 @@ onBeforeUnmount(() => {
 }
 
 .audio-player__mute {
+    /* Wide enough for the loudest waves once the speaker is centered. */
+    width: calc(32.5 / 24 * 1rem);
+    height: 1rem;
+    overflow: hidden;
     border-radius: var(--radius);
     background: transparent;
     color: var(--text);
+}
+
+.audio-player__volume-glyph {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+.audio-player__volume-glyph svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    overflow: visible;
+}
+
+/* Iconoir recenters every level, so the speaker slides as the waves
+   change. These shifts put each speaker's center on the button center.
+   Speaker center on the 24px grid: high 7.5, low/off 8.5, min 10. */
+.audio-player__volume-glyph--high svg {
+    transform: translateX(calc(4.5 / 24 * 100%));
+}
+
+.audio-player__volume-glyph--low svg,
+.audio-player__volume-glyph--off svg {
+    transform: translateX(calc(3.5 / 24 * 100%));
+}
+
+.audio-player__volume-glyph--min svg {
+    transform: translateX(calc(2 / 24 * 100%));
 }
 
 .audio-player__mute:hover {
