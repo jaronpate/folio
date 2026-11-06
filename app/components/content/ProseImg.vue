@@ -30,7 +30,7 @@ const caption = computed(() => {
 </script>
 
 <template>
-    <figure class="article-figure">
+    <figure class="article-figure" data-spoken-skip>
         <component
             :is="ImageComponent"
             :src="refinedSrc"
