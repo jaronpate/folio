@@ -69,7 +69,8 @@ const onFontChange = (event: Event) => {
                         <NuxtLink to="/dnd">BROindor</NuxtLink>
                         <!-- <a href="https://github.com/jaronpate">GitHub</a> -->
                     </nav>
-                    <label
+                    <!-- Hid the theme picker for now. It's ugly -->
+                    <!-- <label
                         class="theme-picker"
                         v-show="!Boolean(forcedThemeId)"
                     >
@@ -94,7 +95,7 @@ const onFontChange = (event: Event) => {
                                 {{ theme.label }}
                             </option>
                         </select>
-                    </label>
+                    </label> -->
                 </div>
                 <div style="flex: 1;"></div>
                 <h1 class="hero__title">{{ title }}</h1>
@@ -107,7 +108,8 @@ const onFontChange = (event: Event) => {
         </div>
 
         <footer class="site-footer">
-            <div class="site-footer__flare" aria-hidden="true">
+            <!-- Hid the footer flare for now because its ugly -->
+            <!-- <div class="site-footer__flare" aria-hidden="true">
                 <svg
                     class="site-footer__leaf"
                     viewBox="0 0 20 16"
@@ -136,10 +138,10 @@ const onFontChange = (event: Event) => {
                         d="M0 8H10M10 8C15 8 17.5 4.5 19 2M10 8C15 8 17.5 11.5 19 14"
                     />
                 </svg>
-            </div>
+            </div> -->
             <a href="mailto:yo@jp.wtf">yo@jp.wtf</a>
             <div class="flex-ff"></div>
-            <span>Est. 2003</span>
+            <!-- <span>Est. 2003</span> -->
             <span>Austin, TX</span>
         </footer>
     </div>
@@ -204,7 +206,7 @@ const onFontChange = (event: Event) => {
     flex-wrap: wrap;
     align-items: center;
     gap: 1.25rem;
-    /*margin-bottom: 12rem;*/
+    margin-bottom: 6rem;
     font-family: var(--font-plain);
     font-size: 0.8rem;
 }

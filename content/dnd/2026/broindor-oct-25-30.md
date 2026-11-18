@@ -5,7 +5,7 @@ description: A chronicle of the adventurers of Fornost, October 25–30.
 audio: /dnd/2026/broindor/oct-25-30/audio.mp3
 audioVtt: /dnd/2026/broindor/oct-25-30/transcript.json
 logo: /dnd/broindor/logo.png
-banner: /dnd/broindor/banner.png
+banner: /dnd/2026/broindor/oct-25-30/banner.png
 theme: slate
 ---
 
