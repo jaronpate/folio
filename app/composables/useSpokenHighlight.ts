@@ -5,6 +5,12 @@ import {
     type ArticleToken,
     type SpokenToken,
 } from '~/utils/spokenAlign';
+import {
+    spokenInView,
+    spokenScrollBehavior,
+    spokenScrollDelta,
+    spokenScrollLockMs,
+} from '~/utils/spokenScroll';
 import { spokenTokensFromTrack } from '~/utils/vtt';
 
 type PlacedWord = AlignedToken<ArticleToken> & {
@@ -17,8 +23,6 @@ const TITLE = '.hero__title';
 const BLOCK =
     'p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, .hero__title';
 const WAKE = 'spoken-wake';
-const SCROLL_TOP = 150;
-const SCROLL_BOTTOM = 32;
 
 function supportsHighlight() {
     return (
@@ -93,31 +97,36 @@ function emptyHighlight(highlight: Highlight) {
     for (const range of ranges) list.delete(range);
 }
 
-function inView(range: Range) {
+function viewRect(range: Range) {
     const rect = range.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) return false;
-    return (
-        rect.top >= SCROLL_TOP &&
-        rect.bottom <= window.innerHeight - SCROLL_BOTTOM
-    );
+    return {
+        top: rect.top,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+    };
 }
 
+function inView(range: Range) {
+    return spokenInView(viewRect(range), window.innerHeight);
+}
+
+// Large mid-article images (margin figures, figures) can force a jump bigger
+// than a short smooth-scroll lock. If the lock ends early, the scroll handler
+// drops follow and the mark keeps moving off-screen through the next paragraphs.
 function reveal(range: Range) {
-    const rect = range.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) return false;
-    const bottomLimit = window.innerHeight - SCROLL_BOTTOM;
-    if (rect.top >= SCROLL_TOP && rect.bottom <= bottomLimit) return false;
+    const rect = viewRect(range);
+    const delta = spokenScrollDelta(rect, window.innerHeight);
+    if (!delta) return 0;
     const reduce = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
     ).matches;
-    let top = window.scrollY;
-    if (rect.top < SCROLL_TOP) top += rect.top - SCROLL_TOP;
-    else top += rect.bottom - bottomLimit;
+    const behavior = spokenScrollBehavior(delta, reduce);
     window.scrollTo({
-        top: Math.max(0, top),
-        behavior: reduce ? 'auto' : 'smooth',
+        top: Math.max(0, window.scrollY + delta),
+        behavior,
     });
-    return true;
+    return spokenScrollLockMs(delta, behavior === 'smooth');
 }
 
 function caretAt(x: number, y: number) {
@@ -287,7 +296,8 @@ export function useSpokenHighlight(options: {
         retried = false;
         if (!useRanges) paintSpans(indexes);
         if (!canFollow || !follow || !shown) return;
-        if (reveal(shown)) scrollLock = performance.now() + 700;
+        const lockMs = reveal(shown);
+        if (lockMs) scrollLock = performance.now() + lockMs;
     }
 
     function queueRebuild() {
