@@ -37,7 +37,7 @@ if (!data.value) {
     throw createError({ statusCode: 404, statusMessage: 'Page Not Found' });
 }
 
-const page = computed(() => data.value);
+const page = computed(() => data.value ?? null);
 const shareImage = computed(() => postOgImage(page.value, DEFAULT_IMAGE));
 const artwork = computed(() => postArtwork(page.value, DEFAULT_IMAGE));
 

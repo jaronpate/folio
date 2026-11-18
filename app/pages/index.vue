@@ -38,60 +38,60 @@ I've built many things I'm proud of at Edlink. Notably, the internal billing pla
 
 These days I lead some of our greenfield projects. I still get to write plenty of code though, which is how I like it.`,
         link: 'https://ed.link',
-        // images: [
-        //     {
-        //         src: '/work/edlink/embedded-onboarding.gif',
-        //         alt: 'Embedded Onboarding',
-        //     },
-        //     {
-        //         src: '/work/edlink/authentication-widget.gif',
-        //         alt: 'Auth Widget',
-        //     },
-        //     {
-        //         src: '/work/edlink/integration-sharing-rules-widget.png',
-        //         alt: 'Data Sharing Editor Widget',
-        //     },
-        //     {
-        //         src: '/work/edlink/billing-overview.png',
-        //         alt: 'Billing Overview',
-        //     },
-        //     {
-        //         src: '/work/edlink/invoice-sheet.png',
-        //         alt: 'Invoice View',
-        //     },
-        //     {
-        //         src: '/work/edlink/add-payment-method.png',
-        //         alt: 'Add Payment Method',
-        //     },
-        //     {
-        //         src: '/work/edlink/onboarding-select-provider.png',
-        //         alt: 'Provider Selection',
-        //     },
-        //     {
-        //         src: '/work/edlink/getting-started.png',
-        //         alt: 'First time setup',
-        //     },
-        //     {
-        //         src: '/work/edlink/onboarding-edit-source.png',
-        //         alt: 'Source Creation',
-        //     },
-        //     {
-        //         src: '/work/edlink/onboarding-start.png',
-        //         alt: 'Onboarding Start',
-        //     },
-        //     {
-        //         src: '/work/edlink/custom-code-editor.png',
-        //         alt: 'Custom Code Editor',
-        //     },
-        //     {
-        //         src: '/work/edlink/edit-licensing-rules.png',
-        //         alt: 'Licensing Editor',
-        //     },
-        //     {
-        //         src: '/work/edlink/materialization-preview.png',
-        //         alt: 'Pending Data Change Preview',
-        //     },
-        // ],
+        images: [
+            // {
+            //     src: '/work/edlink/embedded-onboarding.gif',
+            //     alt: 'Embedded Onboarding',
+            // },
+            // {
+            //     src: '/work/edlink/authentication-widget.gif',
+            //     alt: 'Auth Widget',
+            // },
+            // {
+            //     src: '/work/edlink/integration-sharing-rules-widget.png',
+            //     alt: 'Data Sharing Editor Widget',
+            // },
+            // {
+            //     src: '/work/edlink/billing-overview.png',
+            //     alt: 'Billing Overview',
+            // },
+            // {
+            //     src: '/work/edlink/invoice-sheet.png',
+            //     alt: 'Invoice View',
+            // },
+            // {
+            //     src: '/work/edlink/add-payment-method.png',
+            //     alt: 'Add Payment Method',
+            // },
+            // {
+            //     src: '/work/edlink/onboarding-select-provider.png',
+            //     alt: 'Provider Selection',
+            // },
+            // {
+            //     src: '/work/edlink/getting-started.png',
+            //     alt: 'First time setup',
+            // },
+            // {
+            //     src: '/work/edlink/onboarding-edit-source.png',
+            //     alt: 'Source Creation',
+            // },
+            // {
+            //     src: '/work/edlink/onboarding-start.png',
+            //     alt: 'Onboarding Start',
+            // },
+            // {
+            //     src: '/work/edlink/custom-code-editor.png',
+            //     alt: 'Custom Code Editor',
+            // },
+            // {
+            //     src: '/work/edlink/edit-licensing-rules.png',
+            //     alt: 'Licensing Editor',
+            // },
+            // {
+            //     src: '/work/edlink/materialization-preview.png',
+            //     alt: 'Pending Data Change Preview',
+            // },
+        ],
     },
 ];
 
