@@ -96,6 +96,7 @@ const onFontChange = (event: Event) => {
                         </select>
                     </label>
                 </div>
+                <div style="flex: 1;"></div>
                 <h1 class="hero__title">{{ title }}</h1>
                 <p v-if="description" class="hero__sub">{{ description }}</p>
             </div>
@@ -163,6 +164,9 @@ const onFontChange = (event: Event) => {
     isolation: isolate;
     color: var(--hero-text);
     padding: 1.25rem 0 3rem;
+    min-height: 45vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .hero::before {
@@ -190,6 +194,9 @@ const onFontChange = (event: Event) => {
 .hero__inner {
     width: var(--col);
     margin-left: var(--col-left);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .hero__nav {
@@ -197,7 +204,7 @@ const onFontChange = (event: Event) => {
     flex-wrap: wrap;
     align-items: center;
     gap: 1.25rem;
-    margin-bottom: 3.5rem;
+    /*margin-bottom: 12rem;*/
     font-family: var(--font-plain);
     font-size: 0.8rem;
 }
@@ -393,11 +400,12 @@ const onFontChange = (event: Event) => {
 @media (max-width: 640px) {
     .hero {
         padding-bottom: 2.25rem;
+        min-height: 35vh;
     }
 
-    .hero__nav {
-        margin-bottom: 1.75rem;
-    }
+    /*.hero__nav {
+        margin-bottom: 6rem;
+    }*/
 
     .theme-picker {
         flex-basis: 100%;
