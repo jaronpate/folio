@@ -3,9 +3,10 @@ title: The Ninth Dock
 date: 2026-11-23
 description: A chronicle of the adventurers of Fornost, November 22–23.
 audio: /dnd/2026/broindor/nov-22-23/audio.mp3
+audioDuration: 2361
 audioVtt: /dnd/2026/broindor/nov-22-23/transcript.json
-logo: /dnd/broindor/logo.png
-banner: /dnd/2026/broindor/nov-22-23/banner.png
+logo: /dnd/broindor/logo.jpg
+banner: /dnd/2026/broindor/nov-22-23/banner.jpg
 theme: slate
 ---
 
@@ -429,7 +430,7 @@ A weretiger!
 
 Tilde and Lenny did not remain to observe the completion of this remarkable transformation....they ran.
 
-By the time the creature had assumed its monstrous shape, the elves had nearly reached the end of the alley. A terrible roar followed them, and the weretiger bounded into pursuit. :margin-figure{src="/dnd/2026/broindor/nov-22-23/elves_soil_their_pants.png" alt="Tilde and Lenny, two sheepish elves, run in terror from a freakishly large tiger." caption="Tilde and Lenny soil their pants." maxWidth="26rem"}
+By the time the creature had assumed its monstrous shape, the elves had nearly reached the end of the alley. A terrible roar followed them, and the weretiger bounded into pursuit. :margin-figure{src="/dnd/2026/broindor/nov-22-23/elves_soil_their_pants.jpg" alt="Tilde and Lenny, two sheepish elves, run in terror from a freakishly large tiger." caption="Tilde and Lenny soil their pants." maxWidth="26rem"}
 
 She was gaining.
 

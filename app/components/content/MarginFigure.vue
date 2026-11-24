@@ -54,6 +54,8 @@ function onLoad() {
                 :alt="label"
                 :width="width"
                 :height="height"
+                loading="lazy"
+                decoding="async"
                 @load="onLoad"
             />
             <span v-if="caption" class="margin-figure__caption">{{

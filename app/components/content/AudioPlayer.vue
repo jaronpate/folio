@@ -27,6 +27,11 @@ const props = withDefaults(
         download?: boolean | string;
         sticky?: boolean;
         vtt?: string;
+        /**
+         * Known length in seconds. Lets the timeline show duration without
+         * downloading audio (important when the host ignores Range requests).
+         */
+        durationSeconds?: number | null;
         /** Absolute or site-relative image for lock-screen / Now Playing. */
         artwork?: string;
     }>(),
@@ -36,6 +41,7 @@ const props = withDefaults(
         download: false,
         sticky: false,
         vtt: '',
+        durationSeconds: null,
         artwork: '',
     },
 );
@@ -109,6 +115,7 @@ const pinned = ref(false);
 const playing = ref(false);
 const current = ref(0);
 const duration = ref(0);
+const mediaStarted = ref(false);
 const volume = ref(1);
 const lastAudible = ref(1);
 const scrubbing = ref(false);
@@ -152,7 +159,16 @@ function applyRate() {
     if (audio.value) audio.value.playbackRate = rate.value;
 }
 
+function knownDuration() {
+    const value = props.durationSeconds;
+    return typeof value === 'number' && Number.isFinite(value) && value > 0
+        ? value
+        : 0;
+}
+
 function syncDuration() {
+    const known = knownDuration();
+    if (known > 0 && duration.value <= 0) duration.value = known;
     const el = audio.value;
     if (!el || !Number.isFinite(el.duration) || el.duration <= 0) return;
     duration.value = el.duration;
@@ -242,7 +258,10 @@ function onTime() {
 
 function syncMediaSession() {
     if (!import.meta.client || !('mediaSession' in navigator)) return;
-    const art = resolvedArtwork.value;
+    // Artwork URLs are fetched by the browser; wait until playback so a large
+    // logo does not compete with first paint.
+    const art =
+        mediaStarted.value || playing.value ? resolvedArtwork.value : '';
     navigator.mediaSession.metadata = new MediaMetadata({
         title: mediaTitle.value || 'Audio',
         artist: SITE_NAME,
@@ -293,6 +312,7 @@ function bindMediaSessionActions() {
 
 function onPlay() {
     playing.value = true;
+    mediaStarted.value = true;
     failed.value = false;
     const mine = audio.value;
     if (!mine) return;
@@ -441,7 +461,10 @@ function cycleRate() {
 function seekTo(time: number) {
     const el = audio.value;
     if (!el || failed.value || !Number.isFinite(time)) return;
-    const next = mediaTime(el.duration, time);
+    const next = mediaTime(
+        duration.value > 0 ? duration.value : el.duration,
+        time,
+    );
     window.clearTimeout(seekTimer);
     seekAssigned = false;
     heldSeek = next;
@@ -465,14 +488,23 @@ watch(
     () => props.src,
     () => {
         playing.value = false;
+        mediaStarted.value = false;
         current.value = 0;
-        duration.value = 0;
+        duration.value = knownDuration();
         failed.value = false;
         scrubbing.value = false;
         resumeAfterSeek.value = false;
         releaseHeldSeek();
         syncMediaSession();
     },
+);
+
+watch(
+    () => props.durationSeconds,
+    () => {
+        syncDuration();
+    },
+    { immediate: true },
 );
 
 watch(
@@ -560,7 +592,7 @@ onBeforeUnmount(() => {
                 ref="audio"
                 class="audio-player__media"
                 :src="resolvedSrc"
-                preload="metadata"
+                preload="none"
                 playsinline
                 @loadedmetadata="onLoaded"
                 @durationchange="onDuration"
