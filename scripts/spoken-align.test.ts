@@ -197,6 +197,97 @@ the cat sat
         ]);
     });
 
+    test('reads digits and number words as the same amount', () => {
+        expect(
+            align(
+                'George wanted 20,000 gold pieces',
+                'George wanted twenty thousand gold pieces',
+            ),
+        ).toEqual(['george', 'wanted', '20000', 'gold', 'pieces']);
+        expect(
+            align(
+                'For the latter, 30,000.',
+                'For the latter, thirty thousand.',
+            ),
+        ).toEqual(['for', 'the', 'latter', '30000']);
+        expect(
+            align(
+                'possessed 96 charges and only 40',
+                'possessed ninety-six charges and only forty',
+            ),
+        ).toEqual(['possessed', '96', 'charges', 'and', 'only', '40']);
+        expect(
+            align('at 6:00 in the evening', 'at six in the evening'),
+        ).toEqual(['at', '6', 'in', 'the', 'evening']);
+        expect(
+            align('four feet and seven inches', 'four feet and seven inches'),
+        ).toEqual(['4', 'feet', 'and', '7', 'inches']);
+        expect(align('three hundred and fifty gold', '350 gold')).toEqual([
+            '350',
+            'gold',
+        ]);
+    });
+
+    test('does not read the pronoun I as a roman numeral', () => {
+        expect(
+            align('I suppose I shall stay', 'I suppose I shall stay'),
+        ).toEqual(['i', 'suppose', 'i', 'shall', 'stay']);
+    });
+
+    test('keeps 1,000 on the thousand being spoken', () => {
+        const filler = Array.from(
+            { length: 40 },
+            (_, index) => `pad${index}`,
+        ).join(' ');
+        const article = [
+            'He offered to exchange the wands if Sigurd included an additional thousand gold.',
+            filler,
+            'He offered to exchange the wands if Sigurd included an additional thousand gold pieces. No agreement was reached.',
+        ].join(' ');
+        const spoken = spokenTokens(
+            parseVtt(`WEBVTT
+
+00:00:00.000 --> 00:00:01.000
+He offered to exchange the wands if Sigurd included an additional 1,000 gold pieces. No agreement was reached.
+`),
+        );
+        const tokens = tokensIn(article);
+        const aligned = alignSpokenWords(spoken, tokens);
+        const firstThousand = tokens.find((token) => token.norm === 'thousand');
+        const firstGold = tokens.find((token) => token.norm === 'gold');
+        expect(aligned.find((token) => token.norm === '1000')?.start).toBe(
+            firstThousand?.start,
+        );
+        expect(aligned.find((token) => token.norm === 'gold')?.start).toBe(
+            firstGold?.start,
+        );
+        expect(aligned.some((token) => token.norm === 'agreement')).toBe(false);
+        expect(aligned.some((token) => token.norm === 'reached')).toBe(false);
+    });
+
+    test('stays on part iii when a later three repeats the heading', () => {
+        const filler = Array.from(
+            { length: 40 },
+            (_, index) => `pad${index}`,
+        ).join(' ');
+        const article = `Part III. Lady Warnsworth leaving the waterfront. ${filler} Part three. Lady Warnsworth leaving the waterfront the company encountered a young gentlewoman.`;
+        const spoken = spokenTokens(
+            parseVtt(`WEBVTT
+
+00:00:00.000 --> 00:00:01.000
+Part three. Lady Warnsworth leaving the waterfront the company encountered a young gentlewoman.
+`),
+        );
+        const tokens = tokensIn(article);
+        const aligned = alignSpokenWords(spoken, tokens);
+        expect(
+            aligned.find((token) => token.norm === 'waterfront')?.start,
+        ).toBe(tokens.find((token) => token.norm === 'waterfront')?.start);
+        expect(aligned.some((token) => token.norm === 'gentlewoman')).toBe(
+            false,
+        );
+    });
+
     test('jumps to a later copy when the first is interrupted and repeated', () => {
         const article = tokensIn('alpha beta xxx alpha beta gamma delta');
         const spoken = spokenTokens(
