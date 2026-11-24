@@ -26,6 +26,91 @@ export function normalizeToken(raw: string): string {
     return word.replace(/^(\d+)(?:st|nd|rd|th)$/, '$1');
 }
 
+// Spoken captions often read numerals aloud ("three") while the page prints
+// digits or roman forms ("3", "III"). Fold those shapes to one value so the
+// aligner can keep its place instead of leaping to another copy of the word.
+const NUMBER_WORDS: Record<string, number> = {
+    zero: 0,
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    sixteen: 16,
+    seventeen: 17,
+    eighteen: 18,
+    nineteen: 19,
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+};
+
+const ROMAN_RE =
+    /^(?=.)m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$/;
+
+const ROMAN_DIGIT: Record<string, number> = {
+    i: 1,
+    v: 5,
+    x: 10,
+    l: 50,
+    c: 100,
+    d: 500,
+    m: 1000,
+};
+
+export function numberValue(norm: string): number | null {
+    if (/^\d+$/.test(norm)) {
+        const value = Number(norm);
+        return Number.isSafeInteger(value) ? value : null;
+    }
+    const named = NUMBER_WORDS[norm];
+    if (named !== undefined) return named;
+    if (!ROMAN_RE.test(norm)) return null;
+
+    let total = 0;
+    for (let index = 0; index < norm.length; index += 1) {
+        const current = ROMAN_DIGIT[norm[index] ?? ''];
+        const next = ROMAN_DIGIT[norm[index + 1] ?? ''];
+        if (current === undefined) return null;
+        if (next !== undefined && current < next) {
+            total += next - current;
+            index += 1;
+        } else {
+            total += current;
+        }
+    }
+    // Part/chapter headings stay in a small range; longer roman-shaped words
+    // like "mix" stay ordinary text.
+    if (total < 1 || total > 100) return null;
+    return total;
+}
+
+export function tokensEqual(
+    left: string | undefined,
+    right: string | undefined,
+): boolean {
+    if (left === undefined || right === undefined) return false;
+    if (left === right) return true;
+    const a = numberValue(left);
+    const b = numberValue(right);
+    return a !== null && b !== null && a === b;
+}
+
 export function tokensIn(text: string): TextToken[] {
     TOKEN_RE.lastIndex = 0;
     const tokens: TextToken[] = [];
@@ -87,7 +172,10 @@ function bestRun<T extends { norm: string }>(
         while (
             length < remaining &&
             start + length < article.length &&
-            article[start + length]?.norm === spoken[spokenIndex + length]?.norm
+            tokensEqual(
+                article[start + length]?.norm,
+                spoken[spokenIndex + length]?.norm,
+            )
         ) {
             length += 1;
         }

@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { alignSpokenWords, tokensIn } from '../app/utils/spokenAlign.ts';
+import {
+    alignSpokenWords,
+    numberValue,
+    tokensEqual,
+    tokensIn,
+} from '../app/utils/spokenAlign.ts';
 import {
     parseVtt,
     spokenTokens,
@@ -214,5 +219,70 @@ alpha beta gamma delta
             'delta',
         ]);
         expect(aligned[0]?.start).toBeGreaterThan(0);
+    });
+
+    test('treats roman, digit, and spoken number forms as the same token', () => {
+        expect(numberValue('iii')).toBe(3);
+        expect(numberValue('three')).toBe(3);
+        expect(numberValue('3')).toBe(3);
+        expect(numberValue('ix')).toBe(9);
+        expect(numberValue('mix')).toBeNull();
+        expect(tokensEqual('iii', 'three')).toBe(true);
+        expect(tokensEqual('i', 'one')).toBe(true);
+        expect(tokensEqual('ii', '2')).toBe(true);
+        expect(tokensEqual('lion', 'three')).toBe(false);
+    });
+
+    test('keeps Part III on iii when the recording says three', () => {
+        const article = tokensIn(
+            'Part II: Admin. Part III: The Lion and then three rats. Part IV: End.',
+        );
+        const spoken = spokenTokens(
+            parseVtt(`WEBVTT
+
+00:00:00.000 --> 00:00:01.000
+Part two Admin Part three The Lion and then three rats Part four End
+`),
+        );
+        const aligned = alignSpokenWords(spoken, article);
+        expect(aligned.map((token) => token.norm)).toEqual([
+            'part',
+            'ii',
+            'admin',
+            'part',
+            'iii',
+            'the',
+            'lion',
+            'and',
+            'then',
+            'three',
+            'rats',
+            'part',
+            'iv',
+            'end',
+        ]);
+
+        const iii = article.find((token) => token.norm === 'iii');
+        const spokenThreeHeading = aligned.find(
+            (token) => token.norm === 'iii',
+        );
+        const printedThree = aligned.find((token) => token.norm === 'three');
+        expect(spokenThreeHeading?.start).toBe(iii?.start);
+        expect(printedThree?.start).toBeGreaterThan(iii?.start ?? 0);
+    });
+
+    test('matches Part I spoken as one and Part IX spoken as nine', () => {
+        expect(
+            align('Part one The Road Part nine The Spire', 'Part I: The Road. Part IX: The Spire.'),
+        ).toEqual([
+            'part',
+            'i',
+            'the',
+            'road',
+            'part',
+            'ix',
+            'the',
+            'spire',
+        ]);
     });
 });
