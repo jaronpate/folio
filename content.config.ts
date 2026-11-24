@@ -27,6 +27,8 @@ export default defineContentConfig({
                 audio: z.string().optional(),
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
+                /** Duration in seconds so the player can show length without fetching audio. */
+                audioDuration: z.number().optional(),
                 audioVtt: z.string().optional(),
                 /** Square image for Now Playing / compact share cards. */
                 logo: z.string().optional(),
@@ -52,6 +54,8 @@ export default defineContentConfig({
                 audio: z.string().optional(),
                 audioTitle: z.string().optional(),
                 audioDownload: z.boolean().optional(),
+                /** Duration in seconds so the player can show length without fetching audio. */
+                audioDuration: z.number().optional(),
                 audioVtt: z.string().optional(),
                 /** Square image for Now Playing / compact share cards. */
                 logo: z.string().optional(),

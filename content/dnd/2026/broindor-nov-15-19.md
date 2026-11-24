@@ -3,9 +3,10 @@ title: The Headless Clerk and the Hook of Ankh-Morpork
 date: 2026-11-19
 description: A chronicle of the adventurers of Fornost, November 15–19.
 audio: /dnd/2026/broindor/nov-15-19/audio.mp3
+audioDuration: 2017
 audioVtt: /dnd/2026/broindor/nov-15-19/transcript.json
-logo: /dnd/broindor/logo.png
-banner: /dnd/2026/broindor/nov-15-19/banner.png
+logo: /dnd/broindor/logo.jpg
+banner: /dnd/2026/broindor/nov-15-19/banner.jpg
 theme: slate
 ---
 
@@ -121,7 +122,7 @@ This was such a moment.
 
 Zebloff drew his bastard sword.
 
-Before Theodore or his guard could react, the blade swept through the air. :margin-figure{src="/dnd/2026/broindor/nov-15-19/zebloff_cuts_down_a_racist.png" alt="Zebloff, a braided dwarf in dark armor, cuts down a city official in a wet Ankh-Morpork street as papers scatter and a guard recoils." caption="Zebloff cuts down a racist."} The official's head departed his shoulders.
+Before Theodore or his guard could react, the blade swept through the air. :margin-figure{src="/dnd/2026/broindor/nov-15-19/zebloff_cuts_down_a_racist.jpg" alt="Zebloff, a braided dwarf in dark armor, cuts down a city official in a wet Ankh-Morpork street as papers scatter and a guard recoils." caption="Zebloff cuts down a racist."} The official's head departed his shoulders.
 
 For a brief moment, there was silence.
 

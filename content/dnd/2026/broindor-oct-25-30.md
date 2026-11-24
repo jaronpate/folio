@@ -3,9 +3,10 @@ title: The Ring, the Rats, and the Gold Beneath the Earth
 date: 2026-10-30
 description: A chronicle of the adventurers of Fornost, October 25–30.
 audio: /dnd/2026/broindor/oct-25-30/audio.mp3
+audioDuration: 1139
 audioVtt: /dnd/2026/broindor/oct-25-30/transcript.json
-logo: /dnd/broindor/logo.png
-banner: /dnd/2026/broindor/oct-25-30/banner.png
+logo: /dnd/broindor/logo.jpg
+banner: /dnd/2026/broindor/oct-25-30/banner.jpg
 theme: slate
 ---
 

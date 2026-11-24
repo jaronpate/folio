@@ -26,6 +26,125 @@ export function normalizeToken(raw: string): string {
     return word.replace(/^(\d+)(?:st|nd|rd|th)$/, '$1');
 }
 
+// Spoken captions often read numerals aloud ("three", "1,000") while the page
+// prints another shape ("III", "thousand"). Those shapes compare equal, and a
+// compound such as "twenty thousand" can match one spoken "20,000", but the
+// printed tokens stay as they are.
+const SMALL_WORDS: Readonly<Record<string, number>> = {
+    zero: 0,
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    sixteen: 16,
+    seventeen: 17,
+    eighteen: 18,
+    nineteen: 19,
+};
+
+const TENS_WORDS: Readonly<Record<string, number>> = {
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+};
+
+const SCALE_WORDS: Readonly<Record<string, number>> = {
+    hundred: 100,
+    thousand: 1000,
+    million: 1_000_000,
+    billion: 1_000_000_000,
+};
+
+const NUMBER_WORDS: Readonly<Record<string, number>> = {
+    ...SMALL_WORDS,
+    ...TENS_WORDS,
+};
+
+const ROMAN_RE =
+    /^(?=.)m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$/;
+
+const ROMAN_DIGIT: Record<string, number> = {
+    i: 1,
+    v: 5,
+    x: 10,
+    l: 50,
+    c: 100,
+    d: 500,
+    m: 1000,
+};
+
+function namedValue(table: Readonly<Record<string, number>>, word: string) {
+    if (!Object.hasOwn(table, word)) return undefined;
+    return table[word];
+}
+
+export function numberValue(norm: string): number | null {
+    const clock = /^(\d{1,2}):(\d{2})$/.exec(norm);
+    if (clock) {
+        const hour = Number(clock[1]);
+        const minute = Number(clock[2]);
+        if (minute === 0 && hour <= 23) return hour;
+        return null;
+    }
+    if (/^\d{1,3}(?:,\d{3})+$/.test(norm)) {
+        const value = Number(norm.replaceAll(',', ''));
+        return Number.isSafeInteger(value) ? value : null;
+    }
+    if (/^\d+$/.test(norm)) {
+        const value = Number(norm);
+        return Number.isSafeInteger(value) ? value : null;
+    }
+    const named = namedValue(NUMBER_WORDS, norm);
+    if (named !== undefined) return named;
+    const scale = namedValue(SCALE_WORDS, norm);
+    if (scale !== undefined) return scale;
+    if (!ROMAN_RE.test(norm)) return null;
+
+    let total = 0;
+    for (let index = 0; index < norm.length; index += 1) {
+        const current = ROMAN_DIGIT[norm[index] ?? ''];
+        const next = ROMAN_DIGIT[norm[index + 1] ?? ''];
+        if (current === undefined) return null;
+        if (next !== undefined && current < next) {
+            total += next - current;
+            index += 1;
+        } else {
+            total += current;
+        }
+    }
+    // Part/chapter headings stay in a small range; longer roman-shaped words
+    // like "mix" stay ordinary text.
+    if (total < 1 || total > 100) return null;
+    return total;
+}
+
+export function tokensEqual(
+    left: string | undefined,
+    right: string | undefined,
+): boolean {
+    if (left === undefined || right === undefined) return false;
+    if (left === right) return true;
+    const a = numberValue(left);
+    const b = numberValue(right);
+    return a !== null && b !== null && a === b;
+}
+
 export function tokensIn(text: string): TextToken[] {
     TOKEN_RE.lastIndex = 0;
     const tokens: TextToken[] = [];
@@ -73,234 +192,106 @@ export type AlignedToken<T> = T & {
 
 // A repeated word a few tokens ahead can be the real phrase ("the cat"
 // after "the dog"). Past that, only a solid run may skip a heading or a
-// sentence the recording never says. A later "thousand" must not win
-// because the words after it agree for longer.
+// sentence the recording never says.
 const NEAR = 8;
 const FAR = 24;
 const FAR_MIN = 4;
 
-const SMALL: Readonly<Record<string, number>> = {
-    zero: 0,
-    one: 1,
-    two: 2,
-    three: 3,
-    four: 4,
-    five: 5,
-    six: 6,
-    seven: 7,
-    eight: 8,
-    nine: 9,
-    ten: 10,
-    eleven: 11,
-    twelve: 12,
-    thirteen: 13,
-    fourteen: 14,
-    fifteen: 15,
-    sixteen: 16,
-    seventeen: 17,
-    eighteen: 18,
-    nineteen: 19,
+type Phrase = {
+    value: number;
+    count: number;
 };
 
-const TENS: Readonly<Record<string, number>> = {
-    twenty: 20,
-    thirty: 30,
-    forty: 40,
-    fifty: 50,
-    sixty: 60,
-    seventy: 70,
-    eighty: 80,
-    ninety: 90,
+type Step = {
+    spokenCount: number;
+    articleCount: number;
 };
 
-const SCALE: Readonly<Record<string, number>> = {
-    hundred: 100,
-    thousand: 1000,
-    million: 1_000_000,
-    billion: 1_000_000_000,
-};
-
-const ROMAN_PARTS: readonly (readonly [string, number])[] = [
-    ['x', 10],
-    ['ix', 9],
-    ['v', 5],
-    ['iv', 4],
-    ['i', 1],
-];
-
-type Piece =
-    | { kind: 'int'; value: number }
-    | { kind: 'small'; value: number }
-    | { kind: 'tens'; value: number }
-    | { kind: 'scale'; value: number };
-
-type Timed = {
-    norm: string;
-    start: number;
-    end: number;
-};
-
-function lookup(table: Readonly<Record<string, number>>, word: string) {
-    return Object.hasOwn(table, word) ? table[word] : undefined;
-}
-
-function romanWord(value: number) {
-    let rest = value;
-    let word = '';
-    for (const [glyph, part] of ROMAN_PARTS) {
-        while (rest >= part) {
-            word += glyph;
-            rest -= part;
-        }
+function canAppend(word: string, current: number) {
+    const scale = namedValue(SCALE_WORDS, word);
+    if (scale !== undefined) {
+        const base = current === 0 ? 1 : current;
+        return base < scale;
     }
-    return word;
+    const tens = namedValue(TENS_WORDS, word);
+    if (tens !== undefined) return current % 100 === 0;
+    const small = namedValue(SMALL_WORDS, word);
+    if (small !== undefined) return current % 10 === 0;
+    return false;
 }
 
-function romanValue(token: string) {
-    if (!/^[ivx]+$/.test(token)) return null;
-    let rest = token;
-    let total = 0;
-    for (const [glyph, value] of ROMAN_PARTS) {
-        while (rest.startsWith(glyph)) {
-            rest = rest.slice(glyph.length);
-            total += value;
-        }
-    }
-    if (rest.length > 0 || total < 1 || total > 20) return null;
-    if (romanWord(total) !== token) return null;
-    return total;
-}
-
-function tokenNode(token: object) {
-    if (!('node' in token)) return undefined;
-    const node = token.node;
-    return typeof node === 'object' && node !== null ? node : undefined;
-}
-
-function samePlace(left: object, right: object) {
-    const leftNode = tokenNode(left);
-    const rightNode = tokenNode(right);
-    if (leftNode === undefined && rightNode === undefined) return true;
-    return leftNode !== undefined && leftNode === rightNode;
-}
-
-function pieceOf(token: string, previous: string | undefined): Piece | null {
-    const clock = /^(\d{1,2}):(\d{2})$/.exec(token);
-    if (clock) {
-        const hour = Number(clock[1]);
-        const minute = Number(clock[2]);
-        if (minute === 0 && hour >= 0 && hour <= 23) {
-            return { kind: 'int', value: hour };
-        }
-        return null;
-    }
-
-    if (/^(?:\d{1,3}(?:,\d{3})+|\d+)$/.test(token)) {
-        const value = Number(token.replaceAll(',', ''));
-        if (Number.isSafeInteger(value)) return { kind: 'int', value };
-        return null;
-    }
-
-    const small = lookup(SMALL, token);
-    if (small !== undefined) return { kind: 'small', value: small };
-    const tens = lookup(TENS, token);
-    if (tens !== undefined) return { kind: 'tens', value: tens };
-    const scale = lookup(SCALE, token);
-    if (scale !== undefined) return { kind: 'scale', value: scale };
-
-    const roman = romanValue(token);
-    if (roman === null) return null;
-    const spelledOut =
-        previous === 'part' ||
-        previous === 'chapter' ||
-        previous === 'book' ||
-        previous === 'volume' ||
-        previous === 'act' ||
-        previous === 'scene';
-    if (token.length === 1 && !spelledOut) return null;
-    return { kind: 'int', value: roman };
-}
-
-function applyPiece(
-    piece: Piece,
-    total: number,
-    current: number,
-): { total: number; current: number } | null {
-    switch (piece.kind) {
-        case 'scale': {
-            const base = current === 0 ? 1 : current;
-            if (piece.value >= 1000) {
-                return { total: total + base * piece.value, current: 0 };
-            }
-            return { total, current: base * piece.value };
-        }
-        case 'small': {
-            if (current % 10 !== 0) return null;
-            return { total, current: current + piece.value };
-        }
-        case 'tens': {
-            if (current % 100 !== 0) return null;
-            return { total, current: current + piece.value };
-        }
-        case 'int': {
-            if (current !== 0) return null;
-            return { total, current: piece.value };
-        }
-        default: {
-            const unreachable: never = piece;
-            return unreachable;
-        }
-    }
-}
-
-function takeNumber<T extends Timed>(tokens: T[], start: number) {
-    const first = tokens[start];
-    if (!first) return null;
+function takeNumberPhrase<T extends { norm: string }>(
+    tokens: T[],
+    start: number,
+): Phrase | null {
     let total = 0;
     let current = 0;
     let seen = false;
     let index = start;
 
-    while (index < tokens.length && index < start + 8) {
-        const token = tokens[index];
-        if (!token) break;
-        if (index > start && !samePlace(first, token)) break;
-        const word = token.norm;
-        const next = tokens[index + 1];
+    while (index < tokens.length && index - start < 8) {
+        const word = tokens[index]?.norm;
+        if (!word) break;
+        const next = tokens[index + 1]?.norm;
+
         if (
             (word === 'a' || word === 'an') &&
             !seen &&
-            next &&
-            samePlace(token, next) &&
-            lookup(SCALE, next.norm) !== undefined
+            next !== undefined &&
+            namedValue(SCALE_WORDS, next) !== undefined
         ) {
             current = 1;
             seen = true;
             index += 1;
             continue;
         }
-        if (word === 'and' && seen && next && samePlace(token, next)) {
-            const followed = pieceOf(next.norm, undefined);
-            if (
-                followed &&
-                (followed.kind === 'small' ||
-                    followed.kind === 'tens' ||
-                    followed.kind === 'scale')
-            ) {
-                index += 1;
-                continue;
-            }
+        if (
+            word === 'and' &&
+            seen &&
+            next !== undefined &&
+            canAppend(next, current)
+        ) {
+            index += 1;
+            continue;
         }
 
-        const piece = pieceOf(
-            word,
-            index === start ? tokens[start - 1]?.norm : undefined,
-        );
-        if (!piece) break;
-        const applied = applyPiece(piece, total, current);
-        if (!applied) break;
-        total = applied.total;
-        current = applied.current;
+        const scale = namedValue(SCALE_WORDS, word);
+        if (scale !== undefined) {
+            if (current === 0 && total !== 0) break;
+            const base = current === 0 ? 1 : current;
+            if (base >= scale) break;
+            if (scale >= 1000) {
+                total += base * scale;
+                current = 0;
+            } else {
+                current = base * scale;
+            }
+            seen = true;
+            index += 1;
+            continue;
+        }
+
+        const tens = namedValue(TENS_WORDS, word);
+        if (tens !== undefined) {
+            if (current % 100 !== 0) break;
+            current += tens;
+            seen = true;
+            index += 1;
+            continue;
+        }
+
+        const small = namedValue(SMALL_WORDS, word);
+        if (small !== undefined) {
+            if (current % 10 !== 0) break;
+            current += small;
+            seen = true;
+            index += 1;
+            continue;
+        }
+
+        const value = numberValue(word);
+        if (value === null || seen) break;
+        current = value;
         seen = true;
         index += 1;
     }
@@ -309,122 +300,184 @@ function takeNumber<T extends Timed>(tokens: T[], start: number) {
     return { value: total + current, count: index - start };
 }
 
-function foldNumbers<T extends Timed>(tokens: T[]): T[] {
-    const folded: T[] = [];
-    let index = 0;
-    while (index < tokens.length) {
-        const taken = takeNumber(tokens, index);
-        const first = tokens[index];
-        if (!taken || !first) {
-            if (first) folded.push(first);
-            index += 1;
-            continue;
-        }
-        const last = tokens[index + taken.count - 1] ?? first;
-        const norm = String(taken.value);
-        if (taken.count === 1 && norm === first.norm) folded.push(first);
-        else folded.push({ ...first, norm, end: last.end });
-        index += taken.count;
+function matchStep<T extends { norm: string }>(
+    spoken: T[],
+    spokenIndex: number,
+    article: T[],
+    articleIndex: number,
+): Step | null {
+    const spokenPhrase = takeNumberPhrase(spoken, spokenIndex);
+    const articlePhrase = takeNumberPhrase(article, articleIndex);
+    if (
+        spokenPhrase &&
+        articlePhrase &&
+        spokenPhrase.value === articlePhrase.value &&
+        spokenPhrase.count !== articlePhrase.count &&
+        spokenPhrase.count > 0 &&
+        articlePhrase.count > 0
+    ) {
+        return {
+            spokenCount: spokenPhrase.count,
+            articleCount: articlePhrase.count,
+        };
     }
-    return folded;
+    if (tokensEqual(spoken[spokenIndex]?.norm, article[articleIndex]?.norm)) {
+        return { spokenCount: 1, articleCount: 1 };
+    }
+    return null;
 }
 
-function matchLength<T extends { norm: string }>(
-    spoken: { norm: string }[],
+function matchAhead<T extends { norm: string }>(
+    spoken: T[],
     spokenIndex: number,
     article: T[],
     start: number,
 ) {
-    const remaining = spoken.length - spokenIndex;
-    let length = 0;
-    while (
-        length < remaining &&
-        start + length < article.length &&
-        article[start + length]?.norm === spoken[spokenIndex + length]?.norm
-    ) {
-        length += 1;
+    const steps: Step[] = [];
+    let spokenCursor = spokenIndex;
+    let articleCursor = start;
+    while (spokenCursor < spoken.length && articleCursor < article.length) {
+        const step = matchStep(spoken, spokenCursor, article, articleCursor);
+        if (!step) break;
+        steps.push(step);
+        spokenCursor += step.spokenCount;
+        articleCursor += step.articleCount;
     }
-    return length;
+    return {
+        spokenLength: spokenCursor - spokenIndex,
+        articleLength: articleCursor - start,
+        steps,
+    };
 }
+
+type Run = {
+    spokenLength: number;
+    articleLength: number;
+    at: number;
+    steps: Step[];
+};
 
 function bestRun<T extends { norm: string }>(
     spoken: SpokenToken[],
     spokenIndex: number,
     article: T[],
     cursor: number,
-): { length: number; at: number } {
+): Run {
+    const empty: Run = {
+        spokenLength: 0,
+        articleLength: 0,
+        at: -1,
+        steps: [],
+    };
     const remaining = spoken.length - spokenIndex;
-    if (remaining <= 0) return { length: 0, at: -1 };
+    if (remaining <= 0) return empty;
 
-    let nearLength = 0;
-    let nearAt = -1;
-    let farLength = 0;
-    let farAt = -1;
+    let near = empty;
+    let far = empty;
     const last = Math.min(article.length, cursor + FAR);
-
     for (let start = cursor; start < last; start += 1) {
-        const length = matchLength(spoken, spokenIndex, article, start);
-        if (length === 0) continue;
+        const match = matchAhead(spoken, spokenIndex, article, start);
+        if (match.spokenLength === 0) continue;
+        const run: Run = { ...match, at: start };
         const distance = start - cursor;
         if (distance < NEAR) {
-            if (length > nearLength) {
-                nearLength = length;
-                nearAt = start;
-                if (length === remaining) break;
+            if (match.spokenLength > near.spokenLength) {
+                near = run;
+                if (match.spokenLength === remaining) break;
             }
-        } else if (length >= FAR_MIN && length > farLength) {
-            farLength = length;
-            farAt = start;
-            if (length === remaining) break;
+        } else if (
+            match.spokenLength >= FAR_MIN &&
+            match.spokenLength > far.spokenLength
+        ) {
+            far = run;
+            if (match.spokenLength === remaining) break;
         }
     }
 
-    if (farLength > nearLength) return { length: farLength, at: farAt };
-    if (nearLength === 0) return { length: 0, at: -1 };
-    return { length: nearLength, at: nearAt };
+    if (far.spokenLength > near.spokenLength) return far;
+    if (near.spokenLength === 0) return empty;
+    return near;
 }
 
-// Walk the spoken words in order. A later stretch of the article is used only
-// when it is still close and matches a longer run, so a heading, a note, or a
-// word the page leaves out can sit in between. A copy of the same word further
-// down the page does not take the cursor. A spoken word the page never prints
-// is dropped when skipping it lines the rest up.
-export function alignSpokenWords<T extends Timed>(
+function placeTimes<T extends { norm: string }>(
+    spoken: SpokenToken[],
+    article: T[],
+    step: Step,
+): AlignedToken<T>[] {
+    const first = spoken[0];
+    const last = spoken[spoken.length - 1];
+    if (!first || !last) return [];
+    if (step.spokenCount === step.articleCount) {
+        return article.flatMap((match, index) => {
+            const token = spoken[index];
+            if (!token) return [];
+            return [{ ...match, timeStart: token.start, timeEnd: token.end }];
+        });
+    }
+    if (article.length === 1) {
+        const match = article[0];
+        if (!match) return [];
+        return [{ ...match, timeStart: first.start, timeEnd: last.end }];
+    }
+    const span = last.end - first.start;
+    const slice = span / article.length;
+    return article.map((match, index) => ({
+        ...match,
+        timeStart: first.start + slice * index,
+        timeEnd: first.start + slice * (index + 1),
+    }));
+}
+
+// Walk the spoken words in order. A later stretch is used only when it is
+// still close and matches more of what is about to be said, so a heading or a
+// word the page leaves out can sit in between. A copy further down the page
+// does not take the cursor. The matched article tokens keep their printed
+// text. A spoken word the page never prints is dropped when skipping it lines
+// the rest up.
+export function alignSpokenWords<T extends { norm: string }>(
     spoken: SpokenToken[],
     article: T[],
 ): AlignedToken<T>[] {
-    const said = foldNumbers(spoken);
-    const page = foldNumbers(article);
     const aligned: AlignedToken<T>[] = [];
     let spokenIndex = 0;
     let cursor = 0;
 
-    while (spokenIndex < said.length && cursor <= page.length) {
-        const run = bestRun(said, spokenIndex, page, cursor);
-        const withoutThisWord = bestRun(said, spokenIndex + 1, page, cursor);
-        if (withoutThisWord.length > run.length) {
+    while (spokenIndex < spoken.length && cursor <= article.length) {
+        const run = bestRun(spoken, spokenIndex, article, cursor);
+        const withoutThisWord = bestRun(
+            spoken,
+            spokenIndex + 1,
+            article,
+            cursor,
+        );
+        if (withoutThisWord.spokenLength > run.spokenLength) {
             spokenIndex += 1;
             continue;
         }
 
-        if (run.length === 0 || run.at < 0) {
+        if (run.spokenLength === 0 || run.at < 0) {
             spokenIndex += 1;
             continue;
         }
 
-        for (let offset = 0; offset < run.length; offset += 1) {
-            const match = page[run.at + offset];
-            const token = said[spokenIndex + offset];
-            if (!match || !token) continue;
-            aligned.push({
-                ...match,
-                timeStart: token.start,
-                timeEnd: token.end,
-            });
+        let spokenOffset = 0;
+        let articleOffset = 0;
+        for (const step of run.steps) {
+            const spokenSlice = spoken.slice(
+                spokenIndex + spokenOffset,
+                spokenIndex + spokenOffset + step.spokenCount,
+            );
+            const articleSlice = article.slice(
+                run.at + articleOffset,
+                run.at + articleOffset + step.articleCount,
+            );
+            aligned.push(...placeTimes(spokenSlice, articleSlice, step));
+            spokenOffset += step.spokenCount;
+            articleOffset += step.articleCount;
         }
 
-        spokenIndex += run.length;
-        cursor = run.at + run.length;
+        spokenIndex += run.spokenLength;
+        cursor = run.at + run.articleLength;
     }
 
     return aligned;
