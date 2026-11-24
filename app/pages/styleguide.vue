@@ -418,7 +418,9 @@ onMounted(() => {
                 player via <code>showTitle: false</code>),
                 <code>audioDownload: true</code> for the link, and
                 <code>audioVtt</code> for a WebVTT file or a transcript JSON
-                that highlights the article as it plays. Optional
+                that highlights the article as it plays.
+                <code>audioDuration</code> (seconds) shows the timeline length
+                without fetching the file. Optional
                 <code>logo</code> (square) and <code>banner</code> (wide) set
                 the share-card image and the artwork on the lock-screen media
                 player. <code>bannerAlign</code> crops that header image:

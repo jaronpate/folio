@@ -83,6 +83,7 @@ useHead({
                     sticky
                     :show-title="false"
                     :src="page.audio"
+                    :duration-seconds="page.audioDuration"
                     :vtt="page.audioVtt"
                     :title="page.audioTitle || page.title"
                     :download="page.audioDownload"
