@@ -413,9 +413,11 @@ onMounted(() => {
             <AudioPlayer src="/audio/styleguide.wav" />
             <p>
                 On a post, put the file path in <code>audio</code> and it sits
-                under the description. Add <code>audioTitle</code> for the
-                lock-screen / Now Playing name (posts hide that label in the
-                player via <code>showTitle: false</code>),
+                under the description. Scroll past it and the same player slides
+                up from the bottom of the screen. Add
+                <code>audioTitle</code> for the lock-screen / Now Playing name
+                (posts hide that label in the player via
+                <code>showTitle: false</code>),
                 <code>audioDownload: true</code> for the link, and
                 <code>audioVtt</code> for a WebVTT file or a transcript JSON
                 that highlights the article as it plays. Optional

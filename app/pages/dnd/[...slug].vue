@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { formatContentDate } from '~/utils/dates';
 import { openGraphAudioMeta } from '~/utils/openGraphAudio';
-import {
-    postArtwork,
-    postOgImage,
-    postTwitterCard,
-} from '~/utils/postMedia';
+import { postArtwork, postOgImage, postTwitterCard } from '~/utils/postMedia';
 import { DEFAULT_IMAGE, SITE_URL } from '~/utils/site';
 
 const route = useRoute();
@@ -80,7 +76,7 @@ useHead({
                 </p>
                 <AudioPlayer
                     v-if="page.audio"
-                    sticky
+                    dock
                     :show-title="false"
                     :src="page.audio"
                     :vtt="page.audioVtt"
