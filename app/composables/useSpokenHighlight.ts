@@ -1,13 +1,16 @@
 import {
     alignSpokenWords,
     collectArticleTokens,
+    realignAfterEdit,
     type AlignedToken,
     type ArticleToken,
     type SpokenToken,
 } from '~/utils/spokenAlign';
 import { spokenTokensFromTrack } from '~/utils/vtt';
 
-type PlacedWord = AlignedToken<ArticleToken> & {
+type PageToken = ArticleToken & { index: number };
+
+type PlacedWord = AlignedToken<PageToken> & {
     span: HTMLElement | null;
 };
 
@@ -102,6 +105,21 @@ function inView(range: Range) {
     );
 }
 
+function onScreen(range: Range) {
+    const rect = range.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return false;
+    return rect.bottom > 0 && rect.top < window.innerHeight;
+}
+
+// A rematch in another section, not the next line slipping under the fold.
+function movedFar(range: Range) {
+    const rect = range.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return false;
+    if (rect.height > window.innerHeight * 0.9) return true;
+    const slack = window.innerHeight * 0.85;
+    return rect.bottom < -slack || rect.top > window.innerHeight + slack;
+}
+
 function reveal(range: Range) {
     const rect = range.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) return false;
@@ -146,6 +164,7 @@ export function useSpokenHighlight(options: {
     seekTo: (time: number) => void;
 }) {
     let placed: PlacedWord[] = [];
+    let articleTokens: PageToken[] = [];
     let placedSpoken: SpokenToken[] = [];
     let root: HTMLElement | null = null;
     let titleEl: HTMLElement | null = null;
@@ -155,12 +174,17 @@ export function useSpokenHighlight(options: {
     let loadId = 0;
     let activeKey = '';
     let follow = true;
+    let resumeWhenSeen = false;
+    let anchoredTime = -1;
+    let anchoredTop = -1;
     let scrollLock = 0;
     let shown: Range | null = null;
     let ownsHighlight = false;
     let paintedBlocks = new Set<HTMLElement>();
     let retried = false;
-    let rebuilding = false;
+    let settling = false;
+    let settleTimer = 0;
+    let shortPasses = 0;
     const useRanges = supportsHighlight();
 
     function covering(time: number) {
@@ -272,9 +296,18 @@ export function useSpokenHighlight(options: {
     }
 
     function paint(time: number, canFollow: boolean) {
+        // The article text is mid-update. The old ranges are stale, and a fresh
+        // search would walk the page. Wait until the edit settles.
+        if (settling) return;
         const indexes = covering(time);
         const key = indexes.join(',');
-        if (key === activeKey) return;
+        if (key === activeKey) {
+            if (resumeWhenSeen && shown && onScreen(shown)) {
+                follow = true;
+                resumeWhenSeen = false;
+            }
+            return;
+        }
         activeKey = key;
         const painted = useRanges ? paintRanges(indexes) : true;
         if (!painted) {
@@ -286,24 +319,75 @@ export function useSpokenHighlight(options: {
         }
         retried = false;
         if (!useRanges) paintSpans(indexes);
+        if (resumeWhenSeen && shown && onScreen(shown)) {
+            follow = true;
+            resumeWhenSeen = false;
+        }
         if (!canFollow || !follow || !shown) return;
+        // The next word is a long way down the page, but the audio barely
+        // moved. That is a bad rematch, not the reader advancing.
+        if (jumpedAway(shown, time)) {
+            follow = false;
+            resumeWhenSeen = true;
+            return;
+        }
         if (reveal(shown)) scrollLock = performance.now() + 700;
+        rememberAnchor(shown, time);
+    }
+
+    function jumpedAway(range: Range, time: number) {
+        if (anchoredTop < 0 || anchoredTime < 0) return false;
+        if (Math.abs(time - anchoredTime) > 3) return false;
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return false;
+        const top = rect.top + window.scrollY;
+        return Math.abs(top - anchoredTop) > window.innerHeight * 0.9;
+    }
+
+    function rememberAnchor(range: Range, time: number) {
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
+        anchoredTime = time;
+        anchoredTop = rect.top + window.scrollY;
     }
 
     function queueRebuild() {
-        if (rebuilding) return;
-        rebuilding = true;
-        queueMicrotask(() => {
-            rebuilding = false;
+        // Coalesce a burst of edits so alignment runs once, against the text
+        // that was on screen before the burst, not each intermediate patch.
+        settling = true;
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(() => {
+            settleTimer = 0;
+            settling = false;
             if (root) rebuild(root);
-        });
+        }, 64);
     }
 
     function rebuild(host: HTMLElement) {
         observer?.disconnect();
         if (!useRanges) unwrap(host);
         const spoken = placedSpoken;
-        placed = alignSpokenWords(spoken, spokenPageTokens(host))
+        const nextTokens = spokenPageTokens(host).map((token, index) => ({
+            ...token,
+            index,
+        }));
+        const hadPlacement = placed.length > 0 && articleTokens.length > 0;
+        if (
+            hadPlacement &&
+            nextTokens.length * 2 < articleTokens.length &&
+            shortPasses < 4
+        ) {
+            shortPasses += 1;
+            observe(host);
+            queueRebuild();
+            return;
+        }
+        shortPasses = 0;
+        const aligned = hadPlacement
+            ? realignAfterEdit(spoken, articleTokens, nextTokens, placed)
+            : alignSpokenWords(spoken, nextTokens);
+        articleTokens = nextTokens;
+        placed = aligned
             .map((word) => ({ ...word, span: null }))
             .sort(
                 (left, right) =>
@@ -313,9 +397,17 @@ export function useSpokenHighlight(options: {
         activeKey = '';
         shown = null;
         if (!useRanges) wrapAll();
-        observe(host);
         const time = options.audio.value?.currentTime ?? options.current.value;
         paint(time, false);
+        // The edited text no longer matches here, and the new hit is in some
+        // other part of the page. Keep the viewport still instead of chasing it.
+        if (hadPlacement && follow && shown && movedFar(shown)) {
+            window.scrollTo({ top: window.scrollY, behavior: 'auto' });
+            follow = false;
+            resumeWhenSeen = true;
+            scrollLock = 0;
+        }
+        observe(host);
     }
 
     function observe(host: HTMLElement) {
@@ -395,6 +487,7 @@ export function useSpokenHighlight(options: {
         if (performance.now() < scrollLock) return;
         if (!shown) return;
         follow = inView(shown);
+        if (follow) resumeWhenSeen = false;
     }
 
     function spokenPageTokens(host: HTMLElement) {
@@ -448,6 +541,10 @@ export function useSpokenHighlight(options: {
 
     function clear() {
         stopLoop();
+        window.clearTimeout(settleTimer);
+        settleTimer = 0;
+        settling = false;
+        shortPasses = 0;
         abort?.abort();
         abort = null;
         observer?.disconnect();
@@ -456,11 +553,15 @@ export function useSpokenHighlight(options: {
         if (root && !useRanges) unwrap(root);
         clearHighlight();
         placed = [];
+        articleTokens = [];
         placedSpoken = [];
         root = null;
         activeKey = '';
         shown = null;
         follow = true;
+        resumeWhenSeen = false;
+        anchoredTime = -1;
+        anchoredTop = -1;
     }
 
     function apply(spoken: SpokenToken[], host: HTMLElement) {
@@ -503,6 +604,9 @@ export function useSpokenHighlight(options: {
         if (!import.meta.client) return;
         if (isPlaying) {
             follow = true;
+            resumeWhenSeen = false;
+            anchoredTime = -1;
+            anchoredTop = -1;
             activeKey = '';
             loop();
             return;

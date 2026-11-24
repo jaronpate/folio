@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { alignSpokenWords, tokensIn } from '../app/utils/spokenAlign.ts';
+import {
+    alignSpokenWords,
+    realignAfterEdit,
+    tokensIn,
+} from '../app/utils/spokenAlign.ts';
 import {
     parseVtt,
     spokenTokens,
@@ -214,5 +218,98 @@ alpha beta gamma delta
             'delta',
         ]);
         expect(aligned[0]?.start).toBeGreaterThan(0);
+    });
+
+    test('does not chase a short repeated phrase to the end of the page', () => {
+        const article = tokensIn(
+            `a modest hunt for wolf pups. ${'filler '.repeat(80)} of the adventurers of fornost`,
+        );
+        const spoken = spokenTokens(
+            parseVtt(`WEBVTT
+
+00:00:00.000 --> 00:00:01.000
+a chronicle of the adventurers of fornost there
+`),
+        );
+        const aligned = alignSpokenWords(spoken, article);
+        const adventurers = aligned.find(
+            (token) => token.norm === 'adventurers',
+        );
+        expect(adventurers).toBeUndefined();
+        expect(aligned[0]?.norm).toBe('a');
+        expect(aligned[0]?.start).toBe(0);
+    });
+});
+
+function located(text: string) {
+    return tokensIn(text).map((token, index) => ({ ...token, index }));
+}
+
+function spokenFrom(text: string) {
+    return tokensIn(text).map((token, index) => ({
+        norm: token.norm,
+        start: index / 10,
+        end: (index + 1) / 10,
+    }));
+}
+
+describe('realignAfterEdit', () => {
+    test('keeps the playhead off a later copy when an earlier phrase changes', () => {
+        const beforeText =
+            'the cat sat on the mat and then the cat sat on the mat again later';
+        const afterText =
+            'the dog sat on the mat and then the cat sat on the mat again later';
+        const spoken = spokenFrom(beforeText);
+        const before = located(beforeText);
+        const after = located(afterText);
+        const first = alignSpokenWords(spoken, before);
+        const fresh = alignSpokenWords(spoken, after);
+        const kept = realignAfterEdit(spoken, before, after, first);
+
+        expect(fresh[0]?.index).toBeGreaterThan(0);
+        expect(kept[0]?.index).toBe(0);
+        const firstAgain = first.find((token) => token.norm === 'again');
+        const keptAgain = kept.find((token) => token.norm === 'again');
+        expect(keptAgain?.index).toBe(firstAgain?.index);
+        expect(keptAgain?.timeStart).toBe(firstAgain?.timeStart);
+        expect(kept.filter((token) => token.norm === 'cat')).toEqual([
+            expect.objectContaining({
+                index: 9,
+                timeStart: first.filter((token) => token.norm === 'cat')[1]
+                    ?.timeStart,
+            }),
+        ]);
+    });
+
+    test('keeps the middle when two separate spots change', () => {
+        const beforeText = 'alpha beta one two three four gamma delta';
+        const afterText = 'alpha zebra one two three four gamma yak';
+        const spoken = spokenFrom(beforeText);
+        const before = located(beforeText);
+        const after = located(afterText);
+        const first = alignSpokenWords(spoken, before);
+        const kept = realignAfterEdit(spoken, before, after, first);
+        const three = kept.find((token) => token.norm === 'three');
+        expect(three?.index).toBe(4);
+        expect(three?.timeStart).toBe(
+            first.find((token) => token.norm === 'three')?.timeStart,
+        );
+        expect(kept.some((token) => token.norm === 'zebra')).toBe(false);
+        expect(kept.some((token) => token.norm === 'yak')).toBe(false);
+    });
+
+    test('shifts the tail when words are inserted ahead of it', () => {
+        const beforeText = 'one two three four';
+        const afterText = 'one two inserted extra three four';
+        const spoken = spokenFrom(beforeText);
+        const before = located(beforeText);
+        const after = located(afterText);
+        const first = alignSpokenWords(spoken, before);
+        const kept = realignAfterEdit(spoken, before, after, first);
+        expect(kept.find((token) => token.norm === 'three')).toMatchObject({
+            index: 4,
+            timeStart: first.find((token) => token.norm === 'three')?.timeStart,
+        });
+        expect(kept.find((token) => token.norm === 'four')?.index).toBe(5);
     });
 });
