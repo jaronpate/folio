@@ -8,9 +8,29 @@ const { data: pages } = await useAsyncData('dnd-pages', async () => {
 });
 
 const featured = computed(() => pages.value?.[0] ?? null);
-const shareImage = computed(() =>
-    postOgImage(featured.value, DEFAULT_IMAGE),
-);
+const shareImage = computed(() => postOgImage(featured.value, DEFAULT_IMAGE));
+
+const hoveredPath = ref<string | null>(null);
+
+const banners = computed(() => {
+    const slides: { id: string; src: string; align: string | null }[] = [];
+    for (const page of pages.value ?? []) {
+        const src = page.banner?.trim();
+        if (!src) continue;
+        slides.push({
+            id: page.path,
+            src,
+            align: page.bannerAlign ?? null,
+        });
+    }
+    return slides;
+});
+
+const activeBannerId = computed(() => {
+    if (!hoveredPath.value) return null;
+    const match = banners.value.find((slide) => slide.id === hoveredPath.value);
+    return match?.id ?? null;
+});
 
 const sectionUrl = `${SITE_URL}/dnd`;
 const sectionTitle = 'D&D';
@@ -43,12 +63,17 @@ useHead({
         name="main"
         :title="sectionTitle"
         :description="sectionDescription"
-        :banner="featured?.banner"
-        :banner-align="featured?.bannerAlign"
+        :banners="banners"
+        :active-banner-id="activeBannerId"
         :forced-theme="featured?.theme"
     >
         <article>
-            <WritingList base="/dnd" :pages="pages ?? []" />
+            <WritingList
+                base="/dnd"
+                banner-hover
+                :pages="pages ?? []"
+                @hover="hoveredPath = $event"
+            />
         </article>
     </NuxtLayout>
 </template>

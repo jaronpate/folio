@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { bannerAlignOf } from '~/utils/banner';
+import { bannerAlignOf, type HeroBannerSlide } from '~/utils/banner';
 import { FORCED_THEME_ATTR, isBgThemeId } from '~/utils/themes';
 
 const props = defineProps<{
@@ -11,7 +11,18 @@ const props = defineProps<{
     banner?: string | null;
     /** Crop of the banner. Defaults to center. */
     bannerAlign?: string | null;
+    /**
+     * Header images that crossfade. The first slide is shown until
+     * `activeBannerId` points at another loaded slide.
+     */
+    banners?: HeroBannerSlide[] | null;
+    /** Slide id to fade in. Empty keeps the first slide. */
+    activeBannerId?: string | null;
 }>();
+
+const bannerSlides = computed(() =>
+    (props.banners ?? []).filter((slide) => slide.src.trim()),
+);
 
 const { id, themes, setTheme, setForcedTheme } = useBgTheme();
 
@@ -55,9 +66,18 @@ const onFontChange = (event: Event) => {
     <div class="site">
         <header
             class="hero"
-            :class="{ 'hero--custom-bg': Boolean(banner?.trim()) }"
-            :style="heroStyle"
+            :class="{
+                'hero--custom-bg':
+                    !bannerSlides.length && Boolean(banner?.trim()),
+                'hero--stack': bannerSlides.length > 0,
+            }"
+            :style="bannerSlides.length ? undefined : heroStyle"
         >
+            <HeroBannerStack
+                v-if="bannerSlides.length"
+                :banners="bannerSlides"
+                :active-id="activeBannerId"
+            />
             <div class="hero__inner">
                 <div class="hero__nav">
                     <NuxtLink to="/" class="wordmark" aria-label="Home">
@@ -97,7 +117,7 @@ const onFontChange = (event: Event) => {
                         </select>
                     </label> -->
                 </div>
-                <div style="flex: 1;"></div>
+                <div style="flex: 1"></div>
                 <h1 class="hero__title">{{ title }}</h1>
                 <p v-if="description" class="hero__sub">{{ description }}</p>
             </div>
@@ -191,6 +211,25 @@ const onFontChange = (event: Event) => {
             rgba(8, 14, 18, 0.58) 100%
         ),
         var(--hero-bg-image) var(--hero-bg-position, center) / cover no-repeat;
+}
+
+.hero--stack::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(8, 14, 18, 0.42) 0%,
+        rgba(8, 14, 18, 0.28) 42%,
+        rgba(8, 14, 18, 0.58) 100%
+    );
+}
+
+.hero--stack .hero__inner {
+    position: relative;
+    z-index: 2;
 }
 
 .hero__inner {

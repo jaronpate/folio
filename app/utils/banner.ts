@@ -10,8 +10,13 @@ export function isBannerAlign(
     return BANNER_ALIGNS.some((align) => align === value);
 }
 
-export function bannerAlignOf(
-    value: string | null | undefined,
-): BannerAlign {
+export function bannerAlignOf(value: string | null | undefined): BannerAlign {
     return isBannerAlign(value) ? value : DEFAULT_BANNER_ALIGN;
 }
+
+/** One header image in a stack that can crossfade. */
+export type HeroBannerSlide = {
+    id: string;
+    src: string;
+    align?: string | null;
+};
