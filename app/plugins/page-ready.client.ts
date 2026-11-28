@@ -27,10 +27,19 @@ function settleImage(img: HTMLImageElement) {
     });
 }
 
+/** Skip lazy / empty images so below-fold media cannot hold the loading veil. */
+function shouldWaitFor(img: HTMLImageElement) {
+    const src = img.currentSrc || img.getAttribute('src') || '';
+    if (!src.trim()) return false;
+    if (img.loading === 'lazy' && !img.complete) return false;
+    return true;
+}
+
 async function whenReady() {
     const tasks: Promise<unknown>[] = [loadSrc(blendSrc)];
     if (document.fonts?.ready) tasks.push(document.fonts.ready);
     for (const img of document.images) {
+        if (!shouldWaitFor(img)) continue;
         tasks.push(settleImage(img));
     }
     await Promise.race([Promise.all(tasks), sleep(MAX_WAIT_MS)]);

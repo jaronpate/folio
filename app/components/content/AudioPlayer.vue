@@ -28,6 +28,11 @@ const props = withDefaults(
         /** Keep the player on screen: slide it up from the bottom after it scrolls away. */
         dock?: boolean;
         vtt?: string;
+        /**
+         * Known length in seconds. Lets the timeline show duration without
+         * downloading audio (important when the host ignores Range requests).
+         */
+        durationSeconds?: number | null;
         /** Absolute or site-relative image for lock-screen / Now Playing. */
         artwork?: string;
     }>(),
@@ -37,6 +42,7 @@ const props = withDefaults(
         download: false,
         dock: false,
         vtt: '',
+        durationSeconds: null,
         artwork: '',
     },
 );
@@ -124,6 +130,7 @@ const slotStyle = computed(() =>
 const playing = ref(false);
 const current = ref(0);
 const duration = ref(0);
+const mediaStarted = ref(false);
 const volume = ref(1);
 const lastAudible = ref(1);
 const scrubbing = ref(false);
@@ -146,6 +153,12 @@ const seekFill = computed(() => {
     return `${ratio * 100}%`;
 });
 const volumeFill = computed(() => `${volume.value * 100}%`);
+const volumeGlyph = computed(() => {
+    if (volume.value <= 0.02) return 'off' as const;
+    if (volume.value <= 0.33) return 'min' as const;
+    if (volume.value <= 0.66) return 'low' as const;
+    return 'high' as const;
+});
 const rateLabel = computed(() => `${rate.value.toFixed(1)}x`);
 
 function formatTime(seconds: number) {
@@ -167,7 +180,16 @@ function applyRate() {
     if (audio.value) audio.value.playbackRate = rate.value;
 }
 
+function knownDuration() {
+    const value = props.durationSeconds;
+    return typeof value === 'number' && Number.isFinite(value) && value > 0
+        ? value
+        : 0;
+}
+
 function syncDuration() {
+    const known = knownDuration();
+    if (known > 0 && duration.value <= 0) duration.value = known;
     const el = audio.value;
     if (!el || !Number.isFinite(el.duration) || el.duration <= 0) return;
     duration.value = el.duration;
@@ -257,7 +279,10 @@ function onTime() {
 
 function syncMediaSession() {
     if (!import.meta.client || !('mediaSession' in navigator)) return;
-    const art = resolvedArtwork.value;
+    // Artwork URLs are fetched by the browser; wait until playback so a large
+    // logo does not compete with first paint.
+    const art =
+        mediaStarted.value || playing.value ? resolvedArtwork.value : '';
     navigator.mediaSession.metadata = new MediaMetadata({
         title: mediaTitle.value || 'Audio',
         artist: SITE_NAME,
@@ -308,6 +333,7 @@ function bindMediaSessionActions() {
 
 function onPlay() {
     playing.value = true;
+    mediaStarted.value = true;
     failed.value = false;
     const mine = audio.value;
     if (!mine) return;
@@ -456,7 +482,10 @@ function cycleRate() {
 function seekTo(time: number) {
     const el = audio.value;
     if (!el || failed.value || !Number.isFinite(time)) return;
-    const next = mediaTime(el.duration, time);
+    const next = mediaTime(
+        duration.value > 0 ? duration.value : el.duration,
+        time,
+    );
     window.clearTimeout(seekTimer);
     seekAssigned = false;
     heldSeek = next;
@@ -480,8 +509,9 @@ watch(
     () => props.src,
     () => {
         playing.value = false;
+        mediaStarted.value = false;
         current.value = 0;
-        duration.value = 0;
+        duration.value = knownDuration();
         failed.value = false;
         scrubbing.value = false;
         resumeAfterSeek.value = false;
@@ -490,9 +520,20 @@ watch(
     },
 );
 
-watch([() => props.title, resolvedArtwork], () => {
-    syncMediaSession();
-});
+watch(
+    () => props.durationSeconds,
+    () => {
+        syncDuration();
+    },
+    { immediate: true },
+);
+
+watch(
+    [() => props.title, resolvedArtwork],
+    () => {
+        syncMediaSession();
+    },
+);
 
 watch([current, duration, rate], () => {
     if (playing.value) syncMediaPosition();
@@ -667,7 +708,7 @@ onBeforeUnmount(() => {
                     ref="audio"
                     class="audio-player__media"
                     :src="resolvedSrc"
-                    preload="metadata"
+                    preload="none"
                     playsinline
                     @loadedmetadata="onLoaded"
                     @durationchange="onDuration"
@@ -799,10 +840,21 @@ onBeforeUnmount(() => {
                                 :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
                                 @click="toggleMute"
                             >
-                                <SoundOffSolid v-if="volume <= 0.02" />
-                                <SoundMinSolid v-else-if="volume <= 0.33" />
-                                <SoundLowSolid v-else-if="volume <= 0.66" />
-                                <SoundHighSolid v-else />
+                                <span
+                                    class="audio-player__volume-glyph"
+                                    :class="`audio-player__volume-glyph--${volumeGlyph}`"
+                                >
+                                    <SoundOffSolid
+                                        v-if="volumeGlyph === 'off'"
+                                    />
+                                    <SoundMinSolid
+                                        v-else-if="volumeGlyph === 'min'"
+                                    />
+                                    <SoundLowSolid
+                                        v-else-if="volumeGlyph === 'low'"
+                                    />
+                                    <SoundHighSolid v-else />
+                                </span>
                             </button>
                         </IconoirProvider>
                         <input
@@ -991,9 +1043,42 @@ onBeforeUnmount(() => {
 }
 
 .audio-player__mute {
+    /* Wide enough for the loudest waves once the speaker is centered. */
+    width: calc(32.5 / 24 * 1rem);
+    height: 1rem;
+    overflow: hidden;
     border-radius: var(--radius);
     background: transparent;
     color: var(--text);
+}
+
+.audio-player__volume-glyph {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+.audio-player__volume-glyph svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    overflow: visible;
+}
+
+/* Iconoir recenters every level, so the speaker slides as the waves
+   change. These shifts put each speaker's center on the button center.
+   Speaker center on the 24px grid: high 7.5, low/off 8.5, min 10. */
+.audio-player__volume-glyph--high svg {
+    transform: translateX(calc(4.5 / 24 * 100%));
+}
+
+.audio-player__volume-glyph--low svg,
+.audio-player__volume-glyph--off svg {
+    transform: translateX(calc(3.5 / 24 * 100%));
+}
+
+.audio-player__volume-glyph--min svg {
+    transform: translateX(calc(2 / 24 * 100%));
 }
 
 .audio-player__mute:hover {

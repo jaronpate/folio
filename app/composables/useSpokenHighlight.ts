@@ -481,11 +481,14 @@ export function useSpokenHighlight(options: {
         rebuild(host);
     }
 
+    let trackUrl = '';
+
     async function load() {
         const id = ++loadId;
         const url = toValue(options.src).trim();
         const host = options.player.value?.closest<HTMLElement>(ROOT) ?? null;
         clear();
+        trackUrl = '';
         if (!url || !host) return;
 
         const controller = new AbortController();
@@ -495,22 +498,35 @@ export function useSpokenHighlight(options: {
             if (!response.ok) return;
             const spoken = spokenTokensFromTrack(await response.text());
             if (id !== loadId) return;
+            trackUrl = url;
             apply(spoken, host);
         } catch (error) {
             if (isAbort(error)) return;
         }
     }
 
+    function ensureTrack() {
+        const url = toValue(options.src).trim();
+        if (!url || url === trackUrl) return;
+        void load();
+    }
+
     watch(
         () => toValue(options.src),
         () => {
-            if (import.meta.client) void load();
+            if (!import.meta.client) return;
+            trackUrl = '';
+            // Keep first paint light: the transcript JSON can be >1MB.
+            // Reload only if playback already needs highlighting.
+            if (options.playing.value) ensureTrack();
+            else clear();
         },
     );
 
     watch(options.playing, (isPlaying) => {
         if (!import.meta.client) return;
         if (isPlaying) {
+            ensureTrack();
             follow = true;
             activeKey = '';
             loop();
@@ -525,10 +541,6 @@ export function useSpokenHighlight(options: {
         // timeupdate is coarse, but it still moves the mark if animation
         // frames are throttled. Following the word stays on the animation loop.
         paint(time, false);
-    });
-
-    onMounted(() => {
-        void load();
     });
 
     onBeforeUnmount(() => {
