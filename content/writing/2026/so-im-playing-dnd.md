@@ -2,6 +2,7 @@
 title: So...I have been playing DnD
 date: 2026-09-10
 description: God forbid a man does little bit of roleplay and has some fun.
+hidden: true
 ---
 
 ::notice

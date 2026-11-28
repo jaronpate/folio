@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { bannerAlignOf, type HeroBannerSlide } from '~/utils/banner';
+import { applyForcedFont, FORCED_FONT_ATTR, isBodyFontId } from '~/utils/fonts';
 import { FORCED_THEME_ATTR, isBgThemeId } from '~/utils/themes';
 
 const props = defineProps<{
@@ -7,6 +8,8 @@ const props = defineProps<{
     description: string;
     /** Theme for this page. Does not replace the visitor's saved theme. */
     forcedTheme?: string | null;
+    /** Font for this page. Other pages keep the site font. */
+    forcedFont?: string | null;
     /** Wide image behind the header title. */
     banner?: string | null;
     /** Crop of the banner. Defaults to center. */
@@ -30,15 +33,26 @@ const forcedThemeId = computed(() =>
     isBgThemeId(props.forcedTheme) ? props.forcedTheme : null,
 );
 
+const forcedFontId = computed(() =>
+    isBodyFontId(props.forcedFont) ? props.forcedFont : null,
+);
+
 watch(forcedThemeId, (value) => setForcedTheme(value), { immediate: true });
+watch(
+    forcedFontId,
+    (value) => {
+        if (!import.meta.client) return;
+        applyForcedFont(document.documentElement, value);
+    },
+    { immediate: true },
+);
 
 useHead({
     htmlAttrs: {
         [FORCED_THEME_ATTR]: computed(() => forcedThemeId.value ?? undefined),
+        [FORCED_FONT_ATTR]: computed(() => forcedFontId.value ?? undefined),
     },
 });
-const { id: fontId, fonts, setFont } = useBodyFont();
-
 const heroStyle = computed(() => {
     const src = props.banner?.trim();
     if (!src) return undefined;
@@ -55,11 +69,6 @@ const onThemeChange = (event: Event) => {
     if (next) setTheme(next.id);
 };
 
-const onFontChange = (event: Event) => {
-    const value = (event.target as HTMLSelectElement).value;
-    const next = fonts.find((font) => font.id === value);
-    if (next) setFont(next.id);
-};
 </script>
 
 <template>
@@ -349,7 +358,7 @@ const onFontChange = (event: Event) => {
 
 .hero__sub {
     margin: 0.6rem 0 0;
-    font-weight: var(--body-weight);
+    font-weight: var(--sub-text-weight);
     font-style: italic;
     font-size: 1.05rem;
     color: rgba(251, 251, 247, 0.88);
@@ -377,10 +386,9 @@ const onFontChange = (event: Event) => {
     align-items: baseline;
     gap: 1rem;
     width: var(--col);
-    margin-top: 2rem;
     margin-left: var(--col-left);
     margin-right: auto;
-    padding: calc(var(--flare-spread) + 0.45rem) 0 0.85rem;
+    padding: calc(var(--flare-spread) + 1rem) 0;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--muted);

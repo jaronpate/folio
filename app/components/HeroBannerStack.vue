@@ -7,17 +7,23 @@ const props = defineProps<{
     activeId?: string | null;
 }>();
 
-const FADE_MS = 650;
+const FADE_MS = 600;
 
 const live = ref(false);
 const loaded = ref<Record<string, true>>({});
 const queued = ref<Record<string, true>>({});
-const visibleId = ref<string | null>(null);
-const underId = ref<string | null>(null);
+/** Opaque slide underneath a fade. The page never shows through it. */
+const settledId = ref<string | null>(null);
 
 const defaultId = computed(() => props.banners[0]?.id ?? null);
 
-let fadeTimer = 0;
+const imageEls = new Map<string, HTMLImageElement>();
+
+/** Slide on screen, including one whose fade has not finished. */
+let targetId: string | null = null;
+let generation = 0;
+let zCounter = 1;
+let safetyTimer = 0;
 let idleId = 0;
 let preloadTimer = 0;
 let preloadCancelled = false;
@@ -27,26 +33,137 @@ function queue(id: string | null | undefined) {
     queued.value = { ...queued.value, [id]: true };
 }
 
+function reduceMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function opacityOf(el: HTMLImageElement) {
+    const value = Number.parseFloat(window.getComputedStyle(el).opacity);
+    return Number.isFinite(value) ? value : 0;
+}
+
+/** Lock the painted opacity. Cancelling a fade must not snap it to 0 or 1. */
+function stop(el: HTMLImageElement, opacity: number) {
+    el.style.opacity = String(opacity);
+    for (const animation of el.getAnimations()) animation.cancel();
+    el.style.opacity = String(opacity);
+}
+
+function hide(el: HTMLImageElement) {
+    stop(el, 0);
+    el.style.zIndex = '0';
+}
+
+function playTo(
+    el: HTMLImageElement,
+    to: number,
+    from: number,
+    gen: number,
+): Promise<void> {
+    stop(el, from);
+    if (reduceMotion() || Math.abs(from - to) < 0.015) {
+        el.style.opacity = String(to);
+        return Promise.resolve();
+    }
+
+    const animation = el.animate([{ opacity: from }, { opacity: to }], {
+        duration: FADE_MS,
+        easing: 'ease',
+        fill: 'forwards',
+    });
+
+    return animation.finished.then(
+        () => {
+            if (gen !== generation) return;
+            stop(el, to);
+        },
+        () => {},
+    );
+}
+
+function finish(id: string, gen: number) {
+    if (gen !== generation) return;
+    const el = imageEls.get(id);
+    if (!el) return;
+    window.clearTimeout(safetyTimer);
+    zCounter = 1;
+    stop(el, 1);
+    el.style.zIndex = '1';
+    for (const [imgId, other] of imageEls) {
+        if (imgId !== id) hide(other);
+    }
+    settledId.value = id;
+}
+
+function scheduleFinish(id: string, gen: number, pending: Promise<void>) {
+    window.clearTimeout(safetyTimer);
+    const done = () => finish(id, gen);
+    void pending.then(done);
+    safetyTimer = window.setTimeout(done, FADE_MS + 120);
+}
+
 function show(id: string) {
-    if (visibleId.value === id) return;
-    const previous = visibleId.value;
-    visibleId.value = id;
-    if (!previous || !live.value || !import.meta.client) {
-        underId.value = null;
+    if (!import.meta.client || !live.value) {
+        settledId.value = id;
+        targetId = id;
         return;
     }
-    const reduceMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-    ).matches;
-    if (reduceMotion) {
-        underId.value = null;
+    if (targetId === id) return;
+
+    const incoming = imageEls.get(id);
+    if (!incoming) return;
+
+    const gen = ++generation;
+    targetId = id;
+    window.clearTimeout(safetyTimer);
+
+    // Read every opacity before writing. A fast hover used to cancel the
+    // in-flight fade and snap that image to fully opaque, so the next
+    // slide — already the solid underlay — had nothing to animate.
+    const snapshot = new Map<string, number>();
+    for (const [imgId, el] of imageEls) snapshot.set(imgId, opacityOf(el));
+    const incomingOpacity = snapshot.get(id) ?? 0;
+
+    const overlays: { el: HTMLImageElement; opacity: number }[] = [];
+    for (const [imgId, el] of imageEls) {
+        if (imgId === id) continue;
+        const opacity = snapshot.get(imgId) ?? 0;
+        if (opacity < 0.02) {
+            hide(el);
+            continue;
+        }
+        const held = opacity >= 0.995 ? 1 : opacity;
+        stop(el, held);
+        overlays.push({ el, opacity: held });
+    }
+
+    if (overlays.length === 0) {
+        stop(incoming, 1);
+        incoming.style.zIndex = '1';
+        settledId.value = id;
         return;
     }
-    underId.value = previous;
-    window.clearTimeout(fadeTimer);
-    fadeTimer = window.setTimeout(() => {
-        if (visibleId.value === id) underId.value = null;
-    }, FADE_MS);
+
+    // The requested slide is already the solid image under the fade.
+    // Dissolve what's on top of it instead of fading it in from black.
+    if (incomingOpacity >= 0.995) {
+        stop(incoming, 1);
+        incoming.style.zIndex = '1';
+        const fades = overlays.map((overlay) => {
+            overlay.el.style.zIndex = String(++zCounter);
+            return playTo(overlay.el, 0, overlay.opacity, gen);
+        });
+        scheduleFinish(
+            id,
+            gen,
+            Promise.all(fades).then(() => {}),
+        );
+        return;
+    }
+
+    incoming.style.zIndex = String(++zCounter);
+    const from = incomingOpacity < 0.02 ? 0 : incomingOpacity;
+    scheduleFinish(id, gen, playTo(incoming, 1, from, gen));
 }
 
 function revealIfReady() {
@@ -63,7 +180,7 @@ watch(
         if (!fallback) return;
         queue(fallback);
         queue(props.activeId || fallback);
-        if (!visibleId.value) visibleId.value = fallback;
+        if (!settledId.value) settledId.value = fallback;
         revealIfReady();
     },
     { immediate: true },
@@ -77,7 +194,12 @@ function markLoaded(id: string) {
 }
 
 function bindImage(id: string, element: unknown) {
-    if (!(element instanceof HTMLImageElement)) return;
+    if (!(element instanceof HTMLImageElement)) {
+        const current = imageEls.get(id);
+        if (current && !current.isConnected) imageEls.delete(id);
+        return;
+    }
+    imageEls.set(id, element);
     if (element.complete && element.naturalWidth > 0) markLoaded(id);
 }
 
@@ -107,32 +229,37 @@ function preloadRest() {
 }
 
 onMounted(() => {
+    const el = settledId.value ? imageEls.get(settledId.value) : undefined;
+    if (el) {
+        el.style.opacity = '1';
+        el.style.zIndex = '1';
+    }
     live.value = true;
     preloadRest();
 });
 
 onBeforeUnmount(() => {
     preloadCancelled = true;
-    window.clearTimeout(fadeTimer);
+    generation += 1;
+    window.clearTimeout(safetyTimer);
     window.clearTimeout(preloadTimer);
     if (idleId && 'cancelIdleCallback' in window) {
         window.cancelIdleCallback(idleId);
+    }
+    for (const el of imageEls.values()) {
+        for (const animation of el.getAnimations()) animation.cancel();
     }
 });
 </script>
 
 <template>
-    <div class="hero-banners" :class="{ 'is-live': live }" aria-hidden="true">
+    <div class="hero-banners" aria-hidden="true">
         <template v-for="banner in banners" :key="banner.id">
             <img
                 v-if="queued[banner.id]"
                 :ref="(element) => bindImage(banner.id, element)"
                 class="hero-banners__image"
-                :class="{
-                    'is-visible': banner.id === visibleId,
-                    'is-under':
-                        banner.id === underId && banner.id !== visibleId,
-                }"
+                :class="{ 'is-settled': banner.id === settledId }"
                 :src="banner.src"
                 alt=""
                 decoding="async"
@@ -172,24 +299,9 @@ onBeforeUnmount(() => {
     border-radius: 0;
 }
 
-/* Keep the outgoing banner opaque so the fade does not show the page behind it. */
-.hero-banners__image.is-under {
-    z-index: 0;
-    opacity: 1;
-}
-
-.hero-banners__image.is-visible {
+/* First paint, before a hover starts a fade. Later fades set opacity inline. */
+.hero-banners__image.is-settled {
     z-index: 1;
     opacity: 1;
-}
-
-.hero-banners.is-live .hero-banners__image.is-visible {
-    transition: opacity 0.6s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .hero-banners.is-live .hero-banners__image.is-visible {
-        transition: none;
-    }
 }
 </style>

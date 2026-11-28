@@ -1,4 +1,3 @@
-import { BODY_FONT_STORAGE_KEY, DEFAULT_BODY_FONT } from './app/utils/fonts';
 import { bgThemeBootScript } from './app/utils/themes';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -61,10 +60,7 @@ export default defineNuxtConfig({
             link: [{ rel: 'icon', type: 'image/png', href: '/favicon.png' }],
             script: [
                 {
-                    innerHTML: bgThemeBootScript({
-                        storageKey: BODY_FONT_STORAGE_KEY,
-                        fallback: DEFAULT_BODY_FONT,
-                    }),
+                    innerHTML: bgThemeBootScript(),
                     tagPosition: 'head',
                 },
             ],

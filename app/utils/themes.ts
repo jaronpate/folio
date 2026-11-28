@@ -1,3 +1,5 @@
+import { forcedFontBootScript } from './fonts';
+
 export const BG_THEMES = [
     { id: 'dusk', label: 'Dusk' },
     { id: 'paper', label: 'Paper' },
@@ -59,10 +61,7 @@ export function resolveBgTheme(
  * Blocking head script. Mirrors `resolveBgTheme` so the first paint matches
  * the theme Vue applies after hydration.
  */
-export function bgThemeBootScript(font: {
-    storageKey: string;
-    fallback: string;
-}): string {
+export function bgThemeBootScript(): string {
     const ids = BG_THEMES.map((theme) => theme.id);
     const light = ids.filter((id) => colorModeForTheme(id) === 'light');
     const fallbackMode =
@@ -70,5 +69,5 @@ export function bgThemeBootScript(font: {
             ? 'light-mode'
             : 'dark-mode';
 
-    return `(function(){try{var allowed=${JSON.stringify(Object.fromEntries(ids.map((id) => [id, 1])))};var light=${JSON.stringify(light)};var themes=${JSON.stringify(ids)};var root=document.documentElement;var forced=root.getAttribute(${JSON.stringify(FORCED_THEME_ATTR)});var saved=localStorage.getItem(${JSON.stringify(BG_THEME_STORAGE_KEY)});var t=(forced&&allowed[forced])?forced:((saved&&allowed[saved])?saved:${JSON.stringify(DEFAULT_BG_THEME)});var f=localStorage.getItem(${JSON.stringify(font.storageKey)})||${JSON.stringify(font.fallback)};var m=light.indexOf(t)!==-1?'light-mode':'dark-mode';root.classList.remove('light-mode','dark-mode');for(var i=0;i<themes.length;i++){root.classList.remove('theme-'+themes[i]);}root.classList.add('theme-'+t,'font-'+f,m,'is-loading');}catch(e){document.documentElement.classList.add(${JSON.stringify(`theme-${DEFAULT_BG_THEME}`)},${JSON.stringify(`font-${font.fallback}`)},${JSON.stringify(fallbackMode)},'is-loading');}setTimeout(function(){document.documentElement.classList.remove('is-loading')},4000);})();`;
+    return `(function(){try{var allowed=${JSON.stringify(Object.fromEntries(ids.map((id) => [id, 1])))};var light=${JSON.stringify(light)};var themes=${JSON.stringify(ids)};var root=document.documentElement;var forced=root.getAttribute(${JSON.stringify(FORCED_THEME_ATTR)});var saved=localStorage.getItem(${JSON.stringify(BG_THEME_STORAGE_KEY)});var t=(forced&&allowed[forced])?forced:((saved&&allowed[saved])?saved:${JSON.stringify(DEFAULT_BG_THEME)});var m=light.indexOf(t)!==-1?'light-mode':'dark-mode';root.classList.remove('light-mode','dark-mode');for(var i=0;i<themes.length;i++){root.classList.remove('theme-'+themes[i]);}root.classList.add('theme-'+t,m,'is-loading');}catch(e){document.documentElement.classList.add(${JSON.stringify(`theme-${DEFAULT_BG_THEME}`)},${JSON.stringify(fallbackMode)},'is-loading');}${forcedFontBootScript()}setTimeout(function(){document.documentElement.classList.remove('is-loading')},4000);})();`;
 }

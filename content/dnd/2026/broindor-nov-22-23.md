@@ -8,6 +8,7 @@ audioVtt: /dnd/2026/broindor/nov-22-23/transcript.json
 logo: /dnd/broindor/logo.jpg
 banner: /dnd/2026/broindor/nov-22-23/banner.jpg
 theme: slate
+font: plantin
 ---
 
 Of all the creatures known to inhabit the world, there are few so difficult to understand as men who make their living dishonestly.

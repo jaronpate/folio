@@ -1,8 +1,9 @@
 @import './fonts.css';
 
 :root {
-    --font: 'Plantin MT Pro', Georgia, serif;
-    --font-plain: 'SohneBuch', -apple-system, BlinkMacSystemFont, sans-serif;
+    /*--font: 'Plantin MT Pro', Georgia, serif;*/
+    --font: 'Suisse Intl', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-plain: 'Suisse Intl', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
     /* paper + ink from the old site; accent/navy sampled from blend.jpeg */
@@ -17,7 +18,8 @@
     --code-bg: #f3e4e2;
     --img-matte: #e9ebef;
 
-    --body-weight: 300;
+    --body-weight: 400;
+    --sub-text-weight: 200;
     --measure: 38rem;
     --note-width: 13rem;
     --note-gap: 2rem;
@@ -27,6 +29,12 @@
     --col-left: max(var(--page-pad), calc((100vw - var(--cluster)) / 2));
     --gap: 1rem;
     --radius: 4px;
+}
+
+html.font-suisse,
+.font-suisse {
+    --font: 'Suisse Intl', -apple-system, BlinkMacSystemFont, sans-serif;
+    --body-weight: 300;
 }
 
 html.font-plantin,

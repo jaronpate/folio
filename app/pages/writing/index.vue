@@ -17,7 +17,7 @@ const collectionId = `${writingUrl}#collection`;
 const blogId = `${writingUrl}#blog`;
 const writingTitle = 'Writing';
 const writingDescription =
-    "Thoughts I've had here and there. Maybe you'll find something helpful or interesting here.";
+    "Thoughts I've had here and there. Maybe you'll find something helpful or interesting.";
 
 useSeoMeta({
     title: writingTitle,

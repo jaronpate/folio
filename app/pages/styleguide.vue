@@ -24,7 +24,6 @@ const TOKEN_NAMES = [
 const tokenValues = ref<Record<string, string>>({});
 const themeTokens = ref<Record<string, Record<string, string>>>({});
 const { id: themeId, setTheme } = useBgTheme();
-const { id: fontId, setFont } = useBodyFont();
 
 const pageUrl = `${SITE_URL}/styleguide`;
 
@@ -124,12 +123,6 @@ function readThemeTokens() {
     themeTokens.value = next;
 }
 
-function onFontSelect(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    const next = BODY_FONTS.find((font) => font.id === value);
-    if (next) setFont(next.id);
-}
-
 function redactionClass(grade: (typeof REDACTION_STRENGTHS)[number]) {
     return grade === 0 ? 'font-redaction' : `font-redaction-${grade}`;
 }
@@ -227,30 +220,12 @@ onMounted(() => {
             </div>
 
             <h2 id="type">Type</h2>
-            <p>Body font is whatever you pick here.</p>
-            <label class="guide-label">
-                Body font
-                <select
-                    class="guide-select"
-                    :value="fontId"
-                    @change="onFontSelect"
-                >
-                    <option
-                        v-for="font in BODY_FONTS"
-                        :key="font.id"
-                        :value="font.id"
-                    >
-                        {{ font.label }}
-                    </option>
-                </select>
-            </label>
-
             <p>
-                Three jobs: the body face you pick, Sohne for UI, Space Mono for
+                Three jobs: Suisse Intl for reading and UI, Space Mono for
                 code.
             </p>
             <p class="role-plain">
-                Sohne for nav, dates, captions, and this line.
+                Suisse Intl for nav, dates, captions, and this line.
             </p>
             <p class="role-mono">
                 Space Mono for the wordmark, footer, and code.
@@ -302,7 +277,7 @@ onMounted(() => {
             <h3>Lists</h3>
             <p>Bullets, if you need them:</p>
             <ul>
-                <li>Plantin for reading</li>
+                <li>Suisse Intl for reading</li>
                 <li>Space Mono for the wordmark, footer, and code</li>
                 <li>Redaction only if you ask for it</li>
             </ul>
@@ -567,34 +542,6 @@ onMounted(() => {
 
 .theme-card__chip--hairline {
     background: var(--hairline);
-}
-
-.guide-label {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.65rem;
-    margin: 0 0 1em;
-    font-family: var(--font-plain);
-    font-size: 0.8rem;
-    color: var(--muted);
-}
-
-.guide-select {
-    appearance: none;
-    background: var(--bg-secondary);
-    color: var(--text);
-    border: 1px solid var(--hairline);
-    border-radius: var(--radius);
-    font-family: var(--font-plain);
-    font-size: 0.8rem;
-    line-height: 1;
-    padding: 0.4em 1.7em 0.4em 0.65em;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%239aa4b8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.55em center;
-    background-size: 0.5em;
-    cursor: pointer;
 }
 
 .role-plain {

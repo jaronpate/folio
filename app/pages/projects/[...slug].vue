@@ -173,6 +173,7 @@ useHead({
         :title="page ? page.title : folderName"
         :description="projectDescription"
         :forced-theme="page?.theme"
+        :forced-font="page?.font"
     >
         <article v-if="page">
             <div class="article-body">

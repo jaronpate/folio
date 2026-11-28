@@ -1,5 +1,6 @@
 import { defineContentConfig, defineCollection, z } from '@nuxt/content';
 import { BANNER_ALIGNS, type BannerAlign } from './app/utils/banner';
+import { BODY_FONTS, type BodyFontId } from './app/utils/fonts';
 import { BG_THEMES, type BgThemeId } from './app/utils/themes';
 
 const bgThemeIds = BG_THEMES.map((theme) => theme.id) as [
@@ -7,6 +8,12 @@ const bgThemeIds = BG_THEMES.map((theme) => theme.id) as [
     ...BgThemeId[],
 ];
 const bgThemeSchema = z.enum(bgThemeIds);
+
+const bodyFontIds = BODY_FONTS.map((font) => font.id) as [
+    BodyFontId,
+    ...BodyFontId[],
+];
+const bodyFontSchema = z.enum(bodyFontIds);
 
 const bannerAligns = [...BANNER_ALIGNS] as [BannerAlign, ...BannerAlign[]];
 const bannerAlignSchema = z.enum(bannerAligns);
@@ -38,6 +45,8 @@ export default defineContentConfig({
                 bannerAlign: bannerAlignSchema.optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
+                /** Open this page in a font. Other pages keep the site font. */
+                font: bodyFontSchema.optional(),
             }),
         }),
         dnd: defineCollection({
@@ -65,6 +74,8 @@ export default defineContentConfig({
                 bannerAlign: bannerAlignSchema.optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
+                /** Open this page in a font. Other pages keep the site font. */
+                font: bodyFontSchema.optional(),
             }),
         }),
         projects: defineCollection({
@@ -82,6 +93,8 @@ export default defineContentConfig({
                 image: z.string().optional(),
                 /** Open this page in a theme without changing the visitor's saved theme. */
                 theme: bgThemeSchema.optional(),
+                /** Open this page in a font. Other pages keep the site font. */
+                font: bodyFontSchema.optional(),
             }),
         }),
     },

@@ -66,6 +66,7 @@ useHead({
         :banners="banners"
         :active-banner-id="activeBannerId"
         :forced-theme="featured?.theme"
+        :forced-font="featured?.font"
     >
         <article>
             <WritingList

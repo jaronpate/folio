@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import {
-    BODY_FONT_STORAGE_KEY,
-    DEFAULT_BODY_FONT,
-} from '../app/utils/fonts.ts';
+import { BODY_FONTS, FORCED_FONT_ATTR } from '../app/utils/fonts.ts';
 import {
     BG_THEME_STORAGE_KEY,
     BG_THEMES,
@@ -14,15 +11,12 @@ import {
     type BgThemeId,
 } from '../app/utils/themes.ts';
 
-const script = bgThemeBootScript({
-    storageKey: BODY_FONT_STORAGE_KEY,
-    fallback: DEFAULT_BODY_FONT,
-});
+const script = bgThemeBootScript();
 
 function runBootScript(options: {
     forced?: string | null;
+    forcedFont?: string | null;
     saved?: string | null;
-    font?: string | null;
     initialClasses?: string[];
 }) {
     const classes = new Set(options.initialClasses ?? []);
@@ -30,15 +24,13 @@ function runBootScript(options: {
     if (options.saved != null) {
         storage.set(BG_THEME_STORAGE_KEY, options.saved);
     }
-    if (options.font != null) {
-        storage.set(BODY_FONT_STORAGE_KEY, options.font);
-    }
     let wroteStorage = false;
     const document = {
         documentElement: {
             getAttribute(name: string) {
-                if (name !== FORCED_THEME_ATTR) return null;
-                return options.forced ?? null;
+                if (name === FORCED_THEME_ATTR) return options.forced ?? null;
+                if (name === FORCED_FONT_ATTR) return options.forcedFont ?? null;
+                return null;
             },
             classList: {
                 add(...names: string[]) {
@@ -136,11 +128,39 @@ describe('bgThemeBootScript', () => {
         }
     });
 
-    test('keeps the saved font', () => {
+    test('clears font classes when nothing is forced', () => {
         const { classes } = runBootScript({
             saved: 'dusk' satisfies BgThemeId,
-            font: 'sohne',
+            initialClasses: ['font-plantin', 'theme-dusk'],
         });
-        expect(classes.has('font-sohne')).toBe(true);
+        expect([...classes].some((name) => name.startsWith('font-'))).toBe(
+            false,
+        );
+        expect(classes.has('theme-dusk')).toBe(true);
+        expect(script.includes('body-font')).toBe(false);
+    });
+
+    test('adds only the forced font class', () => {
+        const { classes } = runBootScript({
+            forced: 'slate',
+            forcedFont: 'plantin',
+            saved: 'dusk',
+            initialClasses: ['font-suisse', 'theme-dusk'],
+        });
+        expect(classes.has('font-plantin')).toBe(true);
+        expect(classes.has('theme-slate')).toBe(true);
+        for (const font of BODY_FONTS) {
+            expect(classes.has(`font-${font.id}`)).toBe(font.id === 'plantin');
+        }
+    });
+
+    test('ignores an unknown forced font', () => {
+        const { classes } = runBootScript({
+            forcedFont: 'comic-sans',
+            initialClasses: ['font-sohne'],
+        });
+        expect([...classes].some((name) => name.startsWith('font-'))).toBe(
+            false,
+        );
     });
 });

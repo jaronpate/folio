@@ -8,6 +8,7 @@ audioVtt: /dnd/2026/broindor/oct-25-30/transcript.json
 logo: /dnd/broindor/logo.jpg
 banner: /dnd/2026/broindor/oct-25-30/banner.jpg
 theme: slate
+font: plantin
 ---
 
 There are tales of great heroes who set forth to challenge ancient evils, restore fallen kingdoms, and bring light to the darkest corners of the world.

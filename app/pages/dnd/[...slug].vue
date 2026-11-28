@@ -72,6 +72,7 @@ useHead({
         :banner="page.banner"
         :banner-align="page.bannerAlign"
         :forced-theme="page.theme"
+        :forced-font="page.font"
     >
         <article>
             <div class="article-body">

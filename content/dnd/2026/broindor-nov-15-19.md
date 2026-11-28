@@ -8,6 +8,7 @@ audioVtt: /dnd/2026/broindor/nov-15-19/transcript.json
 logo: /dnd/broindor/logo.jpg
 banner: /dnd/2026/broindor/nov-15-19/banner.jpg
 theme: slate
+font: plantin
 ---
 
 There are certain dangers for which every adventurer ought to prepare before visiting a foreign city: cutpurses, assassins, unscrupulous merchants, and the occasional corrupt magistrate.

@@ -198,6 +198,7 @@ useHead({
         :banner="page?.banner"
         :banner-align="page?.bannerAlign"
         :forced-theme="page?.theme"
+        :forced-font="page?.font"
     >
         <article v-if="page">
             <div class="article-body">

@@ -185,7 +185,29 @@ useHead({
     title="Hey, I'm Jaron"
     :description="DEFAULT_DESCRIPTION">
         <article>
-            <h3>Selected Work</h3>
+            <p>
+                I left school and moved to Austin in 2022 to write code full time.
+                Four years later I couldn't be happier. It's one of the best and
+                most life changing decisions I've ever made. I've learned a lot since then
+                and am <em>still</em> looking for more challenges.
+            </p>
+            <p>
+                These days I lead some greenfield projects at <a href="https://ed.link">Edlink</a>.
+                There are also several core systems I have built and maintain such as our billing system.
+            </p>
+            <p>
+                In a time where code is cheap I pride myself in taste and
+                execution. The best sticking point (in my limited opinion so far)
+                is the way using your product <em>feels</em>. So I want
+                everything we make to simply <em>feel</em> the best to use.
+            </p>
+            <p>
+                If you want to connect
+                <a href="mailto:yo@jp.wtf">hit me up</a> — we'll grab a coffee or
+                beer if you're in Austin!
+            </p>
+
+            <!-- <h3>Selected Work</h3>
             <template v-for="work in selectedWorks" :key="work.title">
                 <p>
                     <pre><a :href="work.link" target="_blank" rel="noopener">{{
@@ -195,9 +217,9 @@ useHead({
                 <div class="work-carousel">
                     <Carousel :images="work.images" />
                 </div>
-            </template>
+            </template> -->
 
-            <h3>Projects</h3>
+            <h3>Things I've Made</h3>
             <ul>
                 <li v-for="project in projects" :key="project.href">
                     <p>
@@ -208,31 +230,6 @@ useHead({
                     </p>
                 </li>
             </ul>
-
-            <h3>About</h3>
-            <p>
-                I left school, my job, and moved to Austin in 2022 to write code
-                full time. That was definitely one of the best and most life
-                changing decisions I've ever made. I've learned a lot since then
-                and <em>still</em> have much more to learn.
-            </p>
-            <p>
-                These days I build things because I find joy in making something
-                someone else really enjoys using. I get excited about reaching a
-                level of polish that users don't even notice.
-            </p>
-            <p>
-                In a time where code is cheap I pride myself in taste and
-                execution. The best sticking point (in my limited opinion so far)
-                is the way using your product <em>feels</em>. So I want
-                everything I make to simply <em>feel</em> the best to use.
-            </p>
-            <p>
-                If you want to build something cool or connect
-                <a href="mailto:yo@jp.wtf">hit me up</a> — we'll grab a coffee or
-                beer if you're in Austin! I still dont know enough people to form
-                a band yet ;)
-            </p>
         </article>
     </NuxtLayout>
 </template>
