@@ -17,8 +17,17 @@ const TITLE = '.hero__title';
 const BLOCK =
     'p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, .hero__title';
 const WAKE = 'spoken-wake';
-const SCROLL_TOP = 150;
+const SCROLL_TOP = 48;
 const SCROLL_BOTTOM = 32;
+
+function scrollBottomInset() {
+    if (typeof document === 'undefined') return SCROLL_BOTTOM;
+    const dock = document.querySelector<HTMLElement>('.audio-player.is-docked');
+    if (!dock) return SCROLL_BOTTOM;
+    const covered = window.innerHeight - dock.getBoundingClientRect().top;
+    if (!Number.isFinite(covered) || covered <= 0) return SCROLL_BOTTOM;
+    return covered + 12;
+}
 
 function supportsHighlight() {
     return (
@@ -98,14 +107,14 @@ function inView(range: Range) {
     if (rect.width === 0 && rect.height === 0) return false;
     return (
         rect.top >= SCROLL_TOP &&
-        rect.bottom <= window.innerHeight - SCROLL_BOTTOM
+        rect.bottom <= window.innerHeight - scrollBottomInset()
     );
 }
 
 function reveal(range: Range) {
     const rect = range.getBoundingClientRect();
     if (rect.width === 0 && rect.height === 0) return false;
-    const bottomLimit = window.innerHeight - SCROLL_BOTTOM;
+    const bottomLimit = window.innerHeight - scrollBottomInset();
     if (rect.top >= SCROLL_TOP && rect.bottom <= bottomLimit) return false;
     const reduce = window.matchMedia(
         '(prefers-reduced-motion: reduce)',

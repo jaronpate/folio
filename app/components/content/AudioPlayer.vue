@@ -25,7 +25,8 @@ const props = withDefaults(
         /** When false, title stays in Media Session metadata only. */
         showTitle?: boolean;
         download?: boolean | string;
-        sticky?: boolean;
+        /** Keep the player on screen: slide it up from the bottom after it scrolls away. */
+        dock?: boolean;
         vtt?: string;
         /**
          * Known length in seconds. Lets the timeline show duration without
@@ -39,7 +40,7 @@ const props = withDefaults(
         title: '',
         showTitle: true,
         download: false,
-        sticky: false,
+        dock: false,
         vtt: '',
         durationSeconds: null,
         artwork: '',
@@ -95,7 +96,14 @@ function artworkType(src: string) {
 
 function mediaArtworkEntries(src: string) {
     const type = artworkType(src);
-    const sizes = ['96x96', '128x128', '192x192', '256x256', '384x384', '512x512'];
+    const sizes = [
+        '96x96',
+        '128x128',
+        '192x192',
+        '256x256',
+        '384x384',
+        '512x512',
+    ];
     return sizes.map((size) => ({
         src,
         sizes: size,
@@ -110,8 +118,15 @@ const downloadName = computed(() => {
 
 const audio = ref<HTMLAudioElement | null>(null);
 const playerEl = ref<HTMLElement | null>(null);
-const sentinel = ref<HTMLElement | null>(null);
-const pinned = ref(false);
+const slotEl = ref<HTMLElement | null>(null);
+const docked = ref(false);
+const slotHeight = ref(0);
+/** Stay docked until the article player is clearly back, so a 1px measure error cannot flicker. */
+const DOCK_RELEASE_PX = 4;
+
+const slotStyle = computed(() =>
+    docked.value ? { height: `${slotHeight.value}px` } : undefined,
+);
 const playing = ref(false);
 const current = ref(0);
 const duration = ref(0);
@@ -524,7 +539,111 @@ watch([current, duration, rate], () => {
     if (playing.value) syncMediaPosition();
 });
 
-let pinObserver: IntersectionObserver | null = null;
+let dockObserver: IntersectionObserver | null = null;
+let dockResize: ResizeObserver | null = null;
+let dockFrame = 0;
+
+function playerBlockHeight() {
+    const player = playerEl.value;
+    if (!player) return 0;
+    const height = player.getBoundingClientRect().height;
+    return Number.isFinite(height) ? height : 0;
+}
+
+function setDockClearance(height: number) {
+    document.documentElement.style.setProperty(
+        '--audio-dock-height',
+        `${height}px`,
+    );
+}
+
+function clearDockClearance() {
+    document.documentElement.style.removeProperty('--audio-dock-height');
+}
+
+function setDocked(next: boolean) {
+    if (next === docked.value) return;
+    if (next) {
+        const height = playerBlockHeight();
+        // Measuring after the bar styles apply would size the spacer to the
+        // dock instead of the hole the article player leaves behind.
+        if (height <= 0) return;
+        slotHeight.value = height;
+        setDockClearance(height);
+    } else {
+        clearDockClearance();
+    }
+    docked.value = next;
+    if (!next) return;
+    void nextTick(() => {
+        if (!docked.value) return;
+        const height = playerBlockHeight();
+        if (height > 0) setDockClearance(height);
+    });
+}
+
+function onDockGeometry() {
+    scheduleDockSync();
+    if (!docked.value) return;
+    const height = playerBlockHeight();
+    if (height > 0) setDockClearance(height);
+}
+
+function syncDockFromBottom(bottom: number) {
+    if (docked.value) {
+        if (bottom > DOCK_RELEASE_PX) setDocked(false);
+        return;
+    }
+    if (bottom <= 0) setDocked(true);
+}
+
+// IntersectionObserver can deliver several positions in one callback, and the
+// first is already stale after a fast scroll. Measure on the next frame instead.
+function scheduleDockSync() {
+    if (dockFrame) return;
+    dockFrame = window.requestAnimationFrame(() => {
+        dockFrame = 0;
+        const slot = slotEl.value;
+        if (!slot) return;
+        syncDockFromBottom(slot.getBoundingClientRect().bottom);
+    });
+}
+
+function watchDock() {
+    const slot = slotEl.value;
+    if (!props.dock || !slot || typeof IntersectionObserver === 'undefined') {
+        return;
+    }
+    dockObserver = new IntersectionObserver(() => {
+        scheduleDockSync();
+    });
+    dockObserver.observe(slot);
+    window.addEventListener('scroll', scheduleDockSync, { passive: true });
+    window.addEventListener('resize', onDockGeometry);
+    window.visualViewport?.addEventListener('resize', onDockGeometry);
+    if (typeof ResizeObserver !== 'undefined' && playerEl.value) {
+        dockResize = new ResizeObserver(() => {
+            onDockGeometry();
+        });
+        dockResize.observe(playerEl.value);
+    }
+    scheduleDockSync();
+}
+
+function unwatchDock() {
+    if (dockFrame) {
+        window.cancelAnimationFrame(dockFrame);
+        dockFrame = 0;
+    }
+    dockObserver?.disconnect();
+    dockObserver = null;
+    dockResize?.disconnect();
+    dockResize = null;
+    window.removeEventListener('scroll', scheduleDockSync);
+    window.removeEventListener('resize', onDockGeometry);
+    window.visualViewport?.removeEventListener('resize', onDockGeometry);
+    clearDockClearance();
+}
 
 onMounted(() => {
     applyVolume();
@@ -544,16 +663,11 @@ onMounted(() => {
         }
     }
 
-    const mark = sentinel.value;
-    if (!props.sticky || !mark) return;
-    pinObserver = new IntersectionObserver(([entry]) => {
-        pinned.value = !!entry && entry.boundingClientRect.top < 0;
-    });
-    pinObserver.observe(mark);
+    watchDock();
 });
 
 onBeforeUnmount(() => {
-    pinObserver?.disconnect();
+    unwatchDock();
     window.clearTimeout(seekTimer);
     if (!('mediaSession' in navigator)) return;
     const session = navigator.mediaSession;
@@ -576,196 +690,204 @@ onBeforeUnmount(() => {
 
 <template>
     <div
-        v-if="resolvedSrc && sticky"
-        ref="sentinel"
-        class="audio-player__sentinel"
-        aria-hidden="true"
-    />
-    <div
         v-if="resolvedSrc"
-        ref="playerEl"
-        class="audio-player"
-        :class="{
-            'audio-player--sticky': sticky,
-            'is-pinned': pinned,
-        }"
-        role="region"
-        :aria-labelledby="visibleTitle ? titleId : undefined"
-        :aria-label="visibleTitle ? undefined : regionLabel"
+        ref="slotEl"
+        class="audio-player__slot"
+        :style="slotStyle"
     >
-        <div class="audio-player__panel">
-            <audio
-                ref="audio"
-                class="audio-player__media"
-                :src="resolvedSrc"
-                preload="none"
-                playsinline
-                @loadedmetadata="onLoaded"
-                @durationchange="onDuration"
-                @progress="commitHeldSeek"
-                @canplay="commitHeldSeek"
-                @timeupdate="onTime"
-                @play="onPlay"
-                @pause="onPause"
-                @ended="onEnded"
-                @seeked="onSeeked"
-                @error="onError"
-            />
+        <div
+            ref="playerEl"
+            class="audio-player"
+            :class="{ 'is-docked': docked }"
+            role="region"
+            :aria-labelledby="visibleTitle ? titleId : undefined"
+            :aria-label="visibleTitle ? undefined : regionLabel"
+        >
+            <div class="audio-player__panel">
+                <audio
+                    ref="audio"
+                    class="audio-player__media"
+                    :src="resolvedSrc"
+                    preload="none"
+                    playsinline
+                    @loadedmetadata="onLoaded"
+                    @durationchange="onDuration"
+                    @progress="commitHeldSeek"
+                    @canplay="commitHeldSeek"
+                    @timeupdate="onTime"
+                    @play="onPlay"
+                    @pause="onPause"
+                    @ended="onEnded"
+                    @seeked="onSeeked"
+                    @error="onError"
+                />
 
-            <div v-if="visibleTitle || canDownload" class="audio-player__head">
-                <p
-                    v-if="visibleTitle"
-                    :id="titleId"
-                    class="audio-player__title"
+                <div
+                    v-if="visibleTitle || canDownload"
+                    class="audio-player__head"
                 >
-                    {{ mediaTitle }}
-                </p>
-                <a
-                    v-if="canDownload"
-                    class="audio-player__download"
-                    :href="resolvedSrc"
-                    :download="downloadName"
-                >
-                    <span
-                        class="audio-player__download-icon"
-                        aria-hidden="true"
+                    <p
+                        v-if="visibleTitle"
+                        :id="titleId"
+                        class="audio-player__title"
                     >
-                        <IconoirProvider :icon-props="downloadIcon">
-                            <Download />
-                        </IconoirProvider>
-                    </span>
-                    Download
-                </a>
-            </div>
+                        {{ mediaTitle }}
+                    </p>
+                    <a
+                        v-if="canDownload"
+                        class="audio-player__download"
+                        :href="resolvedSrc"
+                        :download="downloadName"
+                    >
+                        <span
+                            class="audio-player__download-icon"
+                            aria-hidden="true"
+                        >
+                            <IconoirProvider :icon-props="downloadIcon">
+                                <Download />
+                            </IconoirProvider>
+                        </span>
+                        Download
+                    </a>
+                </div>
 
-            <div class="audio-player__bar">
-                <IconoirProvider :icon-props="iconSize">
-                    <div class="audio-player__transport">
-                        <button
-                            type="button"
-                            class="audio-player__skip"
-                            aria-label="Back 15 seconds"
-                            :disabled="!canSeek"
-                            @click="skip(-15)"
-                        >
-                            <Backward15Seconds />
-                        </button>
-                        <button
-                            type="button"
-                            class="audio-player__play"
-                            :aria-label="playing ? 'Pause' : 'Play'"
-                            @click="toggle"
-                        >
-                            <span
-                                v-if="!playing"
-                                class="audio-player__glyph--play"
+                <div class="audio-player__bar">
+                    <IconoirProvider :icon-props="iconSize">
+                        <div class="audio-player__transport">
+                            <button
+                                type="button"
+                                class="audio-player__skip"
+                                aria-label="Back 15 seconds"
+                                :disabled="!canSeek"
+                                @click="skip(-15)"
                             >
-                                <PlaySolid />
-                            </span>
-                            <PauseSolid v-else />
-                        </button>
-                        <button
-                            type="button"
-                            class="audio-player__skip"
-                            aria-label="Forward 15 seconds"
-                            :disabled="!canSeek"
-                            @click="skip(15)"
+                                <Backward15Seconds />
+                            </button>
+                            <button
+                                type="button"
+                                class="audio-player__play"
+                                :aria-label="playing ? 'Pause' : 'Play'"
+                                @click="toggle"
+                            >
+                                <span
+                                    v-if="!playing"
+                                    class="audio-player__glyph--play"
+                                >
+                                    <PlaySolid />
+                                </span>
+                                <PauseSolid v-else />
+                            </button>
+                            <button
+                                type="button"
+                                class="audio-player__skip"
+                                aria-label="Forward 15 seconds"
+                                :disabled="!canSeek"
+                                @click="skip(15)"
+                            >
+                                <Forward15Seconds />
+                            </button>
+                        </div>
+                    </IconoirProvider>
+
+                    <div class="audio-player__timeline">
+                        <span class="audio-player__time">
+                            <span class="audio-player__sr">Elapsed</span>
+                            {{ formatTime(current) }}
+                        </span>
+
+                        <div class="audio-player__seek">
+                            <input
+                                class="audio-player__range"
+                                type="range"
+                                min="0"
+                                :max="canSeek ? duration : 0"
+                                step="any"
+                                :value="current"
+                                :disabled="!canSeek"
+                                :style="{ '--fill': seekFill }"
+                                :aria-valuetext="formatTime(current)"
+                                aria-label="Seek"
+                                @input="onSeekInput"
+                                @change="finishSeek"
+                                @pointerup="finishSeek"
+                                @keyup="finishSeek"
+                            />
+                        </div>
+
+                        <span
+                            class="audio-player__time audio-player__time--total"
                         >
-                            <Forward15Seconds />
-                        </button>
+                            <span class="audio-player__sr">Duration</span>
+                            {{ formatTime(duration) }}
+                        </span>
                     </div>
-                </IconoirProvider>
 
-                <div class="audio-player__timeline">
-                    <span class="audio-player__time">
-                        <span class="audio-player__sr">Elapsed</span>
-                        {{ formatTime(current) }}
-                    </span>
+                    <button
+                        type="button"
+                        class="audio-player__speed"
+                        :aria-label="`Playback speed ${rateLabel}`"
+                        :aria-valuetext="rateLabel"
+                        @click="cycleRate"
+                    >
+                        {{ rateLabel }}
+                    </button>
 
-                    <div class="audio-player__seek">
+                    <div class="audio-player__volume">
+                        <IconoirProvider :icon-props="volumeIcon">
+                            <button
+                                type="button"
+                                class="audio-player__mute"
+                                :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
+                                @click="toggleMute"
+                            >
+                                <span
+                                    class="audio-player__volume-glyph"
+                                    :class="`audio-player__volume-glyph--${volumeGlyph}`"
+                                >
+                                    <SoundOffSolid
+                                        v-if="volumeGlyph === 'off'"
+                                    />
+                                    <SoundMinSolid
+                                        v-else-if="volumeGlyph === 'min'"
+                                    />
+                                    <SoundLowSolid
+                                        v-else-if="volumeGlyph === 'low'"
+                                    />
+                                    <SoundHighSolid v-else />
+                                </span>
+                            </button>
+                        </IconoirProvider>
                         <input
-                            class="audio-player__range"
+                            class="audio-player__range audio-player__level"
                             type="range"
                             min="0"
-                            :max="canSeek ? duration : 0"
-                            step="any"
-                            :value="current"
-                            :disabled="!canSeek"
-                            :style="{ '--fill': seekFill }"
-                            :aria-valuetext="formatTime(current)"
-                            aria-label="Seek"
-                            @input="onSeekInput"
-                            @change="finishSeek"
-                            @pointerup="finishSeek"
-                            @keyup="finishSeek"
+                            max="1"
+                            step="0.01"
+                            :value="volume"
+                            :style="{ '--fill': volumeFill }"
+                            :aria-valuetext="`${Math.round(volume * 100)}%`"
+                            aria-label="Volume"
+                            @input="onVolumeInput"
                         />
                     </div>
-
-                    <span class="audio-player__time audio-player__time--total">
-                        <span class="audio-player__sr">Duration</span>
-                        {{ formatTime(duration) }}
-                    </span>
                 </div>
 
-                <button
-                    type="button"
-                    class="audio-player__speed"
-                    :aria-label="`Playback speed ${rateLabel}`"
-                    :aria-valuetext="rateLabel"
-                    @click="cycleRate"
-                >
-                    {{ rateLabel }}
-                </button>
-
-                <div class="audio-player__volume">
-                    <IconoirProvider :icon-props="volumeIcon">
-                        <button
-                            type="button"
-                            class="audio-player__mute"
-                            :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
-                            @click="toggleMute"
-                        >
-                            <span
-                                class="audio-player__volume-glyph"
-                                :class="`audio-player__volume-glyph--${volumeGlyph}`"
-                            >
-                                <SoundOffSolid v-if="volumeGlyph === 'off'" />
-                                <SoundMinSolid
-                                    v-else-if="volumeGlyph === 'min'"
-                                />
-                                <SoundLowSolid
-                                    v-else-if="volumeGlyph === 'low'"
-                                />
-                                <SoundHighSolid v-else />
-                            </span>
-                        </button>
-                    </IconoirProvider>
-                    <input
-                        class="audio-player__range audio-player__level"
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        :value="volume"
-                        :style="{ '--fill': volumeFill }"
-                        :aria-valuetext="`${Math.round(volume * 100)}%`"
-                        aria-label="Volume"
-                        @input="onVolumeInput"
-                    />
-                </div>
+                <p v-if="failed" class="audio-player__error">
+                    This recording didn't load.
+                </p>
             </div>
-
-            <p v-if="failed" class="audio-player__error">
-                This recording didn't load.
-            </p>
         </div>
     </div>
 </template>
 
 <style scoped>
+.audio-player__slot {
+    margin: 1.25rem 0;
+    overflow-anchor: none;
+}
+
 .audio-player {
     position: relative;
-    margin: 1.25rem 0;
 }
 
 .audio-player__panel {
@@ -777,35 +899,45 @@ onBeforeUnmount(() => {
     background: var(--bg);
 }
 
-.audio-player__sentinel {
-    height: 0;
+.audio-player.is-docked {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
     margin: 0;
+    padding: 0.7rem var(--col-left)
+        calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    background: var(--bg);
+    border-top: 1px solid var(--hairline);
+    box-shadow: 0 -16px 36px -28px rgba(0, 0, 0, 0.85);
+    animation: audio-player-dock-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.audio-player.is-docked .audio-player__panel {
+    width: var(--col);
+    max-width: 100%;
     padding: 0;
     border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
-.audio-player.audio-player--sticky {
-    --stick-gap: 0.5rem;
-    position: sticky;
-    top: var(--stick-gap);
-    z-index: 5;
-    margin-top: 0;
+@keyframes audio-player-dock-in {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
 }
 
-.audio-player.is-pinned::before {
-    content: '';
-    position: absolute;
-    z-index: 0;
-    left: -0.5rem;
-    right: -0.5rem;
-    top: calc(-1 * var(--stick-gap) - 0.5rem);
-    bottom: -0.5rem;
-    background: var(--bg);
-    pointer-events: none;
-}
-
-.audio-player.is-pinned .audio-player__panel {
-    box-shadow: 0 10px 22px -16px rgba(0, 0, 0, 0.7);
+@media (prefers-reduced-motion: reduce) {
+    .audio-player.is-docked {
+        animation: none;
+    }
 }
 
 .audio-player__media {
@@ -1153,6 +1285,10 @@ onBeforeUnmount(() => {
 </style>
 
 <style>
+body:has(.audio-player.is-docked) {
+    padding-bottom: calc(var(--audio-dock-height, 5.5rem) + 0.35rem);
+}
+
 ::highlight(spoken) {
     background-color: var(--accent);
     color: #fff;
